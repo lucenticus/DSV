@@ -20,7 +20,7 @@
 %%
 
 primary_expression
-	: IDENTIFIER
+	: IDENTIFIER { fprintf(yyout, "test:%s", yytext);}
 	| CONSTANT
 	| STRING_LITERAL
 	| '(' expression ')'
@@ -157,15 +157,15 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';'
+	: declaration_specifiers ';' 
 	| declaration_specifiers init_declarator_list ';'
 	;
 
 declaration_specifiers
-	: storage_class_specifier
-	| storage_class_specifier declaration_specifiers
+	: storage_class_specifier 
+	| storage_class_specifier declaration_specifiers { if ($1 == TYPEDEF) addref(yytext, ID_TYPE); }
 	| type_specifier
-	| type_specifier declaration_specifiers {fprintf(yyout, "TEST");}
+	| type_specifier declaration_specifiers 
 	| type_qualifier
 	| type_qualifier declaration_specifiers 
 	;
@@ -181,7 +181,7 @@ init_declarator
 	;
 
 storage_class_specifier
-	: TYPEDEF
+	: TYPEDEF {$$=TYPEDEF;}
 	| EXTERN
 	| STATIC
 	| AUTO
@@ -204,14 +204,14 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union IDENTIFIER
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}' 	{fprintf(yyout,"test1");}
+	| struct_or_union '{' struct_declaration_list '}' 		{fprintf(yyout,"test2");}
+	| struct_or_union IDENTIFIER					{fprintf(yyout,"test2");}
 	;
 
 struct_or_union
-	: STRUCT
-	| UNION
+	: STRUCT { $$=STRUCT; }
+	| UNION	 { $$=UNION; }
 	;
 
 struct_declaration_list
@@ -443,6 +443,7 @@ int main(int argc, char *argv[])
 	}
 	yyin = in;
 	yyout = out;
+	addref("__builtin_va_list", ID_TYPE);
 	return (yyparse());
     }
     return 1;

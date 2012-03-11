@@ -1921,17 +1921,66 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 81:
+        case 2:
 
 /* Line 1455 of yacc.c  */
-#line 168 "ansi-c.y"
-    {fprintf(yyout, "TEST");;}
+#line 23 "ansi-c.y"
+    { fprintf(yyout, "test:%s", yytext);;}
+    break;
+
+  case 79:
+
+/* Line 1455 of yacc.c  */
+#line 166 "ansi-c.y"
+    { if ((yyvsp[(1) - (2)]) == TYPEDEF) addref(yytext, ID_TYPE); ;}
+    break;
+
+  case 88:
+
+/* Line 1455 of yacc.c  */
+#line 184 "ansi-c.y"
+    {(yyval)=TYPEDEF;;}
+    break;
+
+  case 105:
+
+/* Line 1455 of yacc.c  */
+#line 207 "ansi-c.y"
+    {fprintf(yyout,"test1");;}
+    break;
+
+  case 106:
+
+/* Line 1455 of yacc.c  */
+#line 208 "ansi-c.y"
+    {fprintf(yyout,"test2");;}
+    break;
+
+  case 107:
+
+/* Line 1455 of yacc.c  */
+#line 209 "ansi-c.y"
+    {fprintf(yyout,"test2");;}
+    break;
+
+  case 108:
+
+/* Line 1455 of yacc.c  */
+#line 213 "ansi-c.y"
+    { (yyval)=STRUCT; ;}
+    break;
+
+  case 109:
+
+/* Line 1455 of yacc.c  */
+#line 214 "ansi-c.y"
+    { (yyval)=UNION; ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1935 "ansi-c.tab.c"
+#line 1984 "ansi-c.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2167,6 +2216,7 @@ int main(int argc, char *argv[])
 	}
 	yyin = in;
 	yyout = out;
+	addref("__builtin_va_list", ID_TYPE);
 	return (yyparse());
     }
     return 1;

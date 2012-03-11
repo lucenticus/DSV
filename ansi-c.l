@@ -4,11 +4,16 @@ H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 FS			(f|F|l|L)
 IS			(u|U|l|L)*
+%option noyywrap yylineno
 %x IFILE
 
 %{
 #include <stdio.h>
 #include "ansi-c.tab.h"
+
+#define ID_VARIABLE 	(1)
+#define ID_TYPE 	(2)
+#define ID_STRUCT 	(3)
 void count();
 void preprocess();
 struct bufstack {
@@ -19,9 +24,26 @@ struct bufstack {
     FILE *f;
 } *curbs = 0;
 char *curfilename;
-
 int newfile(char *fn);
 int popfile(void);
+
+#define NHASH (9997)
+
+struct symbol {
+    char *name;
+    struct ref *reflist;
+};
+
+struct ref {
+    struct ref *next;
+    char *filename;
+    int type;
+};
+
+struct symbol symtab[NHASH];
+
+struct symbol *lookup(char*);
+void addref(char*, int);
 
 %}
 %%
@@ -31,11 +53,13 @@ int popfile(void);
 "__extension__"		{ }
 "__inline__"		{ }
 "__typeof__"		{ }
+"__attribute__"[ \t]*"((".*"))"	{}
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
 "case"			{ count(); return(CASE); }
 "char"			{ count(); return(CHAR); }
 "const"			{ count(); return(CONST); }
+"__const"		{ count(); return(CONST); }
 "continue"		{ count(); return(CONTINUE); }
 "default"		{ count(); return(DEFAULT); }
 "do"			{ count(); return(DO); }
@@ -124,26 +148,13 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 "|"			{ count(); return('|'); }
 "?"			{ count(); return('?'); }
 
-[ \t\v\n\f]		{ count(); }
+[ \t\v\n\f]		{ count (); }
+
 .			{ /* ignore bad characters */ }
 
 %%
 
-yywrap()
-{
-	return(1);
-}
 
-void preprocess()
-{
-	char c, c1;
-loop:
-	while (((c = input()) != '\\' || c != '\n') && c != EOF) {
-		fprintf(yyout,"%c", c);
-	}
-	if (c != '\n' && (c1 = input()) == '\n' && c != EOF)
-	    goto loop;
-}
 comment()
 {
 	char c, c1;
@@ -183,68 +194,55 @@ void count()
 int check_type()
 {
 
-/*	if (yytext == type_name)
-		return(TYPE_NAME);
-*/
-	return(IDENTIFIER);
+    struct symbol *sp = lookup(yytext);
+    if (sp->reflist && 
+	(sp->reflist->type == ID_TYPE || sp->reflist->type == ID_STRUCT)) {
+	return(TYPE_NAME);
+    }
+    return(IDENTIFIER);
 }
 
-int newfile(char *fn) 
+static unsigned symhash(char *sym) 
 {
-    FILE *f;
-    struct bufstack *bs = malloc(sizeof(struct bufstack));
-    char *fullpath = (char*) malloc(1024 * sizeof(char));
-    memset(fullpath, 0, 1024 * sizeof(char));
-    if ((f = fopen(fn, "r")) == NULL) {
-	fullpath = strcat(fullpath, "/usr/include/");
-	fullpath = strcat(fullpath, fn);
-	f = fopen(fullpath, "r");
-    } else {
-    	fullpath = strcat(fullpath, fn);
-    }
-    if (!f) {
-	perror(fn); 
-	return 0; 
-    }
-    
-    if (!bs) { 
-	perror("malloc"); 
-	exit(1); 
-    }
-    if (curbs) 
-	curbs->lineno = yylineno;
-    bs->prev = curbs;
-
-    bs->bs = yy_create_buffer(f, YY_BUF_SIZE);
-    bs->f = f;
-    bs->filename = fullpath;
-    yy_switch_to_buffer(bs->bs);
-    curbs = bs;
-    yylineno = 1;
-    curfilename = fullpath;
-    printf("\n +++++++ IN FILE : %s +++++\n", curfilename);
-    return 1;
+    unsigned int hash = 0;
+    unsigned c;
+    while (c = *sym++) hash = hash * 9 ^ c;
+    return hash;
 }
 
-int popfile(void) 
+struct symbol* lookup(char *sym) 
 {
-    struct bufstack *bs = curbs;
-    struct bufstack *prevbs;
-    if (!bs)
-	return 0;
-    fclose(bs->f);
-    yy_delete_buffer(bs->bs);
+    struct symbol *sp = &symtab[symhash(sym)%NHASH];
+    int scount = NHASH;
     
-    prevbs = bs->prev;
-    free(bs);
-    
-    if (!prevbs)
-	return 0;
-    yy_switch_to_buffer(prevbs->bs);
+    while (--scount > 0) {
+	if (sp->name && !strcmp(sp->name, sym)) 
+	    return sp;
+	if (!sp->name) {
+	    sp->name = strdup(sym);
+	    sp->reflist = 0;
+	    return sp;
+	}
+	if (++sp >= symtab + NHASH)
+	    sp = symtab;
+    }
+    fputs("symbol table overflow\n", stderr);
+    abort();
+}
 
-    curbs = prevbs;
-    yylineno = curbs->lineno;
-    curfilename = curbs->filename;
-    printf("\n +++++++ IN FILE : %s +++++\n", curfilename);
-    return 1;
+void addref(char *word, int type)
+{
+    /*printf("%s:%d\n", word, type);*/
+    struct ref *r;
+    struct symbol *sp = lookup(word);
+    if (sp->reflist) 
+	return;
+    r = malloc(sizeof(struct ref));
+    if (!r) {
+	fputs("out of space\n",stderr);
+	abort();
+    }
+    r->next = sp->reflist;
+    r->type = type;
+    sp->reflist = r;
 }
