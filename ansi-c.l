@@ -14,18 +14,8 @@ IS			(u|U|l|L)*
 #define ID_VARIABLE 	(1)
 #define ID_TYPE 	(2)
 #define ID_STRUCT 	(3)
+
 void count();
-void preprocess();
-struct bufstack {
-    struct bufstack *prev;
-    YY_BUFFER_STATE bs;
-    int lineno;
-    char *filename;
-    FILE *f;
-} *curbs = 0;
-char *curfilename;
-int newfile(char *fn);
-int popfile(void);
 
 #define NHASH (9997)
 
@@ -36,7 +26,6 @@ struct symbol {
 
 struct ref {
     struct ref *next;
-    char *filename;
     int type;
 };
 
@@ -45,15 +34,19 @@ struct symbol symtab[NHASH];
 struct symbol *lookup(char*);
 void addref(char*, int);
 
+char *prev_yytext;
+
 %}
 %%
 "#".*\n			{ }
 "/*"			{ comment(); }
+"__asm__"[ \t\n]*"(".*")"	{ }
 "__asm__"		{ }
 "__extension__"		{ }
 "__inline__"		{ }
 "__typeof__"		{ }
 "__attribute__"[ \t]*"((".*"))"	{}
+"__restrict"		{ }
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
 "case"			{ count(); return(CASE); }
@@ -88,7 +81,16 @@ void addref(char*, int);
 "volatile"		{ count(); return(VOLATILE); }
 "while"			{ count(); return(WHILE); }
 
-{L}({L}|{D})*		{ count(); return(check_type()); }
+{L}({L}|{D})*		{ 
+			    if (strcmp(prev_yytext, "struct")) { 
+				count(); 
+				return(check_type());
+			    }
+			    else {
+			    	count(); 
+				return (IDENTIFIER);
+			    }
+			}
 
 0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
 0{D}+{IS}?		{ count(); return(CONSTANT); }
@@ -173,7 +175,6 @@ loop:
 		putchar(c1);
 }
 
-
 int column = 0;
 
 void count()
@@ -188,15 +189,15 @@ void count()
 		else
 			column++;
 	ECHO;
+	if (yytext[0] != '\n' && yytext[0] != ' ' && yytext[0] != '\t' && yytext[0] != '\f' && yytext[0] != '\v')
+	prev_yytext = strdup(yytext);
 }
 
 
 int check_type()
 {
-
     struct symbol *sp = lookup(yytext);
-    if (sp->reflist && 
-	(sp->reflist->type == ID_TYPE || sp->reflist->type == ID_STRUCT)) {
+    if (sp->reflist && sp->reflist->type == ID_TYPE) {
 	return(TYPE_NAME);
     }
     return(IDENTIFIER);

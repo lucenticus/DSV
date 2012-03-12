@@ -51,7 +51,7 @@ typedef unsigned int __uint32_t;
  typedef long int __off_t;
  typedef __quad_t __off64_t;
  typedef int __pid_t;
- typedef struct { int __val[2]; }test2 __fsid_t;
+ typedef struct { int __val[2]; } __fsid_t;
  typedef long int __clock_t;
  typedef unsigned long int __rlim_t;
  typedef __u_quad_t __rlim64_t;
@@ -100,17 +100,17 @@ typedef char *__caddr_t;
 
 
  typedef unsigned int __socklen_t;
-struct _IO_FILE;test2
+struct _IO_FILE;
 
 
 
-typedef struct _IO_FILE FILEtest2;
+typedef struct _IO_FILE FILE;
 
 
 
 
 
-typedef struct _IO_FILE __FILEtest2;
+typedef struct _IO_FILE __FILE;
 
 
 
@@ -126,25 +126,25 @@ typedef struct
 
 
     char __wchb[4];
-  }test2 __value;
-}test2 __mbstate_t;
+  } __value;
+} __mbstate_t;
 
 typedef struct
 {
   __off_t __pos;
   __mbstate_t __state;
-}test2 _G_fpos_t;
+} _G_fpos_t;
 typedef struct
 {
   __off64_t __pos;
   __mbstate_t __state;
-}test2 _G_fpos64_t;
+} _G_fpos64_t;
 typedef int _G_int16_t ;
 typedef int _G_int32_t ;
 typedef unsigned int _G_uint16_t ;
 typedef unsigned int _G_uint32_t ;
 typedef __builtin_va_list __gnuc_va_list;
-struct _IO_jump_t;test2 struct _IO_FILE;test2
+struct _IO_jump_t; struct _IO_FILE;
 typedef void _IO_lock_t;
 
 
@@ -152,13 +152,13 @@ typedef void _IO_lock_t;
 
 
 struct _IO_marker {
-  struct _IO_marker *test2_next;
-  struct _IO_FILE *test2_sbuf;
+  struct _IO_marker *_next;
+  struct _IO_FILE *_sbuf;
 
 
 
   int _pos;
-}test1;
+};
 
 
 enum __codecvt_result
@@ -187,9 +187,9 @@ struct _IO_FILE {
   char *_IO_backup_base;
   char *_IO_save_end;
 
-  struct _IO_marker *test2_markers;
+  struct _IO_marker *_markers;
 
-  struct _IO_FILE *test2_chain;
+  struct _IO_FILE *_chain;
 
   int _fileno;
 
@@ -219,17 +219,17 @@ struct _IO_FILE {
 
   char _unused2[15 * sizeof (int) - 4 * sizeof (void *) - sizeof (size_t)];
 
-}test1;
+};
 
 
-typedef struct _IO_FILE _IO_FILEtest2;
+typedef struct _IO_FILE _IO_FILE;
 
 
-struct _IO_FILE_plus;test2
+struct _IO_FILE_plus;
 
-extern struct _IO_FILE_plus _IO_2_1_stdin_test2;
-extern struct _IO_FILE_plus _IO_2_1_stdout_test2;
-extern struct _IO_FILE_plus _IO_2_1_stderr_test2;
+extern struct _IO_FILE_plus _IO_2_1_stdin_;
+extern struct _IO_FILE_plus _IO_2_1_stdout_;
+extern struct _IO_FILE_plus _IO_2_1_stderr_;
 typedef __ssize_t __io_read_fn (void *__cookie, char *__buf, size_t __nbytes);
 
 
@@ -268,9 +268,9 @@ extern int _IO_peekc_locked (_IO_FILE *__fp);
 extern void _IO_flockfile (_IO_FILE *) ;
 extern void _IO_funlockfile (_IO_FILE *) ;
 extern int _IO_ftrylockfile (_IO_FILE *) ;
-extern int _IO_vfscanf (_IO_FILE * __restrict, const char * __restrict,
-   __gnuc_va_list, int *__restrict);
-extern int _IO_vfprintf (_IO_FILE *__restrict, const char *__restrict,
+extern int _IO_vfscanf (_IO_FILE * , const char * ,
+   __gnuc_va_list, int *);
+extern int _IO_vfprintf (_IO_FILE *, const char *,
     __gnuc_va_list);
 extern __ssize_t _IO_padn (_IO_FILE *, int, __ssize_t);
 extern size_t _IO_sgetn (_IO_FILE *, void *, size_t);
@@ -289,6 +289,457 @@ typedef _G_fpos_t fpos_t;
 
 
 
-extern struct _IO_FILE
-                     ^
-          syntax error
+extern struct _IO_FILE *stdin;
+extern struct _IO_FILE *stdout;
+extern struct _IO_FILE *stderr;
+
+
+
+
+
+
+
+extern int remove (__const char *__filename) ;
+
+extern int rename (__const char *__old, __const char *__new) ;
+
+
+
+
+extern int renameat (int __oldfd, __const char *__old, int __newfd,
+       __const char *__new) ;
+
+
+
+
+
+
+
+
+extern FILE *tmpfile (void) ;
+extern char *tmpnam (char *__s)  ;
+
+
+
+
+
+extern char *tmpnam_r (char *__s)  ;
+extern char *tempnam (__const char *__dir, __const char *__pfx)
+      ;
+
+
+
+
+
+
+
+
+extern int fclose (FILE *__stream);
+
+
+
+
+extern int fflush (FILE *__stream);
+
+extern int fflush_unlocked (FILE *__stream);
+
+
+
+
+
+
+extern FILE *fopen (__const char * __filename,
+      __const char * __modes) ;
+
+
+
+
+extern FILE *freopen (__const char * __filename,
+        __const char * __modes,
+        FILE * __stream) ;
+
+extern FILE *fdopen (int __fd, __const char *__modes)  ;
+extern FILE *fmemopen (void *__s, size_t __len, __const char *__modes)
+   ;
+
+
+
+
+extern FILE *open_memstream (char **__bufloc, size_t *__sizeloc)  ;
+
+
+
+
+
+
+extern void setbuf (FILE * __stream, char * __buf) ;
+
+
+
+extern int setvbuf (FILE * __stream, char * __buf,
+      int __modes, size_t __n) ;
+
+
+
+
+
+extern void setbuffer (FILE * __stream, char * __buf,
+         size_t __size) ;
+
+
+extern void setlinebuf (FILE *__stream) ;
+
+
+
+
+
+
+
+
+extern int fprintf (FILE * __stream,
+      __const char * __format, ...);
+
+
+
+
+extern int printf (__const char * __format, ...);
+
+extern int sprintf (char * __s,
+      __const char * __format, ...) ;
+
+
+
+
+
+extern int vfprintf (FILE * __s, __const char * __format,
+       __gnuc_va_list __arg);
+
+
+
+
+extern int vprintf (__const char * __format, __gnuc_va_list __arg);
+
+extern int vsprintf (char * __s, __const char * __format,
+       __gnuc_va_list __arg) ;
+
+
+
+
+
+extern int snprintf (char * __s, size_t __maxlen,
+       __const char * __format, ...)
+     ;
+
+extern int vsnprintf (char * __s, size_t __maxlen,
+        __const char * __format, __gnuc_va_list __arg)
+     ;
+
+extern int vdprintf (int __fd, __const char * __fmt,
+       __gnuc_va_list __arg)
+     ;
+extern int dprintf (int __fd, __const char * __fmt, ...)
+     ;
+
+
+
+
+
+
+
+
+extern int fscanf (FILE * __stream,
+     __const char * __format, ...) ;
+
+
+
+
+extern int scanf (__const char * __format, ...) ;
+
+extern int sscanf (__const char * __s,
+     __const char * __format, ...) ;
+extern int fscanf (FILE * __stream, __const char * __format, ...)  ;
+
+
+extern int scanf (__const char * __format, ...)  ;
+
+extern int sscanf (__const char * __s, __const char * __format, ...) ;
+
+
+
+
+
+
+
+
+extern int vfscanf (FILE * __s, __const char * __format,
+      __gnuc_va_list __arg)
+      ;
+
+
+
+
+
+extern int vscanf (__const char * __format, __gnuc_va_list __arg)
+      ;
+
+
+extern int vsscanf (__const char * __s,
+      __const char * __format, __gnuc_va_list __arg)
+     ;
+extern int vfscanf (FILE * __s, __const char * __format, __gnuc_va_list __arg) 
+
+
+
+      ;
+extern int vscanf (__const char * __format, __gnuc_va_list __arg) 
+
+      ;
+extern int vsscanf (__const char * __s, __const char * __format, __gnuc_va_list __arg) 
+
+
+
+     ;
+
+
+
+
+
+
+
+
+
+extern int fgetc (FILE *__stream);
+extern int getc (FILE *__stream);
+
+
+
+
+
+extern int getchar (void);
+
+extern int getc_unlocked (FILE *__stream);
+extern int getchar_unlocked (void);
+extern int fgetc_unlocked (FILE *__stream);
+
+
+
+
+
+
+
+
+
+
+
+extern int fputc (int __c, FILE *__stream);
+extern int putc (int __c, FILE *__stream);
+
+
+
+
+
+extern int putchar (int __c);
+
+extern int fputc_unlocked (int __c, FILE *__stream);
+
+
+
+
+
+
+
+extern int putc_unlocked (int __c, FILE *__stream);
+extern int putchar_unlocked (int __c);
+
+
+
+
+
+
+extern int getw (FILE *__stream);
+
+
+extern int putw (int __w, FILE *__stream);
+
+
+
+
+
+
+
+
+extern char *fgets (char * __s, int __n, FILE * __stream)
+     ;
+
+
+
+
+
+
+extern char *gets (char *__s) ;
+
+extern __ssize_t __getdelim (char ** __lineptr,
+          size_t * __n, int __delimiter,
+          FILE * __stream) ;
+extern __ssize_t getdelim (char ** __lineptr,
+        size_t * __n, int __delimiter,
+        FILE * __stream) ;
+
+
+
+
+
+
+
+extern __ssize_t getline (char ** __lineptr,
+       size_t * __n,
+       FILE * __stream) ;
+
+
+
+
+
+
+
+
+extern int fputs (__const char * __s, FILE * __stream);
+
+
+
+
+
+extern int puts (__const char *__s);
+
+
+
+
+
+
+extern int ungetc (int __c, FILE *__stream);
+
+
+
+
+
+
+extern size_t fread (void * __ptr, size_t __size,
+       size_t __n, FILE * __stream) ;
+
+
+
+
+extern size_t fwrite (__const void * __ptr, size_t __size,
+        size_t __n, FILE * __s) ;
+
+extern size_t fread_unlocked (void * __ptr, size_t __size,
+         size_t __n, FILE * __stream) ;
+extern size_t fwrite_unlocked (__const void * __ptr, size_t __size,
+          size_t __n, FILE * __stream) ;
+
+
+
+
+
+
+
+
+extern int fseek (FILE *__stream, long int __off, int __whence);
+
+
+
+
+extern long int ftell (FILE *__stream) ;
+
+
+
+
+extern void rewind (FILE *__stream);
+
+extern int fseeko (FILE *__stream, __off_t __off, int __whence);
+
+
+
+
+extern __off_t ftello (FILE *__stream) ;
+
+
+
+
+
+
+extern int fgetpos (FILE * __stream, fpos_t * __pos);
+
+
+
+
+extern int fsetpos (FILE *__stream, __const fpos_t *__pos);
+
+
+
+extern void clearerr (FILE *__stream) ;
+
+extern int feof (FILE *__stream)  ;
+
+extern int ferror (FILE *__stream)  ;
+
+
+
+
+extern void clearerr_unlocked (FILE *__stream) ;
+extern int feof_unlocked (FILE *__stream)  ;
+extern int ferror_unlocked (FILE *__stream)  ;
+
+
+
+
+
+
+
+
+extern void perror (__const char *__s);
+
+
+
+
+
+
+extern int sys_nerr;
+extern __const char *__const sys_errlist[];
+
+
+
+
+extern int fileno (FILE *__stream)  ;
+
+
+
+
+extern int fileno_unlocked (FILE *__stream)  ;
+extern FILE *popen (__const char *__command, __const char *__modes) ;
+
+
+
+
+
+extern int pclose (FILE *__stream);
+
+
+
+
+
+extern char *ctermid (char *__s) ;
+extern void flockfile (FILE *__stream) ;
+
+
+
+extern int ftrylockfile (FILE *__stream)  ;
+
+
+extern void funlockfile (FILE *__stream) ;
+
+
+int main()
+{
+    printf("Hello, world!");
+    return 0;
+}
