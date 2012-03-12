@@ -70,6 +70,7 @@ char *prev_yytext;
 "return"		{ count(); return(RETURN); }
 "short"			{ count(); return(SHORT); }
 "signed"		{ count(); return(SIGNED); }
+"__signed__"		{ count(); return(SIGNED); }
 "sizeof"		{ count(); return(SIZEOF); }
 "static"		{ count(); return(STATIC); }
 "struct"		{ count(); return(STRUCT); }
