@@ -17,6 +17,10 @@
 #include "lex.yy.c"
 %}
 
+%union {
+    struct ast *a;
+}
+
 %%
 
 primary_expression
@@ -158,13 +162,13 @@ constant_expression
 
 declaration
 	: declaration_specifiers ';' 
-	| declaration_specifiers init_declarator_list ';'
+	| declaration_specifiers init_declarator_list ';' { fprintf(yyout, "!!!"); }
 	;
 
 declaration_specifiers
 	: storage_class_specifier 
-	| storage_class_specifier declaration_specifiers 	{ if ($1 == TYPEDEF) addref(yytext, ID_TYPE); }
-	| type_specifier 					{ $$ = $1; }
+	| storage_class_specifier declaration_specifiers 
+	| type_specifier
 	| type_specifier declaration_specifiers 
 	| type_qualifier
 	| type_qualifier declaration_specifiers 
@@ -181,7 +185,7 @@ init_declarator
 	;
 
 storage_class_specifier
-	: TYPEDEF {$$ = TYPEDEF;}
+	: TYPEDEF
 	| EXTERN
 	| STATIC
 	| AUTO
@@ -198,7 +202,7 @@ type_specifier
 	| DOUBLE
 	| SIGNED
 	| UNSIGNED
-	| struct_or_union_specifier { $$=$1; }
+	| struct_or_union_specifier
 	| enum_specifier
 	| TYPE_NAME
 	;
@@ -210,8 +214,8 @@ struct_or_union_specifier
 	;
 
 struct_or_union
-	: STRUCT { $$=STRUCT; }
-	| UNION	 { $$=UNION; }
+	: STRUCT {}
+	| UNION	 {}
 	;
 
 struct_declaration_list
@@ -223,7 +227,7 @@ struct_declaration
 	: specifier_qualifier_list struct_declarator_list ';'
 	;
 
-specifier_qualifier_list
+specifier_qualifie34r_list
 	: type_specifier specifier_qualifier_list
 	| type_specifier
 	| type_qualifier specifier_qualifier_list
@@ -263,7 +267,7 @@ type_qualifier
 	;
 
 declarator
-	: pointer direct_declarator
+	: pointer direct_declarator 
 	| direct_declarator
 	;
 

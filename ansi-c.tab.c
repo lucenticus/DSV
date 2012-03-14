@@ -1921,18 +1921,11 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 79:
+        case 77:
 
 /* Line 1455 of yacc.c  */
-#line 166 "ansi-c.y"
-    { if ((yyvsp[(1) - (2)]) == TYPEDEF) addref(yytext, ID_TYPE); ;}
-    break;
-
-  case 80:
-
-/* Line 1455 of yacc.c  */
-#line 167 "ansi-c.y"
-    { (yyval) = (yyvsp[(1) - (1)]); ;}
+#line 161 "ansi-c.y"
+    { fprintf(yyout, "!!!"); ;}
     break;
 
   case 88:
@@ -1966,7 +1959,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1970 "ansi-c.tab.c"
+#line 1963 "ansi-c.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

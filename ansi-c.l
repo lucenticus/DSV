@@ -19,9 +19,16 @@ void count();
 
 #define NHASH (9997)
 
+struct ast {
+    int nodetype;
+    struct ast *l;
+    struct ast *r;
+};
+
 struct symbol {
     char *name;
     struct ref *reflist;
+    struct ast *func;
 };
 
 struct ref {
