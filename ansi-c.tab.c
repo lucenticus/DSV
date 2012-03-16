@@ -166,7 +166,20 @@
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+{
+
+/* Line 214 of yacc.c  */
+#line 20 "ansi-c.y"
+
+    struct ast *a;
+    char *id;
+
+
+
+/* Line 214 of yacc.c  */
+#line 182 "ansi-c.tab.c"
+} YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -177,7 +190,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 181 "ansi-c.tab.c"
+#line 194 "ansi-c.tab.c"
 
 #ifdef short
 # undef short
@@ -551,28 +564,28 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    23,    23,    24,    25,    26,    30,    31,    32,    33,
-      34,    35,    36,    37,    41,    42,    46,    47,    48,    49,
-      50,    51,    55,    56,    57,    58,    59,    60,    64,    65,
-      69,    70,    71,    72,    76,    77,    78,    82,    83,    84,
-      88,    89,    90,    91,    92,    96,    97,    98,   102,   103,
-     107,   108,   112,   113,   117,   118,   122,   123,   127,   128,
-     132,   133,   137,   138,   139,   140,   141,   142,   143,   144,
-     145,   146,   147,   151,   152,   156,   160,   161,   165,   166,
-     167,   168,   169,   170,   174,   175,   179,   180,   184,   185,
-     186,   187,   188,   192,   193,   194,   195,   196,   197,   198,
-     199,   200,   201,   202,   203,   207,   208,   209,   213,   214,
-     218,   219,   223,   227,   228,   229,   230,   234,   235,   239,
-     240,   241,   245,   246,   247,   251,   252,   256,   257,   261,
-     262,   266,   267,   271,   272,   273,   274,   275,   276,   277,
-     281,   282,   283,   284,   288,   289,   294,   295,   299,   300,
-     304,   305,   306,   310,   311,   315,   316,   320,   321,   322,
-     326,   327,   328,   329,   330,   331,   332,   333,   334,   338,
-     339,   340,   344,   345,   349,   350,   351,   352,   353,   354,
-     358,   359,   360,   364,   365,   366,   367,   371,   372,   376,
-     377,   381,   382,   386,   387,   388,   392,   393,   394,   395,
-     399,   400,   401,   402,   403,   407,   408,   412,   413,   417,
-     418,   419,   420
+       0,    31,    31,    32,    33,    34,    38,    39,    40,    41,
+      42,    43,    44,    45,    49,    50,    54,    55,    56,    57,
+      58,    59,    63,    64,    65,    66,    67,    68,    72,    73,
+      77,    78,    79,    80,    84,    85,    86,    90,    91,    92,
+      96,    97,    98,    99,   100,   104,   105,   106,   110,   111,
+     115,   116,   120,   121,   125,   126,   130,   131,   135,   136,
+     140,   141,   145,   146,   147,   148,   149,   150,   151,   152,
+     153,   154,   155,   159,   160,   164,   168,   169,   173,   174,
+     175,   176,   177,   178,   182,   183,   187,   188,   192,   193,
+     194,   195,   196,   200,   201,   202,   203,   204,   205,   206,
+     207,   208,   209,   210,   211,   215,   216,   217,   221,   222,
+     226,   227,   231,   235,   236,   237,   238,   242,   243,   247,
+     248,   249,   253,   254,   255,   259,   260,   264,   265,   269,
+     270,   274,   275,   279,   280,   281,   282,   283,   284,   285,
+     289,   290,   291,   292,   296,   297,   302,   303,   307,   308,
+     312,   313,   314,   318,   319,   323,   324,   328,   329,   330,
+     334,   335,   336,   337,   338,   339,   340,   341,   342,   346,
+     347,   348,   352,   353,   357,   358,   359,   360,   361,   362,
+     366,   367,   368,   372,   373,   374,   375,   379,   380,   384,
+     385,   389,   390,   394,   395,   396,   400,   401,   402,   403,
+     407,   408,   409,   410,   411,   415,   416,   420,   421,   425,
+     426,   427,   428
 };
 #endif
 
@@ -1924,42 +1937,406 @@ yyreduce:
         case 77:
 
 /* Line 1455 of yacc.c  */
-#line 161 "ansi-c.y"
-    { fprintf(yyout, "!!!"); ;}
+#line 169 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATION, (yyvsp[(1) - (3)].a), (yyvsp[(2) - (3)].a)); ;}
+    break;
+
+  case 78:
+
+/* Line 1455 of yacc.c  */
+#line 173 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATION_SPECIFIERS, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 79:
+
+/* Line 1455 of yacc.c  */
+#line 174 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATION_SPECIFIERS, (yyvsp[(1) - (2)].a), (yyvsp[(2) - (2)].a)); ;}
+    break;
+
+  case 80:
+
+/* Line 1455 of yacc.c  */
+#line 175 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATION_SPECIFIERS, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 81:
+
+/* Line 1455 of yacc.c  */
+#line 176 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATION_SPECIFIERS, (yyvsp[(1) - (2)].a), (yyvsp[(2) - (2)].a)); ;}
+    break;
+
+  case 82:
+
+/* Line 1455 of yacc.c  */
+#line 177 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATION_SPECIFIERS, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 83:
+
+/* Line 1455 of yacc.c  */
+#line 178 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATION_SPECIFIERS, (yyvsp[(1) - (2)].a), (yyvsp[(2) - (2)].a)); ;}
+    break;
+
+  case 84:
+
+/* Line 1455 of yacc.c  */
+#line 182 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_INIT_DECLARATOR_LIST, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 85:
+
+/* Line 1455 of yacc.c  */
+#line 183 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_INIT_DECLARATOR_LIST, (yyvsp[(1) - (3)].a), (yyvsp[(3) - (3)].a)); ;}
+    break;
+
+  case 86:
+
+/* Line 1455 of yacc.c  */
+#line 187 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_INIT_DECLARATOR, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 87:
+
+/* Line 1455 of yacc.c  */
+#line 188 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_INIT_DECLARATOR, (yyvsp[(1) - (3)].a), (yyvsp[(3) - (3)].a)); ;}
     break;
 
   case 88:
 
 /* Line 1455 of yacc.c  */
-#line 184 "ansi-c.y"
-    {(yyval) = TYPEDEF;;}
+#line 192 "ansi-c.y"
+    { (yyval.a) = new_word(TYPEDEF); ;}
+    break;
+
+  case 89:
+
+/* Line 1455 of yacc.c  */
+#line 193 "ansi-c.y"
+    { (yyval.a) = new_word(EXTERN); ;}
+    break;
+
+  case 90:
+
+/* Line 1455 of yacc.c  */
+#line 194 "ansi-c.y"
+    { (yyval.a) = new_word(STATIC); ;}
+    break;
+
+  case 91:
+
+/* Line 1455 of yacc.c  */
+#line 195 "ansi-c.y"
+    { (yyval.a) = new_word(AUTO); ;}
+    break;
+
+  case 92:
+
+/* Line 1455 of yacc.c  */
+#line 196 "ansi-c.y"
+    { (yyval.a) = new_word(REGISTER); ;}
+    break;
+
+  case 93:
+
+/* Line 1455 of yacc.c  */
+#line 200 "ansi-c.y"
+    { (yyval.a) = new_word(VOID); ;}
+    break;
+
+  case 94:
+
+/* Line 1455 of yacc.c  */
+#line 201 "ansi-c.y"
+    { (yyval.a) = new_word(CHAR); ;}
+    break;
+
+  case 95:
+
+/* Line 1455 of yacc.c  */
+#line 202 "ansi-c.y"
+    { (yyval.a) = new_word(SHORT); ;}
+    break;
+
+  case 96:
+
+/* Line 1455 of yacc.c  */
+#line 203 "ansi-c.y"
+    { (yyval.a) = new_word(INT); ;}
+    break;
+
+  case 97:
+
+/* Line 1455 of yacc.c  */
+#line 204 "ansi-c.y"
+    { (yyval.a) = new_word(LONG); ;}
+    break;
+
+  case 98:
+
+/* Line 1455 of yacc.c  */
+#line 205 "ansi-c.y"
+    { (yyval.a) = new_word(FLOAT); ;}
+    break;
+
+  case 99:
+
+/* Line 1455 of yacc.c  */
+#line 206 "ansi-c.y"
+    { (yyval.a) = new_word(DOUBLE); ;}
+    break;
+
+  case 100:
+
+/* Line 1455 of yacc.c  */
+#line 207 "ansi-c.y"
+    { (yyval.a) = new_word(SIGNED); ;}
+    break;
+
+  case 101:
+
+/* Line 1455 of yacc.c  */
+#line 208 "ansi-c.y"
+    { (yyval.a) = new_word(UNSIGNED); ;}
     break;
 
   case 102:
 
 /* Line 1455 of yacc.c  */
-#line 201 "ansi-c.y"
-    { (yyval)=(yyvsp[(1) - (1)]); ;}
+#line 209 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_TYPE_SPECIFIER, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 103:
+
+/* Line 1455 of yacc.c  */
+#line 210 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_TYPE_SPECIFIER, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 104:
+
+/* Line 1455 of yacc.c  */
+#line 211 "ansi-c.y"
+    { (yyval.a) = new_id((yyvsp[(1) - (1)].id)); ;}
+    break;
+
+  case 105:
+
+/* Line 1455 of yacc.c  */
+#line 215 "ansi-c.y"
+    { (yyval.a) = new_struct((yyvsp[(1) - (5)].a), (yyvsp[(2) - (5)].id), (yyvsp[(4) - (5)].a)); ;}
+    break;
+
+  case 106:
+
+/* Line 1455 of yacc.c  */
+#line 216 "ansi-c.y"
+    { (yyval.a) = new_struct((yyvsp[(1) - (4)].a), NULL, (yyvsp[(3) - (4)].a)); ;}
+    break;
+
+  case 107:
+
+/* Line 1455 of yacc.c  */
+#line 217 "ansi-c.y"
+    { (yyval.a) = new_struct((yyvsp[(1) - (2)].a), (yyvsp[(2) - (2)].id), NULL); ;}
     break;
 
   case 108:
 
 /* Line 1455 of yacc.c  */
-#line 213 "ansi-c.y"
-    { (yyval)=STRUCT; ;}
+#line 221 "ansi-c.y"
+    { (yyval.a) = new_word(STRUCT); ;}
     break;
 
   case 109:
 
 /* Line 1455 of yacc.c  */
-#line 214 "ansi-c.y"
-    { (yyval)=UNION; ;}
+#line 222 "ansi-c.y"
+    { (yyval.a) = new_word(UNION); ;}
+    break;
+
+  case 122:
+
+/* Line 1455 of yacc.c  */
+#line 253 "ansi-c.y"
+    { (yyval.a) = new_enum(NULL, (yyvsp[(3) - (4)].a)); ;}
+    break;
+
+  case 123:
+
+/* Line 1455 of yacc.c  */
+#line 254 "ansi-c.y"
+    { (yyval.a) = new_enum((yyvsp[(2) - (5)].id), (yyvsp[(4) - (5)].a)); ;}
+    break;
+
+  case 124:
+
+/* Line 1455 of yacc.c  */
+#line 255 "ansi-c.y"
+    { (yyval.a) = new_enum((yyvsp[(2) - (2)].id), NULL); ;}
+    break;
+
+  case 125:
+
+/* Line 1455 of yacc.c  */
+#line 259 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(1) - (1)].a); ;}
+    break;
+
+  case 126:
+
+/* Line 1455 of yacc.c  */
+#line 260 "ansi-c.y"
+    { (yyval.a) = new_ast((yyvsp[(1) - (3)].a), (yyvsp[(3) - (3)].a)); ;}
+    break;
+
+  case 127:
+
+/* Line 1455 of yacc.c  */
+#line 264 "ansi-c.y"
+    { (yyval.a) = new_id(yytext); ;}
+    break;
+
+  case 128:
+
+/* Line 1455 of yacc.c  */
+#line 265 "ansi-c.y"
+    { (yyval.a) = new_id(yytext); ;}
+    break;
+
+  case 129:
+
+/* Line 1455 of yacc.c  */
+#line 269 "ansi-c.y"
+    { (yyval.a) = new_word(CONST); ;}
+    break;
+
+  case 130:
+
+/* Line 1455 of yacc.c  */
+#line 270 "ansi-c.y"
+    { (yyval.a) = new_word(VOLATILE); ;}
+    break;
+
+  case 131:
+
+/* Line 1455 of yacc.c  */
+#line 274 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATOR, (yyvsp[(1) - (2)].a), (yyvsp[(2) - (2)].a)); ;}
+    break;
+
+  case 132:
+
+/* Line 1455 of yacc.c  */
+#line 275 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_DECLARATOR, (yyvsp[(1) - (1)].a), NULL); ;}
+    break;
+
+  case 133:
+
+/* Line 1455 of yacc.c  */
+#line 279 "ansi-c.y"
+    { (yyval.a) = new_id((yyvsp[(1) - (1)].id)); ;}
+    break;
+
+  case 134:
+
+/* Line 1455 of yacc.c  */
+#line 280 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(2) - (3)].a); ;}
+    break;
+
+  case 135:
+
+/* Line 1455 of yacc.c  */
+#line 281 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(1) - (4)].a); ;}
+    break;
+
+  case 136:
+
+/* Line 1455 of yacc.c  */
+#line 282 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(1) - (3)].a); ;}
+    break;
+
+  case 137:
+
+/* Line 1455 of yacc.c  */
+#line 283 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(1) - (4)].a); ;}
+    break;
+
+  case 138:
+
+/* Line 1455 of yacc.c  */
+#line 284 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(1) - (4)].a); ;}
+    break;
+
+  case 139:
+
+/* Line 1455 of yacc.c  */
+#line 285 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(1) - (3)].a); ;}
+    break;
+
+  case 140:
+
+/* Line 1455 of yacc.c  */
+#line 289 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_POINTER,NULL, NULL); ;}
+    break;
+
+  case 141:
+
+/* Line 1455 of yacc.c  */
+#line 290 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_POINTER, (yyvsp[(2) - (2)].a), NULL); ;}
+    break;
+
+  case 142:
+
+/* Line 1455 of yacc.c  */
+#line 291 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(2) - (2)].a); ;}
+    break;
+
+  case 143:
+
+/* Line 1455 of yacc.c  */
+#line 292 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_POINTER, (yyvsp[(2) - (3)].a), (yyvsp[(3) - (3)].a)); ;}
+    break;
+
+  case 144:
+
+/* Line 1455 of yacc.c  */
+#line 296 "ansi-c.y"
+    { (yyval.a) = (yyvsp[(1) - (1)].a); ;}
+    break;
+
+  case 145:
+
+/* Line 1455 of yacc.c  */
+#line 297 "ansi-c.y"
+    { (yyval.a) = new_ast(NODE_TYPE_QUALIFIER, (yyvsp[(1) - (2)].a), (yyvsp[(2) - (2)].a)); ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1963 "ansi-c.tab.c"
+#line 2340 "ansi-c.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2171,7 +2548,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 423 "ansi-c.y"
+#line 431 "ansi-c.y"
 
 
 
@@ -2195,7 +2572,6 @@ int main(int argc, char *argv[])
 	}
 	yyin = in;
 	yyout = out;
-	addref("__builtin_va_list", ID_TYPE);
 	return (yyparse());
     }
     return 1;

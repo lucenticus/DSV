@@ -19,8 +19,12 @@
 
 %union {
     struct ast *a;
+    char *id;
 }
-
+%type <a> declaration declaration_specifiers init_declarator_list init_declarator declarator initializer
+%type <a> storage_class_specifier type_specifier type_qualifier struct_or_union_specifier struct_or_union
+%type <a> enum_specifier enumerator_list enumerator direct_declarator pointer struct_declaration_list type_qualifier_list
+%type <id> IDENTIFIER TYPE_NAME
 %%
 
 primary_expression
@@ -162,72 +166,72 @@ constant_expression
 
 declaration
 	: declaration_specifiers ';' 
-	| declaration_specifiers init_declarator_list ';' { fprintf(yyout, "!!!"); }
+	| declaration_specifiers init_declarator_list ';' 	{ $$ = new_ast(NODE_DECLARATION, $1, $2); }
 	;
 
 declaration_specifiers
-	: storage_class_specifier 
-	| storage_class_specifier declaration_specifiers 
-	| type_specifier
-	| type_specifier declaration_specifiers 
-	| type_qualifier
-	| type_qualifier declaration_specifiers 
+	: storage_class_specifier 				{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, NULL); }
+	| storage_class_specifier declaration_specifiers 	{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, $2); }
+	| type_specifier					{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, NULL); }
+	| type_specifier declaration_specifiers 		{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, $2); }
+	| type_qualifier					{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, NULL); }
+	| type_qualifier declaration_specifiers 		{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, $2); }
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator
+	: init_declarator					{ $$ = new_ast(NODE_INIT_DECLARATOR_LIST, $1, NULL); }
+	| init_declarator_list ',' init_declarator		{ $$ = new_ast(NODE_INIT_DECLARATOR_LIST, $1, $3); }
 	;
 
 init_declarator
-	: declarator
-	| declarator '=' initializer
+	: declarator						{ $$ = new_ast(NODE_INIT_DECLARATOR, $1, NULL); }
+	| declarator '=' initializer				{ $$ = new_ast(NODE_INIT_DECLARATOR, $1, $3); }
 	;
 
 storage_class_specifier
-	: TYPEDEF
-	| EXTERN
-	| STATIC
-	| AUTO
-	| REGISTER
+	: TYPEDEF						{ $$ = new_word(TYPEDEF); }
+	| EXTERN						{ $$ = new_word(EXTERN); }
+	| STATIC						{ $$ = new_word(STATIC); }
+	| AUTO							{ $$ = new_word(AUTO); }
+	| REGISTER						{ $$ = new_word(REGISTER); }
 	;
 
 type_specifier
-	: VOID
-	| CHAR
-	| SHORT
-	| INT
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| struct_or_union_specifier
-	| enum_specifier
-	| TYPE_NAME
+	: VOID		{ $$ = new_word(VOID); }
+	| CHAR		{ $$ = new_word(CHAR); }
+	| SHORT		{ $$ = new_word(SHORT); }
+	| INT		{ $$ = new_word(INT); }
+	| LONG		{ $$ = new_word(LONG); }
+	| FLOAT		{ $$ = new_word(FLOAT); }
+	| DOUBLE	{ $$ = new_word(DOUBLE); }
+	| SIGNED	{ $$ = new_word(SIGNED); }
+	| UNSIGNED	{ $$ = new_word(UNSIGNED); }
+	| struct_or_union_specifier	{ $$ = new_ast(NODE_TYPE_SPECIFIER, $1, NULL); }
+	| enum_specifier		{ $$ = new_ast(NODE_TYPE_SPECIFIER, $1, NULL); }
+	| TYPE_NAME			{ $$ = new_id($1); }
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union IDENTIFIER
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}' 		{ $$ = new_struct($1, $2, $4); }
+	| struct_or_union '{' struct_declaration_list '}'			{ $$ = new_struct($1, NULL, $3); }
+	| struct_or_union IDENTIFIER 						{ $$ = new_struct($1, $2, NULL); }
 	;
 
 struct_or_union
-	: STRUCT {}
-	| UNION	 {}
+	: STRUCT	{ $$ = new_word(STRUCT); }
+	| UNION		{ $$ = new_word(UNION); }
 	;
 
 struct_declaration_list
-	: struct_declaration
-	| struct_declaration_list struct_declaration
+	: struct_declaration				{ $$ = $1; }
+	| struct_declaration_list struct_declaration	{ $$ = new_ast(NODE_STRUCT_DECLARATION_LIST, $1, $2); }
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'
+	: specifier_qualifier_list struct_declarator_list ';' 
 	;
 
-specifier_qualifie34r_list
+specifier_qualifier_list
 	: type_specifier specifier_qualifier_list
 	| type_specifier
 	| type_qualifier specifier_qualifier_list
@@ -246,51 +250,51 @@ struct_declarator
 	;
 
 enum_specifier
-	: ENUM '{' enumerator_list '}'
-	| ENUM IDENTIFIER '{' enumerator_list '}'
-	| ENUM IDENTIFIER
+	: ENUM '{' enumerator_list '}'				{ $$ = new_enum(NULL, $3); }
+	| ENUM IDENTIFIER '{' enumerator_list '}'		{ $$ = new_enum($2, $4); }
+	| ENUM IDENTIFIER					{ $$ = new_enum($2, NULL); }
 	;
 
 enumerator_list
-	: enumerator
-	| enumerator_list ',' enumerator
+	: enumerator					{ $$ = $1; }
+	| enumerator_list ',' enumerator		{ $$ = new_ast($1, $3); }
 	;
 
 enumerator
-	: IDENTIFIER
-	| IDENTIFIER '=' constant_expression
+	: IDENTIFIER				{ $$ = new_id(yytext); }
+	| IDENTIFIER '=' constant_expression	{ $$ = new_id(yytext); }
 	;
 
 type_qualifier
-	: CONST
-	| VOLATILE
+	: CONST			{ $$ = new_word(CONST); }
+	| VOLATILE		{ $$ = new_word(VOLATILE); }
 	;
 
 declarator
-	: pointer direct_declarator 
-	| direct_declarator
+	: pointer direct_declarator 	{ $$ = new_ast(NODE_DECLARATOR, $1, $2); }
+	| direct_declarator		{ $$ = new_ast(NODE_DECLARATOR, $1, NULL); }
 	;
 
 direct_declarator
-	: IDENTIFIER
-	| '(' declarator ')'
-	| direct_declarator '[' constant_expression ']'
-	| direct_declarator '[' ']'
-	| direct_declarator '(' parameter_type_list ')'
-	| direct_declarator '(' identifier_list ')'
-	| direct_declarator '(' ')'
+	: IDENTIFIER						{ $$ = new_id($1); }
+	| '(' declarator ')'					{ $$ = $2; }
+	| direct_declarator '[' constant_expression ']' 	{ $$ = $1; }
+	| direct_declarator '[' ']'				{ $$ = $1; }
+	| direct_declarator '(' parameter_type_list ')'		{ $$ = $1; }
+	| direct_declarator '(' identifier_list ')'		{ $$ = $1; } 
+	| direct_declarator '(' ')'				{ $$ = $1; }
 	;
 
 pointer
-	: '*'
-	| '*' type_qualifier_list
-	| '*' pointer
-	| '*' type_qualifier_list pointer
+	: '*'					{ $$ = new_ast(NODE_POINTER,NULL, NULL); }
+	| '*' type_qualifier_list		{ $$ = new_ast(NODE_POINTER, $2, NULL); }
+	| '*' pointer				{ $$ = $2; }
+	| '*' type_qualifier_list pointer	{ $$ = new_ast(NODE_POINTER, $2, $3); }
 	;
 
 type_qualifier_list
-	: type_qualifier
-	| type_qualifier_list type_qualifier
+	: type_qualifier			{ $$ = $1; }
+	| type_qualifier_list type_qualifier	{ $$ = new_ast(NODE_TYPE_QUALIFIER, $1, $2); }
 	;
 
 
@@ -447,7 +451,6 @@ int main(int argc, char *argv[])
 	}
 	yyin = in;
 	yyout = out;
-	addref("__builtin_va_list", ID_TYPE);
 	return (yyparse());
     }
     return 1;

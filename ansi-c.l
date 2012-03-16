@@ -11,18 +11,32 @@ IS			(u|U|l|L)*
 #include <stdio.h>
 #include "ansi-c.tab.h"
 
-#define ID_VARIABLE 	(1)
-#define ID_TYPE 	(2)
-#define ID_STRUCT 	(3)
 
 void count();
-
-#define NHASH (9997)
 
 struct ast {
     int nodetype;
     struct ast *l;
     struct ast *r;
+};
+
+struct term_id {
+    int nodetype;
+    char *name;
+};
+
+struct term_word {
+    int nodetype;
+    int wordtype;
+};
+struct term_num {
+    int nodetype;
+    int num;
+};
+
+struct term_op {
+    int nodetype;
+    int type;
 };
 
 struct symbol {
@@ -36,13 +50,23 @@ struct ref {
     int type;
 };
 
+#define NHASH (9997)
 struct symbol symtab[NHASH];
 
 struct symbol *lookup(char*);
 void addref(char*, int);
 
-char *prev_yytext;
+struct ast *new_ast(int nodetype, struct ast *l, struct ast *r);
+struct ast *new_id(char *id);
+struct ast *new_word(int word);
 
+enum NODETYPE {
+    NODE_DECLARATION,
+    NODE_NUMBER,
+    NODE_ID,
+    NODE_WORD,
+    NODE_RELOP
+};
 %}
 %%
 "#".*\n			{ }
@@ -90,14 +114,8 @@ char *prev_yytext;
 "while"			{ count(); return(WHILE); }
 
 {L}({L}|{D})*		{ 
-			    if (strcmp(prev_yytext, "struct")) { 
 				count(); 
 				return(check_type());
-			    }
-			    else {
-			    	count(); 
-				return (IDENTIFIER);
-			    }
 			}
 
 0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
@@ -197,17 +215,15 @@ void count()
 		else
 			column++;
 	ECHO;
-	if (yytext[0] != '\n' && yytext[0] != ' ' && yytext[0] != '\t' && yytext[0] != '\f' && yytext[0] != '\v')
-	prev_yytext = strdup(yytext);
 }
 
 
 int check_type()
 {
-    struct symbol *sp = lookup(yytext);
+    /*struct symbol *sp = lookup(yytext);
     if (sp->reflist && sp->reflist->type == ID_TYPE) {
 	return(TYPE_NAME);
-    }
+    }*/
     return(IDENTIFIER);
 }
 
@@ -254,4 +270,17 @@ void addref(char *word, int type)
     r->next = sp->reflist;
     r->type = type;
     sp->reflist = r;
+}
+struct ast * new_ast(int nodetype, struct ast *l, struct ast *r) 
+{
+    struct ast *a = malloc(sizeof(struct ast));
+    
+    if (!a) {
+	yyerror("out of memory");
+	exit(0);
+    }
+    a->nodetype = nodetype;
+    a->l = l;
+    a->r = r;
+    return a;
 }
