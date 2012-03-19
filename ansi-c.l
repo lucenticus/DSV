@@ -59,13 +59,32 @@ void addref(char*, int);
 struct ast *new_ast(int nodetype, struct ast *l, struct ast *r);
 struct ast *new_id(char *id);
 struct ast *new_word(int word);
+struct ast *new_struct(struct ast *struct_type, char *id, struct ast *spec_list);
+struct ast *new_enum(char *id, struct ast * enum_list);
 
 enum NODETYPE {
     NODE_DECLARATION,
     NODE_NUMBER,
     NODE_ID,
     NODE_WORD,
-    NODE_RELOP
+    NODE_RELOP,
+    NODE_STRUCT,
+    NODE_ENUM,
+    NODE_DECLARATOR,
+    NODE_DECLARATION_SPECIFIERS,
+    NODE_INIT_DECLARATOR_LIST,
+    NODE_INIT_DECLARATOR,
+    NODE_TYPE_SPECIFIER,
+    NODE_STRUCT_DECLARATION_LIST,
+    NODE_STRUCT_DECLARATION,
+    NODE_SPECIFIER_QUALIFIER_LIST,
+    NODE_STRUCT_DECLARATOR_LIST,
+    NODE_STRUCT_DECLARATOR,
+    NODE_POINTER,
+    NODE_TYPE_QUALIFIER,
+    NODE_ASSIGNMENT_EXPRESSION,
+    NODE_INITIALIZER_LIST,
+    NODE_ENUMERATOR_LIST
 };
 %}
 %%
@@ -282,5 +301,51 @@ struct ast * new_ast(int nodetype, struct ast *l, struct ast *r)
     a->nodetype = nodetype;
     a->l = l;
     a->r = r;
+    return a;
+}
+
+struct ast *new_id(char *id) 
+{
+    struct ast *a = malloc(sizeof(struct ast));
+    if (!a) {
+	yyerror("out of memory");
+	exit(0);
+    }
+    a->nodetype = NODE_ID;
+    /* add to symtable */
+    return a;
+}
+struct ast *new_word(int word) 
+{
+    struct ast *a = malloc(sizeof(struct ast));
+    if (!a) {
+	yyerror("out of memory");
+	exit(0);
+    }
+    a->nodetype = word;
+    /* add to symtable */
+    return a;
+}
+struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list) 
+{
+    struct ast *a = malloc(sizeof(struct ast));
+    if (!a) {
+	yyerror("out of memory");
+	exit(0);
+    }
+    a->nodetype = NODE_STRUCT;
+    
+    /* add to symtable */
+    return a;
+}
+struct ast *new_enum(char *id, struct ast * enum_list) 
+{
+    struct ast *a = malloc(sizeof(struct ast));
+    if (!a) {
+	yyerror("out of memory");
+	exit(0);
+    }
+    a->nodetype = NODE_ENUM;
+    /* add to symtable */
     return a;
 }

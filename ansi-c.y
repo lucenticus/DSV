@@ -24,6 +24,7 @@
 %type <a> declaration declaration_specifiers init_declarator_list init_declarator declarator initializer
 %type <a> storage_class_specifier type_specifier type_qualifier struct_or_union_specifier struct_or_union
 %type <a> enum_specifier enumerator_list enumerator direct_declarator pointer struct_declaration_list type_qualifier_list
+%type <a> struct_declaration specifier_qualifier_list struct_declarator struct_declarator_list initializer_list
 %type <id> IDENTIFIER TYPE_NAME
 %%
 
@@ -228,25 +229,25 @@ struct_declaration_list
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';' 
+	: specifier_qualifier_list struct_declarator_list ';' { $$ = new_ast(NODE_STRUCT_DECLARATION, $1, $2); }
 	;
 
 specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	| type_qualifier specifier_qualifier_list
-	| type_qualifier
+	: type_specifier specifier_qualifier_list 	{ $$ = new_ast(NODE_SPECIFIER_QUALIFIER_LIST, $1, $2); }
+	| type_specifier				{ $$ = $1; }
+	| type_qualifier specifier_qualifier_list	{ $$ = new_ast(NODE_SPECIFIER_QUALIFIER_LIST, $1, $2); }
+	| type_qualifier				{ $$ = $1; }
 	;
 
 struct_declarator_list
-	: struct_declarator
-	| struct_declarator_list ',' struct_declarator
+	: struct_declarator					{ $$ = $1; }
+	| struct_declarator_list ',' struct_declarator		{ $$ = new_ast(NODE_STRUCT_DECLARATOR_LIST, $1, $3); }
 	;
 
 struct_declarator
-	: declarator
-	| ':' constant_expression
-	| declarator ':' constant_expression
+	: declarator						{ $$ = $1; }
+	| ':' constant_expression				{ }
+	| declarator ':' constant_expression			{ $$ = new_ast(NODE_STRUCT_DECLARATOR, $1, NULL); }
 	;
 
 enum_specifier
@@ -257,7 +258,7 @@ enum_specifier
 
 enumerator_list
 	: enumerator					{ $$ = $1; }
-	| enumerator_list ',' enumerator		{ $$ = new_ast($1, $3); }
+	| enumerator_list ',' enumerator		{ $$ = new_ast(NODE_ENUMERATOR_LIST, $1, $3); }
 	;
 
 enumerator
@@ -343,14 +344,14 @@ direct_abstract_declarator
 	;
 
 initializer
-	: assignment_expression
-	| '{' initializer_list '}'
-	| '{' initializer_list ',' '}'
+	: assignment_expression 		{ $$ = new_ast(NODE_ASSIGNMENT_EXPRESSION, NULL, NULL); }
+	| '{' initializer_list '}'		{ $$ = $2; }
+	| '{' initializer_list ',' '}'		{ $$ = $2; }
 	;
 
 initializer_list
-	: initializer
-	| initializer_list ',' initializer
+	: initializer				{ $$ = $1; }
+	| initializer_list ',' initializer	{ $$ = new_ast(NODE_INITIALIZER_LIST, $1, $3); }
 	;
 
 statement
