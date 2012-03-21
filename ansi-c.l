@@ -23,20 +23,28 @@ struct ast {
 struct term_id {
     int nodetype;
     char *name;
+    struct ast *l;
+    struct ast *r;
 };
 
 struct term_word {
     int nodetype;
     int wordtype;
+    struct ast *l;
+    struct ast *r;
 };
 struct term_num {
     int nodetype;
     int num;
+    struct ast *l;
+    struct ast *r;
 };
 
 struct term_op {
     int nodetype;
     int type;
+    struct ast *l;
+    struct ast *r;
 };
 
 struct symbol {
@@ -61,6 +69,11 @@ struct ast *new_id(char *id);
 struct ast *new_word(int word);
 struct ast *new_struct(struct ast *struct_type, char *id, struct ast *spec_list);
 struct ast *new_enum(char *id, struct ast * enum_list);
+
+void parse_declaration(struct ast*); 
+void print_tree (struct ast *a);
+struct ast *find_id(struct ast *node);
+int is_find_token(struct ast *a, int nodetype);
 
 enum NODETYPE {
     NODE_DECLARATION,
@@ -132,7 +145,8 @@ enum NODETYPE {
 "volatile"		{ count(); return(VOLATILE); }
 "while"			{ count(); return(WHILE); }
 
-{L}({L}|{D})*		{ 
+{L}({L}|{D})*		{
+				yylval.id = strdup(yytext);
 				count(); 
 				return(check_type());
 			}
@@ -239,10 +253,10 @@ void count()
 
 int check_type()
 {
-    /*struct symbol *sp = lookup(yytext);
-    if (sp->reflist && sp->reflist->type == ID_TYPE) {
+    struct symbol *sp = lookup(yytext);
+    if (sp->reflist && sp->reflist->type == TYPE_NAME) {
 	return(TYPE_NAME);
-    }*/
+    }
     return(IDENTIFIER);
 }
 
@@ -306,14 +320,16 @@ struct ast * new_ast(int nodetype, struct ast *l, struct ast *r)
 
 struct ast *new_id(char *id) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
+    struct term_id *a = malloc(sizeof(struct term_id));
     if (!a) {
 	yyerror("out of memory");
 	exit(0);
     }
     a->nodetype = NODE_ID;
+    a->name = strdup(id);
     /* add to symtable */
-    return a;
+    
+    return ((struct ast *) a);
 }
 struct ast *new_word(int word) 
 {
@@ -348,4 +364,52 @@ struct ast *new_enum(char *id, struct ast * enum_list)
     a->nodetype = NODE_ENUM;
     /* add to symtable */
     return a;
+}
+
+void parse_declaration(struct ast* node) 
+{
+    /*print_tree(node);*/
+    int is_typedef = 0;
+    if (node->l != NULL) {
+	is_typedef = is_find_token(node->l, TYPEDEF);
+    }
+    if (is_typedef && node->r != NULL) {
+        struct term_id *a = (struct term_id *) find_id(node->r);
+	if (a != NULL) {
+	    printf("id:%s\n", a->name);
+	    addref(a->name, TYPE_NAME);
+	}
+    }
+}
+int is_find_token(struct ast *node, int nodetype) 
+{
+    int is_find = 0;
+    if (node == NULL)
+	return 0;
+    if (node->nodetype == nodetype)
+	return 1;
+    is_find = is_find_token(node->l, nodetype);
+    if (is_find == 0)
+	is_find = is_find_token(node->r, nodetype);
+    return is_find;
+}
+struct ast *find_id(struct ast *node) 
+{
+    struct ast * a;
+    if (node == NULL || node->nodetype == NODE_ID)
+	return node;
+    a = find_id(node->l);
+    if (a == NULL)
+	a = find_id(node->r);
+    return a;
+}
+void print_tree (struct ast *a) 
+{
+    if (a == NULL)
+	return;
+    printf("nodetype:%d\n", a->nodetype);
+    if (a->nodetype == TYPEDEF)
+	printf("begin typedef declaration\n");
+    print_tree(a->l);
+    print_tree(a->r);
 }

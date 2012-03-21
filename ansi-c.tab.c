@@ -1938,7 +1938,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 170 "ansi-c.y"
-    { (yyval.a) = new_ast(NODE_DECLARATION, (yyvsp[(1) - (3)].a), (yyvsp[(2) - (3)].a)); ;}
+    { (yyval.a) = new_ast(NODE_DECLARATION, (yyvsp[(1) - (3)].a), (yyvsp[(2) - (3)].a)); parse_declaration((yyval.a)); ;}
     break;
 
   case 78:
@@ -2677,8 +2677,23 @@ extern int column;
 int main(int argc, char *argv[]) 
 {
     if (argc < 3) {
-	printf("usage:%s <input file> <output file>\n", argv[0]);
+/*	printf("usage:%s <input file> <output file>\n", argv[0]);*/
+	FILE *in, *out; 
+	if ((in = fopen("test.c.preprocess", "r")) == NULL) {
+	    printf("%s: can't open file: %s\n", argv[0], "test.c.preprocess");
+	    return 1;
+	}
+	 
+	if ((out = fopen("test_out.c", "w")) == NULL) {
+	    printf("%s: can't open file: %s\n", argv[0], "test_out.c");
+	    return 1;
+	}
+	yyin = in;
+	yyout = out;
+	addref("__builtin_va_list", TYPE_NAME);
+	return (yyparse());
     } else {
+
 	FILE *in, *out; 
 	if ((in = fopen(argv[1], "r")) == NULL) {
 	    printf("%s: can't open file: %s\n", argv[0], argv[1]);
@@ -2691,6 +2706,7 @@ int main(int argc, char *argv[])
 	}
 	yyin = in;
 	yyout = out;
+	addref("__builtin_va_list", TYPE_NAME);
 	return (yyparse());
     }
     return 1;
