@@ -5,7 +5,7 @@
 %token XOR_ASSIGN OR_ASSIGN TYPE_NAME
 
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
-%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
+%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID TYPEOF
 %token STRUCT UNION ENUM ELLIPSIS
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
@@ -30,6 +30,8 @@
 
 primary_expression
 	: IDENTIFIER
+	| '{' IDENTIFIER '}' 				/* check */
+	| '{' '.' IDENTIFIER '=' IDENTIFIER '}'		/* check */
 	| CONSTANT
 	| STRING_LITERAL
 	| '(' expression ')'
@@ -159,6 +161,7 @@ assignment_operator
 expression
 	: assignment_expression
 	| expression ',' assignment_expression
+	| compound_statement
 	;
 
 constant_expression
@@ -167,7 +170,8 @@ constant_expression
 
 declaration
 	: declaration_specifiers ';' 
-	| declaration_specifiers init_declarator_list ';' 	{ $$ = new_ast(NODE_DECLARATION, $1, $2); parse_declaration($$); }
+	| declaration_specifiers  init_declarator_list  ';' 	{ $$ = new_ast(NODE_DECLARATION, $1, $2); parse_declaration($$); }
+	| declaration_specifiers error ';'			{ }
 	;
 
 declaration_specifiers
@@ -210,6 +214,8 @@ type_specifier
 	| struct_or_union_specifier	{ $$ = new_ast(NODE_TYPE_SPECIFIER, $1, NULL); }
 	| enum_specifier		{ $$ = new_ast(NODE_TYPE_SPECIFIER, $1, NULL); }
 	| TYPE_NAME			{ $$ = new_id($1); }
+	| TYPEOF '(' expression ')'	{ $$ = new_word(TYPEOF); }
+	| TYPEOF '('declaration_specifiers ')' { $$ = new_word(TYPEOF); }
 	;
 
 struct_or_union_specifier
@@ -229,7 +235,8 @@ struct_declaration_list
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';' { $$ = new_ast(NODE_STRUCT_DECLARATION, $1, $2); }
+	: specifier_qualifier_list ';'
+	| specifier_qualifier_list struct_declarator_list ';' { $$ = new_ast(NODE_STRUCT_DECLARATION, $1, $2); }
 	;
 
 specifier_qualifier_list
@@ -259,11 +266,13 @@ enum_specifier
 enumerator_list
 	: enumerator					{ $$ = $1; }
 	| enumerator_list ',' enumerator		{ $$ = new_ast(NODE_ENUMERATOR_LIST, $1, $3); }
+	
 	;
 
 enumerator
-	: IDENTIFIER				{ $$ = new_id(yytext); }
-	| IDENTIFIER '=' constant_expression	{ $$ = new_id(yytext); }
+	:					{ /*for last comma*/ }
+	| IDENTIFIER				{ $$ = new_id($1); }
+	| IDENTIFIER '=' constant_expression	{ $$ = new_id($1); }
 	;
 
 type_qualifier
@@ -409,7 +418,7 @@ jump_statement
 	| CONTINUE ';'
 	| BREAK ';'
 	| RETURN ';'
-	| RETURN expression ';'
+	| RETURN  expression ';'
 	;
 
 translation_unit
@@ -438,8 +447,8 @@ extern int column;
 int main(int argc, char *argv[]) 
 {
     if (argc < 3) {
-/*	printf("usage:%s <input file> <output file>\n", argv[0]);*/
-	FILE *in, *out; 
+	printf("usage:%s <input file> <output file>\n", argv[0]);
+/*	FILE *in, *out; 
 	if ((in = fopen("test.c.preprocess", "r")) == NULL) {
 	    printf("%s: can't open file: %s\n", argv[0], "test.c.preprocess");
 	    return 1;
@@ -452,7 +461,7 @@ int main(int argc, char *argv[])
 	yyin = in;
 	yyout = out;
 	addref("__builtin_va_list", TYPE_NAME);
-	return (yyparse());
+	return (yyparse());*/
     } else {
 
 	FILE *in, *out; 
@@ -468,6 +477,7 @@ int main(int argc, char *argv[])
 	yyin = in;
 	yyout = out;
 	addref("__builtin_va_list", TYPE_NAME);
+	addref("mm_segment_t", TYPE_NAME);
 	return (yyparse());
     }
     return 1;

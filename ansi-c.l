@@ -22,29 +22,29 @@ struct ast {
 
 struct term_id {
     int nodetype;
-    char *name;
     struct ast *l;
     struct ast *r;
+    char *name;
 };
 
 struct term_word {
     int nodetype;
-    int wordtype;
     struct ast *l;
     struct ast *r;
+    int wordtype;
 };
 struct term_num {
     int nodetype;
-    int num;
     struct ast *l;
     struct ast *r;
+    int num;
 };
 
 struct term_op {
     int nodetype;
-    int type;
     struct ast *l;
     struct ast *r;
+    int type;
 };
 
 struct symbol {
@@ -73,7 +73,7 @@ struct ast *new_enum(char *id, struct ast * enum_list);
 void parse_declaration(struct ast*); 
 void print_tree (struct ast *a);
 struct ast *find_id(struct ast *node);
-int is_find_token(struct ast *a, int nodetype);
+struct ast *find_token(struct ast *a, int nodetype);
 
 enum NODETYPE {
     NODE_DECLARATION,
@@ -103,13 +103,16 @@ enum NODETYPE {
 %%
 "#".*\n			{ }
 "/*"			{ comment(); }
-"__asm__"[ \t\n]*"(".*")"	{ }
-"__asm__"		{ }
+"__asm__".*"(".*")"	{ }
+"__asm".*"(".*")"	{ }
+"asm".*"(".*")"		{ }
 "__extension__"		{ }
 "__inline__"		{ }
-"__typeof__"		{ }
+"inline"		{ }
+"notrace"		{ }
 "__attribute__"[ \t]*"((".*"))"	{}
 "__restrict"		{ }
+"_Bool"			{ count(); return(INT); }
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
 "case"			{ count(); return(CASE); }
@@ -139,6 +142,9 @@ enum NODETYPE {
 "struct"		{ count(); return(STRUCT); }
 "switch"		{ count(); return(SWITCH); }
 "typedef"		{ count(); return(TYPEDEF); }
+"typeof"		{ count(); return(TYPEOF); }
+"__typeof"		{ count(); return(TYPEOF); }
+"__typeof__"		{ count(); return(TYPEOF); }
 "union"			{ count(); return(UNION); }
 "unsigned"		{ count(); return(UNSIGNED); }
 "void"			{ count(); return(VOID); }
@@ -290,7 +296,7 @@ struct symbol* lookup(char *sym)
 
 void addref(char *word, int type)
 {
-    /*printf("%s:%d\n", word, type);*/
+    printf("%s:%d\n", word, type);
     struct ref *r;
     struct symbol *sp = lookup(word);
     if (sp->reflist) 
@@ -328,7 +334,8 @@ struct ast *new_id(char *id)
     a->nodetype = NODE_ID;
     a->name = strdup(id);
     /* add to symtable */
-    
+    a->l = NULL;
+    a->r = NULL;
     return ((struct ast *) a);
 }
 struct ast *new_word(int word) 
@@ -339,6 +346,8 @@ struct ast *new_word(int word)
 	exit(0);
     }
     a->nodetype = word;
+    a->l = NULL;
+    a->r = NULL;
     /* add to symtable */
     return a;
 }
@@ -350,7 +359,8 @@ struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list)
 	exit(0);
     }
     a->nodetype = NODE_STRUCT;
-    
+    a->l = NULL;
+    a->r = NULL;
     /* add to symtable */
     return a;
 }
@@ -362,6 +372,8 @@ struct ast *new_enum(char *id, struct ast * enum_list)
 	exit(0);
     }
     a->nodetype = NODE_ENUM;
+    a->l = NULL;
+    a->r = NULL;
     /* add to symtable */
     return a;
 }
@@ -369,11 +381,11 @@ struct ast *new_enum(char *id, struct ast * enum_list)
 void parse_declaration(struct ast* node) 
 {
     /*print_tree(node);*/
-    int is_typedef = 0;
+    struct ast *tok;
     if (node->l != NULL) {
-	is_typedef = is_find_token(node->l, TYPEDEF);
+	tok = find_token(node->l, TYPEDEF);
     }
-    if (is_typedef && node->r != NULL) {
+    if (tok != NULL && node->r != NULL) {
         struct term_id *a = (struct term_id *) find_id(node->r);
 	if (a != NULL) {
 	    printf("id:%s\n", a->name);
@@ -381,17 +393,16 @@ void parse_declaration(struct ast* node)
 	}
     }
 }
-int is_find_token(struct ast *node, int nodetype) 
+struct ast* find_token(struct ast *node, int nodetype) 
 {
-    int is_find = 0;
-    if (node == NULL)
-	return 0;
-    if (node->nodetype == nodetype)
-	return 1;
-    is_find = is_find_token(node->l, nodetype);
-    if (is_find == 0)
-	is_find = is_find_token(node->r, nodetype);
-    return is_find;
+    struct ast * a;
+    if (node == NULL || node->nodetype == nodetype)
+	return node;
+    /*printf("test: %d\n", node->nodetype);*/
+    a  = find_token(node->l, nodetype);
+    if (a == NULL)
+	a = find_token(node->r, nodetype);
+    return a;
 }
 struct ast *find_id(struct ast *node) 
 {
