@@ -103,9 +103,9 @@ enum NODETYPE {
 %%
 "#".*\n			{ }
 "/*"			{ comment(); }
-"__asm__".*"(".*")"	{ }
-"__asm".*"(".*")"	{ }
-"asm".*"(".*")"		{ }
+"__asm__"		{ count(); return(ASM); }
+"__asm"			{ count(); return(ASM); }
+"asm"			{ count(); return(ASM); }
 "__extension__"		{ }
 "__inline__"		{ }
 "inline"		{ }
@@ -149,6 +149,7 @@ enum NODETYPE {
 "unsigned"		{ count(); return(UNSIGNED); }
 "void"			{ count(); return(VOID); }
 "volatile"		{ count(); return(VOLATILE); }
+"__volatile__"		{ count(); return(VOLATILE); }
 "while"			{ count(); return(WHILE); }
 
 {L}({L}|{D})*		{
@@ -296,7 +297,7 @@ struct symbol* lookup(char *sym)
 
 void addref(char *word, int type)
 {
-    printf("%s:%d\n", word, type);
+    /*printf("%s:%d\n", word, type);*/
     struct ref *r;
     struct symbol *sp = lookup(word);
     if (sp->reflist) 
@@ -388,7 +389,7 @@ void parse_declaration(struct ast* node)
     if (tok != NULL && node->r != NULL) {
         struct term_id *a = (struct term_id *) find_id(node->r);
 	if (a != NULL) {
-	    printf("id:%s\n", a->name);
+	    /*printf("id:%s\n", a->name);*/
 	    addref(a->name, TYPE_NAME);
 	}
     }

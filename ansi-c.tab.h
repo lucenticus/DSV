@@ -97,7 +97,8 @@
      GOTO = 313,
      CONTINUE = 314,
      BREAK = 315,
-     RETURN = 316
+     RETURN = 316,
+     ASM = 317
    };
 #endif
 
@@ -116,7 +117,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 120 "ansi-c.tab.h"
+#line 121 "ansi-c.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

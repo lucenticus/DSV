@@ -8,7 +8,7 @@
 %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID TYPEOF
 %token STRUCT UNION ENUM ELLIPSIS
 
-%token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
+%token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN ASM
 
 %start translation_unit
 
@@ -33,9 +33,14 @@ primary_expression
 	| '{' IDENTIFIER '}' 				/* check */
 	| '{' '.' IDENTIFIER '=' IDENTIFIER '}'		/* check */
 	| CONSTANT
-	| STRING_LITERAL
+	| string
 	| '(' expression ')'
 	;
+string
+    : STRING_LITERAL
+    | string STRING_LITERAL {  }
+    | error
+    ;
 
 postfix_expression
 	: primary_expression
@@ -74,6 +79,8 @@ unary_operator
 cast_expression
 	: unary_expression
 	| '(' type_name ')' cast_expression
+	| '(' type_name ')' '{' '}'
+	| '(' type_name ')' '{' expression '}'
 	;
 
 multiplicative_expression
@@ -169,9 +176,9 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';' 
+	: declaration_specifiers  ';' 
 	| declaration_specifiers  init_declarator_list  ';' 	{ $$ = new_ast(NODE_DECLARATION, $1, $2); parse_declaration($$); }
-	| declaration_specifiers error ';'			{ }
+	| declaration_specifiers  error ';'			{ }
 	;
 
 declaration_specifiers
@@ -219,7 +226,9 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}' 		{ $$ = new_struct($1, $2, $4); }
+	: struct_or_union IDENTIFIER '{'  '}' 					{ $$ = new_struct($1, $2, NULL); }
+	| struct_or_union IDENTIFIER '{' struct_declaration_list '}' 		{ $$ = new_struct($1, $2, $4); }
+	| struct_or_union '{'  '}'						{ $$ = new_struct($1, NULL, NULL); }
 	| struct_or_union '{' struct_declaration_list '}'			{ $$ = new_struct($1, NULL, $3); }
 	| struct_or_union IDENTIFIER 						{ $$ = new_struct($1, $2, NULL); }
 	;
@@ -419,8 +428,35 @@ jump_statement
 	| BREAK ';'
 	| RETURN ';'
 	| RETURN  expression ';'
+	| ASM maybe_type_qualifier '(' expression ')' ;
+	| ASM maybe_type_qualifier '(' expression ':' asm_operands ')' ';'
+	| ASM maybe_type_qualifier '(' expression ':' asm_operands ':' asm_operands ')' ';'
+	| ASM maybe_type_qualifier '(' expression ':' asm_operands ':' asm_operands ':' asm_clobbers ')' ';'
+	;
+maybe_type_qualifier
+	: {/*NULL*/}
+	| type_qualifier
+	;
+asm_operands
+	: /* empty */	{}
+        | nonnull_asm_operands
 	;
 
+nonnull_asm_operands 
+	: asm_operand
+	| nonnull_asm_operands ',' asm_operand {  }
+	;
+	
+asm_operand
+	: STRING_LITERAL '(' expression ')'			{ }
+	| '[' expression ']' STRING_LITERAL '(' expression ')' 	{ }
+	;
+		    		    	    
+asm_clobbers
+	: string			{ }
+        | asm_clobbers ',' string 	{ }
+	;
+	
 translation_unit
 	: external_declaration
 	| translation_unit external_declaration
@@ -437,6 +473,7 @@ function_definition
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
 	;
+
 
 %%
 
