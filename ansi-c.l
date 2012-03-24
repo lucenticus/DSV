@@ -108,9 +108,9 @@ enum NODETYPE {
 "asm"			{ count(); return(ASM); }
 "__extension__"		{ }
 "__inline__"		{ }
-"inline"		{ }
+"inline"		{ count(); }
 "notrace"		{ }
-"__attribute__"[ \t]*"((".*"))"	{}
+"__attribute__"[ \t]*"(("[^\)]*"))"	{ count(); }
 "__restrict"		{ }
 "_Bool"			{ count(); return(INT); }
 "auto"			{ count(); return(AUTO); }

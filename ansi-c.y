@@ -32,6 +32,7 @@ primary_expression
 	: IDENTIFIER
 	| '{' IDENTIFIER '}' 				/* check */
 	| '{' '.' IDENTIFIER '=' IDENTIFIER '}'		/* check */
+	| '{' error '}'
 	| CONSTANT
 	| string
 	| '(' expression ')'
@@ -81,6 +82,7 @@ cast_expression
 	| '(' type_name ')' cast_expression
 	| '(' type_name ')' '{' '}'
 	| '(' type_name ')' '{' expression '}'
+
 	;
 
 multiplicative_expression
@@ -392,6 +394,7 @@ compound_statement
 	| '{' statement_list '}'
 	| '{' declaration_list '}'
 	| '{' declaration_list statement_list '}'
+	| compound_statement ';'
 	;
 
 declaration_list
@@ -473,7 +476,6 @@ function_definition
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
 	;
-
 
 %%
 
