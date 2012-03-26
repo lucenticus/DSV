@@ -719,96 +719,9 @@ char *yytext;
 #line 11 "parser-c.l"
 #include <stdio.h>
 #include "parser-c.tab.h"
+#include "parser-c.h"
 
-
-void count();
-
-struct ast {
-    int nodetype;
-    struct ast *l;
-    struct ast *r;
-};
-
-struct term_id {
-    int nodetype;
-    struct ast *l;
-    struct ast *r;
-    char *name;
-};
-
-struct term_word {
-    int nodetype;
-    struct ast *l;
-    struct ast *r;
-    int wordtype;
-};
-struct term_num {
-    int nodetype;
-    struct ast *l;
-    struct ast *r;
-    int num;
-};
-
-struct term_op {
-    int nodetype;
-    struct ast *l;
-    struct ast *r;
-    int type;
-};
-
-struct symbol {
-    char *name;
-    struct ref *reflist;
-    struct ast *func;
-};
-
-struct ref {
-    struct ref *next;
-    int type;
-};
-
-#define NHASH (9997)
-struct symbol symtab[NHASH];
-
-struct symbol *lookup(char*);
-void addref(char*, int);
-
-struct ast *new_ast(int nodetype, struct ast *l, struct ast *r);
-struct ast *new_id(char *id);
-struct ast *new_word(int word);
-struct ast *new_struct(struct ast *struct_type, char *id, struct ast *spec_list);
-struct ast *new_enum(char *id, struct ast * enum_list);
-
-void parse_declaration(struct ast*); 
-void print_tree (struct ast *a);
-struct ast *find_id(struct ast *node);
-struct ast *find_token(struct ast *a, int nodetype);
-
-enum NODETYPE {
-    NODE_DECLARATION,
-    NODE_NUMBER,
-    NODE_ID,
-    NODE_WORD,
-    NODE_RELOP,
-    NODE_STRUCT,
-    NODE_ENUM,
-    NODE_DECLARATOR,
-    NODE_DECLARATION_SPECIFIERS,
-    NODE_INIT_DECLARATOR_LIST,
-    NODE_INIT_DECLARATOR,
-    NODE_TYPE_SPECIFIER,
-    NODE_STRUCT_DECLARATION_LIST,
-    NODE_STRUCT_DECLARATION,
-    NODE_SPECIFIER_QUALIFIER_LIST,
-    NODE_STRUCT_DECLARATOR_LIST,
-    NODE_STRUCT_DECLARATOR,
-    NODE_POINTER,
-    NODE_TYPE_QUALIFIER,
-    NODE_ASSIGNMENT_EXPRESSION,
-    NODE_INITIALIZER_LIST,
-    NODE_ENUMERATOR_LIST
-};
-#line 812 "lex.yy.c"
+#line 725 "lex.yy.c"
 
 #define INITIAL 0
 #define IFILE 1
@@ -996,9 +909,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 103 "parser-c.l"
+#line 16 "parser-c.l"
 
-#line 1002 "lex.yy.c"
+#line 915 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -1094,257 +1007,257 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 104 "parser-c.l"
+#line 17 "parser-c.l"
 { }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 105 "parser-c.l"
+#line 18 "parser-c.l"
 { comment(); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 106 "parser-c.l"
+#line 19 "parser-c.l"
 { count(); return(ASM); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 107 "parser-c.l"
+#line 20 "parser-c.l"
 { count(); return(ASM); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 108 "parser-c.l"
+#line 21 "parser-c.l"
 { count(); return(ASM); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 109 "parser-c.l"
+#line 22 "parser-c.l"
 { }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 110 "parser-c.l"
+#line 23 "parser-c.l"
 { }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 111 "parser-c.l"
+#line 24 "parser-c.l"
 { count(); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 112 "parser-c.l"
+#line 25 "parser-c.l"
 { }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 113 "parser-c.l"
+#line 26 "parser-c.l"
 { count(); return (ATTRIBUTE); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 114 "parser-c.l"
+#line 27 "parser-c.l"
 { }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 115 "parser-c.l"
+#line 28 "parser-c.l"
 { count(); return(INT); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 116 "parser-c.l"
+#line 29 "parser-c.l"
 { count(); return(AUTO); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 117 "parser-c.l"
+#line 30 "parser-c.l"
 { count(); return(BREAK); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 118 "parser-c.l"
+#line 31 "parser-c.l"
 { count(); return(CASE); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 119 "parser-c.l"
+#line 32 "parser-c.l"
 { count(); return(CHAR); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 120 "parser-c.l"
+#line 33 "parser-c.l"
 { count(); return(CONST); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 121 "parser-c.l"
+#line 34 "parser-c.l"
 { count(); return(CONST); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 122 "parser-c.l"
+#line 35 "parser-c.l"
 { count(); return(CONTINUE); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 123 "parser-c.l"
+#line 36 "parser-c.l"
 { count(); return(DEFAULT); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 124 "parser-c.l"
+#line 37 "parser-c.l"
 { count(); return(DO); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 125 "parser-c.l"
+#line 38 "parser-c.l"
 { count(); return(DOUBLE); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 126 "parser-c.l"
+#line 39 "parser-c.l"
 { count(); return(ELSE); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 127 "parser-c.l"
+#line 40 "parser-c.l"
 { count(); return(ENUM); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 128 "parser-c.l"
+#line 41 "parser-c.l"
 { count(); return(EXTERN); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 129 "parser-c.l"
+#line 42 "parser-c.l"
 { count(); return(FLOAT); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 130 "parser-c.l"
+#line 43 "parser-c.l"
 { count(); return(FOR); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 131 "parser-c.l"
+#line 44 "parser-c.l"
 { count(); return(GOTO); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 132 "parser-c.l"
+#line 45 "parser-c.l"
 { count(); return(IF); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 133 "parser-c.l"
+#line 46 "parser-c.l"
 { count(); return(INT); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 134 "parser-c.l"
+#line 47 "parser-c.l"
 { count(); return(LONG); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 135 "parser-c.l"
+#line 48 "parser-c.l"
 { count(); return(REGISTER); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 136 "parser-c.l"
+#line 49 "parser-c.l"
 { count(); return(RETURN); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 137 "parser-c.l"
+#line 50 "parser-c.l"
 { count(); return(SHORT); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 138 "parser-c.l"
+#line 51 "parser-c.l"
 { count(); return(SIGNED); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 139 "parser-c.l"
+#line 52 "parser-c.l"
 { count(); return(SIGNED); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 140 "parser-c.l"
+#line 53 "parser-c.l"
 { count(); return(SIZEOF); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 141 "parser-c.l"
+#line 54 "parser-c.l"
 { count(); return(STATIC); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 142 "parser-c.l"
+#line 55 "parser-c.l"
 { count(); return(STRUCT); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 143 "parser-c.l"
+#line 56 "parser-c.l"
 { count(); return(SWITCH); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 144 "parser-c.l"
+#line 57 "parser-c.l"
 { count(); return(TYPEDEF); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 145 "parser-c.l"
+#line 58 "parser-c.l"
 { count(); return(TYPEOF); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 146 "parser-c.l"
+#line 59 "parser-c.l"
 { count(); return(TYPEOF); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 147 "parser-c.l"
+#line 60 "parser-c.l"
 { count(); return(TYPEOF); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 148 "parser-c.l"
+#line 61 "parser-c.l"
 { count(); return(UNION); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 149 "parser-c.l"
+#line 62 "parser-c.l"
 { count(); return(UNSIGNED); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 150 "parser-c.l"
+#line 63 "parser-c.l"
 { count(); return(VOID); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 151 "parser-c.l"
+#line 64 "parser-c.l"
 { count(); return(VOLATILE); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 152 "parser-c.l"
+#line 65 "parser-c.l"
 { count(); return(VOLATILE); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 153 "parser-c.l"
+#line 66 "parser-c.l"
 { count(); return(WHILE); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 155 "parser-c.l"
+#line 68 "parser-c.l"
 {
 				yylval.id = strdup(yytext);
 				count(); 
@@ -1353,298 +1266,298 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 161 "parser-c.l"
+#line 74 "parser-c.l"
 { count(); return(CONSTANT); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 162 "parser-c.l"
+#line 75 "parser-c.l"
 { count(); return(CONSTANT); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 163 "parser-c.l"
+#line 76 "parser-c.l"
 { count(); return(CONSTANT); }
 	YY_BREAK
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
-#line 164 "parser-c.l"
+#line 77 "parser-c.l"
 { count(); return(CONSTANT); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 166 "parser-c.l"
+#line 79 "parser-c.l"
 { count(); return(CONSTANT); }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 167 "parser-c.l"
+#line 80 "parser-c.l"
 { count(); return(CONSTANT); }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 168 "parser-c.l"
+#line 81 "parser-c.l"
 { count(); return(CONSTANT); }
 	YY_BREAK
 case 59:
 /* rule 59 can match eol */
 YY_RULE_SETUP
-#line 170 "parser-c.l"
+#line 83 "parser-c.l"
 { count(); return(STRING_LITERAL); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 172 "parser-c.l"
+#line 85 "parser-c.l"
 { count(); return(ELLIPSIS); }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 173 "parser-c.l"
+#line 86 "parser-c.l"
 { count(); return(RIGHT_ASSIGN); }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 174 "parser-c.l"
+#line 87 "parser-c.l"
 { count(); return(LEFT_ASSIGN); }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 175 "parser-c.l"
+#line 88 "parser-c.l"
 { count(); return(ADD_ASSIGN); }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 176 "parser-c.l"
+#line 89 "parser-c.l"
 { count(); return(SUB_ASSIGN); }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 177 "parser-c.l"
+#line 90 "parser-c.l"
 { count(); return(MUL_ASSIGN); }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 178 "parser-c.l"
+#line 91 "parser-c.l"
 { count(); return(DIV_ASSIGN); }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 179 "parser-c.l"
+#line 92 "parser-c.l"
 { count(); return(MOD_ASSIGN); }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 180 "parser-c.l"
+#line 93 "parser-c.l"
 { count(); return(AND_ASSIGN); }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 181 "parser-c.l"
+#line 94 "parser-c.l"
 { count(); return(XOR_ASSIGN); }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 182 "parser-c.l"
+#line 95 "parser-c.l"
 { count(); return(OR_ASSIGN); }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 183 "parser-c.l"
+#line 96 "parser-c.l"
 { count(); return(RIGHT_OP); }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 184 "parser-c.l"
+#line 97 "parser-c.l"
 { count(); return(LEFT_OP); }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 185 "parser-c.l"
+#line 98 "parser-c.l"
 { count(); return(INC_OP); }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 186 "parser-c.l"
+#line 99 "parser-c.l"
 { count(); return(DEC_OP); }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 187 "parser-c.l"
+#line 100 "parser-c.l"
 { count(); return(PTR_OP); }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 188 "parser-c.l"
+#line 101 "parser-c.l"
 { count(); return(AND_OP); }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 189 "parser-c.l"
+#line 102 "parser-c.l"
 { count(); return(OR_OP); }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 190 "parser-c.l"
+#line 103 "parser-c.l"
 { count(); return(LE_OP); }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 191 "parser-c.l"
+#line 104 "parser-c.l"
 { count(); return(GE_OP); }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 192 "parser-c.l"
+#line 105 "parser-c.l"
 { count(); return(EQ_OP); }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 193 "parser-c.l"
+#line 106 "parser-c.l"
 { count(); return(NE_OP); }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 194 "parser-c.l"
+#line 107 "parser-c.l"
 { count(); return(';'); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 195 "parser-c.l"
+#line 108 "parser-c.l"
 { count(); return(';'); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 196 "parser-c.l"
+#line 109 "parser-c.l"
 { count(); return('{'); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 197 "parser-c.l"
+#line 110 "parser-c.l"
 { count(); return('}'); }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 198 "parser-c.l"
+#line 111 "parser-c.l"
 { count(); return(','); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 199 "parser-c.l"
+#line 112 "parser-c.l"
 { count(); return(':'); }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 200 "parser-c.l"
+#line 113 "parser-c.l"
 { count(); return('='); }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 201 "parser-c.l"
+#line 114 "parser-c.l"
 { count(); return('('); }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 202 "parser-c.l"
+#line 115 "parser-c.l"
 { count(); return(')'); }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 203 "parser-c.l"
+#line 116 "parser-c.l"
 { count(); return('['); }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 204 "parser-c.l"
+#line 117 "parser-c.l"
 { count(); return(']'); }
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 205 "parser-c.l"
+#line 118 "parser-c.l"
 { count(); return('.'); }
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 206 "parser-c.l"
+#line 119 "parser-c.l"
 { count(); return('&'); }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 207 "parser-c.l"
+#line 120 "parser-c.l"
 { count(); return('!'); }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 208 "parser-c.l"
+#line 121 "parser-c.l"
 { count(); return('~'); }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
-#line 209 "parser-c.l"
+#line 122 "parser-c.l"
 { count(); return('-'); }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 210 "parser-c.l"
+#line 123 "parser-c.l"
 { count(); return('+'); }
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
-#line 211 "parser-c.l"
+#line 124 "parser-c.l"
 { count(); return('*'); }
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
-#line 212 "parser-c.l"
+#line 125 "parser-c.l"
 { count(); return('/'); }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 213 "parser-c.l"
+#line 126 "parser-c.l"
 { count(); return('%'); }
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
-#line 214 "parser-c.l"
+#line 127 "parser-c.l"
 { count(); return('<'); }
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
-#line 215 "parser-c.l"
+#line 128 "parser-c.l"
 { count(); return('>'); }
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
-#line 216 "parser-c.l"
+#line 129 "parser-c.l"
 { count(); return('^'); }
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
-#line 217 "parser-c.l"
+#line 130 "parser-c.l"
 { count(); return('|'); }
 	YY_BREAK
 case 106:
 YY_RULE_SETUP
-#line 218 "parser-c.l"
+#line 131 "parser-c.l"
 { count(); return('?'); }
 	YY_BREAK
 case 107:
 /* rule 107 can match eol */
 YY_RULE_SETUP
-#line 220 "parser-c.l"
+#line 133 "parser-c.l"
 { count (); }
 	YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 222 "parser-c.l"
+#line 135 "parser-c.l"
 { /* ignore bad characters */ }
 	YY_BREAK
 case 109:
 YY_RULE_SETUP
-#line 224 "parser-c.l"
+#line 137 "parser-c.l"
 ECHO;
 	YY_BREAK
-#line 1648 "lex.yy.c"
+#line 1561 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(IFILE):
 	yyterminate();
@@ -2655,210 +2568,9 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 224 "parser-c.l"
+#line 137 "parser-c.l"
 
 
 
+#include "parser-c.c"
 
-comment()
-{
-	char c, c1;
-
-loop:
-	while ((c = input()) != '*' && c != EOF)
-		putchar(c);
-
-	if ((c1 = input()) != '/' && c != EOF)
-	{
-		unput(c1);
-		goto loop;
-	}
-
-	if (c != EOF)
-		putchar(c1);
-}
-
-int column = 0;
-
-void count()
-{
-	int i;
-
-	for (i = 0; yytext[i] != '\0'; i++)
-		if (yytext[i] == '\n')
-			column = 0;
-		else if (yytext[i] == '\t')
-			column += 8 - (column % 8);
-		else
-			column++;
-	ECHO;
-}
-
-
-int check_type()
-{
-    struct symbol *sp = lookup(yytext);
-    if (sp->reflist && sp->reflist->type == TYPE_NAME) {
-	return(TYPE_NAME);
-    }
-    return(IDENTIFIER);
-}
-
-static unsigned symhash(char *sym) 
-{
-    unsigned int hash = 0;
-    unsigned c;
-    while (c = *sym++) hash = hash * 9 ^ c;
-    return hash;
-}
-
-struct symbol* lookup(char *sym) 
-{
-    struct symbol *sp = &symtab[symhash(sym)%NHASH];
-    int scount = NHASH;
-    
-    while (--scount > 0) {
-	if (sp->name && !strcmp(sp->name, sym)) 
-	    return sp;
-	if (!sp->name) {
-	    sp->name = strdup(sym);
-	    sp->reflist = 0;
-	    return sp;
-	}
-	if (++sp >= symtab + NHASH)
-	    sp = symtab;
-    }
-    fputs("symbol table overflow\n", stderr);
-    abort();
-}
-
-void addref(char *word, int type)
-{
-    /*printf("%s:%d\n", word, type);*/
-    struct ref *r;
-    struct symbol *sp = lookup(word);
-    if (sp->reflist) 
-	return;
-    r = malloc(sizeof(struct ref));
-    if (!r) {
-	fputs("out of space\n",stderr);
-	abort();
-    }
-    r->next = sp->reflist;
-    r->type = type;
-    sp->reflist = r;
-}
-struct ast * new_ast(int nodetype, struct ast *l, struct ast *r) 
-{
-    struct ast *a = malloc(sizeof(struct ast));
-    
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = nodetype;
-    a->l = l;
-    a->r = r;
-    return a;
-}
-
-struct ast *new_id(char *id) 
-{
-    struct term_id *a = malloc(sizeof(struct term_id));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_ID;
-    a->name = strdup(id);
-    /* add to symtable */
-    a->l = NULL;
-    a->r = NULL;
-    return ((struct ast *) a);
-}
-struct ast *new_word(int word) 
-{
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = word;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
-}
-struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list) 
-{
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_STRUCT;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
-}
-struct ast *new_enum(char *id, struct ast * enum_list) 
-{
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_ENUM;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
-}
-
-void parse_declaration(struct ast* node) 
-{
-    /*print_tree(node);*/
-    struct ast *tok;
-    if (node->l != NULL) {
-	tok = find_token(node->l, TYPEDEF);
-    }
-    if (tok != NULL && node->r != NULL) {
-        struct term_id *a = (struct term_id *) find_id(node->r);
-	if (a != NULL) {
-	    /*printf("id:%s\n", a->name);*/
-	    addref(a->name, TYPE_NAME);
-	}
-    }
-}
-struct ast* find_token(struct ast *node, int nodetype) 
-{
-    struct ast * a;
-    if (node == NULL || node->nodetype == nodetype)
-	return node;
-    /*printf("test: %d\n", node->nodetype);*/
-    a  = find_token(node->l, nodetype);
-    if (a == NULL)
-	a = find_token(node->r, nodetype);
-    return a;
-}
-struct ast *find_id(struct ast *node) 
-{
-    struct ast * a;
-    if (node == NULL || node->nodetype == NODE_ID)
-	return node;
-    a = find_id(node->l);
-    if (a == NULL)
-	a = find_id(node->r);
-    return a;
-}
-void print_tree (struct ast *a) 
-{
-    if (a == NULL)
-	return;
-    printf("nodetype:%d\n", a->nodetype);
-    if (a->nodetype == TYPEDEF)
-	printf("begin typedef declaration\n");
-    print_tree(a->l);
-    print_tree(a->r);
-}
