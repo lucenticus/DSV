@@ -11,7 +11,6 @@ IS			(u|U|l|L)*
 #include <stdio.h>
 #include "parser-c.tab.h"
 #include "parser-c.h"
-
 %}
 %%
 "#".*\n			{ }

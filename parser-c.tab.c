@@ -4166,8 +4166,8 @@ extern int column;
 
 int main(int argc, char *argv[]) 
 {
-    if (argc < 3) {
-	printf("usage:%s <input file> <output file>\n", argv[0]);
+    if (argc < 4) {
+	printf("usage:%s <input file> <output file> <afs file>\n", argv[0]);
 /*	FILE *in, *out; 
 	if ((in = fopen("test.c.preprocess", "r")) == NULL) {
 	    printf("%s: can't open file: %s\n", argv[0], "test.c.preprocess");
@@ -4181,7 +4181,10 @@ int main(int argc, char *argv[])
 	yyin = in;
 	yyout = out;
 	addref("__builtin_va_list", TYPE_NAME);
-	return (yyparse());*/
+	addref("mm_segment_t", TYPE_NAME);
+	yyparse();
+	parse_to_afs();
+*/
     } else {
 
 	FILE *in, *out; 
@@ -4194,12 +4197,19 @@ int main(int argc, char *argv[])
 	    printf("%s: can't open file: %s\n", argv[0], argv[2]);
 	    return 1;
 	}
+	if ((afs_file = fopen(argv[3], "w")) == NULL) {
+	    printf("%s: can't open file: %s\n", argv[0], argv[3]);
+	    return 1;
+	}
 	yyin = in;
 	yyout = out;
 	addref("__builtin_va_list", TYPE_NAME);
 	addref("mm_segment_t", TYPE_NAME);
 	yyparse();
-	print_tree(root);
+	parse_to_afs();
+	
+	fclose(in);
+	fclose(out);
     }
     return 1;
 }

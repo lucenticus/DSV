@@ -723,7 +723,10 @@ int main(int argc, char *argv[])
 	yyin = in;
 	yyout = out;
 	addref("__builtin_va_list", TYPE_NAME);
-	return (yyparse());*/
+	addref("mm_segment_t", TYPE_NAME);
+	yyparse();
+	parse_to_afs();
+*/
     } else {
 
 	FILE *in, *out; 
@@ -745,6 +748,8 @@ int main(int argc, char *argv[])
 	addref("__builtin_va_list", TYPE_NAME);
 	addref("mm_segment_t", TYPE_NAME);
 	yyparse();
+	parse_to_afs();
+	
 	fclose(in);
 	fclose(out);
     }
