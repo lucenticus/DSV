@@ -46,7 +46,6 @@ struct func {
 struct symbol {
     char *name;
     struct ref *reflist;
-    struct ast *func;
 };
 
 struct ref {

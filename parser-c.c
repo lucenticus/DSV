@@ -277,13 +277,13 @@ struct ast *new_asm_operand(struct ast * begin_expr,
     /* add to symtable */
     return a;
 }
-struct ast  *new_func(	struct ast * decl_spec, 
+struct ast * new_func(	struct ast * decl_specs, 
 			struct ast * declarator, 
 			struct ast * attribute, 
 			struct ast * decl_list, 
-			struct ast * comp_stmt) 
+			struct ast * func_body) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
+    struct func *a = malloc(sizeof(struct func));
     if (!a) {
 	yyerror("out of memory");
 	exit(0);
@@ -291,8 +291,13 @@ struct ast  *new_func(	struct ast * decl_spec,
     a->nodetype = NODE_FUNC;
     a->l = NULL;
     a->r = NULL;
-    /* add to symtable */
-    return a;
+    
+    a->decl_specs = decl_specs; 
+    a->declarator = declarator; 
+    a->attribute = attribute;
+    a->decl_list = decl_list;
+    a->func_body = func_body;
+    return ((struct ast *) (a));
 }
 struct ast *new_attribute(	struct ast * any_word, 
 				struct ast * id, 
@@ -310,7 +315,32 @@ struct ast *new_attribute(	struct ast * any_word,
     return a;    
 }
 
+struct func * find_func(struct ast *node, char *name) 
+{
+    struct func * a;
+    if (node == NULL) {
+	return NULL;
+    }
+    if (node->nodetype == NODE_FUNC) {
+	a = (struct func *) node;
+	struct term_id *id = (struct term_id*) find_id(a->declarator);
+	printf("test:%s\n", id->name);
+	if (id != NULL && strcmp(id->name, name) == 0) {
+	    printf("test");
+	    return a;
+	}
+    }
+    a  = find_func(node->l, name);
+    if (a == NULL)
+	a = find_func(node->r, name);
+    return a;
+}
+char * find_init_name() 
+{
+    struct func *f = find_func(root, "init_module");
+}
+
 void parse_to_afs () 
 {
-    print_tree(root);
+    char * init_func = find_init_name();
 }

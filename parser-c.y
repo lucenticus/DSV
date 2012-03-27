@@ -657,7 +657,7 @@ function_definition
 
 maybe_attribute
 	:  { $$ = NULL}
-    	| attributes { $$ = $1}
+    	| attributes { $$ = $1 }
     	;
 
 attributes
