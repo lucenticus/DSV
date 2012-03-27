@@ -114,11 +114,12 @@ typedef union YYSTYPE
 
     struct ast *a;
     char *id;
+    int	  tok;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 122 "parser-c.tab.h"
+#line 123 "parser-c.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

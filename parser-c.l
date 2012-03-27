@@ -71,16 +71,16 @@ IS			(u|U|l|L)*
 				return(check_type());
 			}
 
-0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
-0{D}+{IS}?		{ count(); return(CONSTANT); }
-{D}+{IS}?		{ count(); return(CONSTANT); }
-L?'(\\.|[^\\'])+'	{ count(); return(CONSTANT); }
+0[xX]{H}+{IS}?		{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
+0{D}+{IS}?		{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
+{D}+{IS}?		{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
+L?'(\\.|[^\\'])+'	{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 
-{D}+{E}{FS}?		{ count(); return(CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); return(CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); return(CONSTANT); }
+{D}+{E}{FS}?		{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 
-L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
+L?\"(\\.|[^\\"])*\"	{ count(); yylval.id = strdup(yytext); return(STRING_LITERAL); }
 
 "..."			{ count(); return(ELLIPSIS); }
 ">>="			{ count(); return(RIGHT_ASSIGN); }
@@ -104,31 +104,31 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 ">="			{ count(); return(GE_OP); }
 "=="			{ count(); return(EQ_OP); }
 "!="			{ count(); return(NE_OP); }
-";"			{ count(); return(';'); }
-";;"			{ count(); return(';'); }
-("{"|"<%")		{ count(); return('{'); }
-("}"|"%>")		{ count(); return('}'); }
-","			{ count(); return(','); }
-":"			{ count(); return(':'); }
-"="			{ count(); return('='); }
-"("			{ count(); return('('); }
-")"			{ count(); return(')'); }
-("["|"<:")		{ count(); return('['); }
-("]"|":>")		{ count(); return(']'); }
-"."			{ count(); return('.'); }
-"&"			{ count(); return('&'); }
-"!"			{ count(); return('!'); }
-"~"			{ count(); return('~'); }
-"-"			{ count(); return('-'); }
-"+"			{ count(); return('+'); }
-"*"			{ count(); return('*'); }
-"/"			{ count(); return('/'); }
-"%"			{ count(); return('%'); }
-"<"			{ count(); return('<'); }
-">"			{ count(); return('>'); }
-"^"			{ count(); return('^'); }
-"|"			{ count(); return('|'); }
-"?"			{ count(); return('?'); }
+";"			{ count(); yylval.tok = ';'; return(';'); }
+";;"			{ count(); yylval.tok = ';'; return(';'); }
+("{"|"<%")		{ count(); yylval.tok = '{'; return('{'); }
+("}"|"%>")		{ count(); yylval.tok = '}'; return('}'); }
+","			{ count(); yylval.tok = ','; return(','); }
+":"			{ count(); yylval.tok = ':'; return(':'); }
+"="			{ count(); yylval.tok = '='; return('='); }
+"("			{ count(); yylval.tok = '('; return('('); }
+")"			{ count(); yylval.tok = ')'; return(')'); }
+("["|"<:")		{ count(); yylval.tok = '['; return('['); }
+("]"|":>")		{ count(); yylval.tok = ']'; return(']'); }
+"."			{ count(); yylval.tok = '.'; return('.'); }
+"&"			{ count(); yylval.tok = '&'; return('&'); }
+"!"			{ count(); yylval.tok = '!'; return('!'); }
+"~"			{ count(); yylval.tok = '~'; return('~'); }
+"-"			{ count(); yylval.tok = '-'; return('-'); }
+"+"			{ count(); yylval.tok = '+'; return('+'); }
+"*"			{ count(); yylval.tok = '*'; return('*'); }
+"/"			{ count(); yylval.tok = '/'; return('/'); }
+"%"			{ count(); yylval.tok = '%'; return('%'); }
+"<"			{ count(); yylval.tok = '<'; return('<'); }
+">"			{ count(); yylval.tok = '>'; return('>'); }
+"^"			{ count(); yylval.tok = '^'; return('^'); }
+"|"			{ count(); yylval.tok = '|'; return('|'); }
+"?"			{ count(); yylval.tok = '?'; return('?'); }
 
 [ \t\v\n\f]		{ count (); }
 

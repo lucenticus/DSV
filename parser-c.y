@@ -27,7 +27,7 @@
 %type <a> enum_specifier enumerator_list enumerator direct_declarator pointer struct_declaration_list type_qualifier_list
 %type <a> struct_declaration specifier_qualifier_list struct_declarator struct_declarator_list initializer_list
 %type <a> maybe_attribute attributes attribute_list attribute attrib any_word
-%type <a> translation_unit external_declaration function_definition compound_statement
+%type <a> translation_unit external_declaration function_definition
 %type <a> declaration_list statement_list statement argument_expression_list type_name
 %type <a> expression assignment_expression unary_expression
 %type <a> primary_expression postfix_expression cast_expression
@@ -35,7 +35,11 @@
 %type <a> equality_expression and_expression exclusive_or_expression inclusive_or_expression 
 %type <a> logical_and_expression logical_or_expression conditional_expression
 %type <a> abstract_declarator direct_abstract_declarator constant_expression
-%type <id> IDENTIFIER TYPE_NAME CONSTANT
+%type <a> parameter_type_list parameter_list parameter_declaration string
+%type <a> labeled_statement compound_statement expression_statement selection_statement iteration_statement jump_statement
+%type <a> maybe_type_qualifier asm_operands asm_clobbers asm_operand nonnull_asm_operands
+
+%type <id> IDENTIFIER TYPE_NAME CONSTANT STRING_LITERAL
 %type <tok> assignment_operator unary_operator
 %%
 
@@ -47,16 +51,21 @@ primary_expression
 	| '{' '.' IDENTIFIER '=' IDENTIFIER '}'		/* check */
 	    { $$ = new_id($3); }
 	| '{' error '}'
+	    { $$ = NULL; }
 	| CONSTANT
 	    { $$ = new_id($1); }
 	| string
+	    { $$ = $1;}
 	| '(' expression ')'
 	    { $$ = $2; }
 	;
 string
     : STRING_LITERAL
+	{ $$ = new_string($1); }
     | string STRING_LITERAL 
+	{ $$ = new_ast(NODE_STRING, $1, new_string($2)); }
     | error
+	{ $$ = NULL; }
     ;
 
 postfix_expression
@@ -69,7 +78,7 @@ postfix_expression
 	| postfix_expression '(' argument_expression_list ')'
     	    { $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, $3); }
 	| postfix_expression '.' IDENTIFIER
-	    { $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, $3); }
+	    { $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, new_id($3)); }
 	| postfix_expression PTR_OP IDENTIFIER
 	    { $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, NULL);/*fix*/ }
 	| postfix_expression INC_OP
@@ -102,11 +111,17 @@ unary_expression
 
 unary_operator
 	: '&'
+	    { $$ = '&'; }
 	| '*'
+	    { $$ = '*'; }
 	| '+'
+	    { $$ = '+'; }
 	| '-'
+	    { $$ = '-'; }
 	| '~'
+	    { $$ = '~'; }
 	| '!'
+	    { $$ = '!'; }
 	;
 
 cast_expression
@@ -391,10 +406,14 @@ direct_declarator
 	;
 
 pointer
-	: '*'					{ $$ = new_ast(NODE_POINTER,NULL, NULL); }
-	| '*' type_qualifier_list		{ $$ = new_ast(NODE_POINTER, $2, NULL); }
-	| '*' pointer				{ $$ = $2; }
-	| '*' type_qualifier_list pointer	{ $$ = new_ast(NODE_POINTER, $2, $3); }
+	: '*'					
+	    { $$ = new_ast(NODE_POINTER,NULL, NULL); }
+	| '*' type_qualifier_list		
+	    { $$ = new_ast(NODE_POINTER, $2, NULL); }
+	| '*' pointer				
+	    { $$ = $2; }
+	| '*' type_qualifier_list pointer	
+	    { $$ = new_ast(NODE_POINTER, $2, $3); }
 	;
 
 type_qualifier_list
@@ -411,14 +430,19 @@ parameter_type_list
 	;
 
 parameter_list
-	: parameter_declaration
+	: parameter_declaration 
+	    { $$ = $1; }
 	| parameter_list ',' parameter_declaration
+	    { $$ = new_ast(NODE_PARAMETER_LIST, $1, $3); }
 	;
 
 parameter_declaration
 	: declaration_specifiers declarator
+	    { $$ = new_ast(NODE_PARAMETER_DECLARATION, $1, $2); }
 	| declaration_specifiers abstract_declarator
+	    { $$ = new_ast(NODE_PARAMETER_DECLARATION, $1, $2); }
 	| declaration_specifiers
+	    { $$ = new_ast(NODE_PARAMETER_DECLARATION, $1, NULL); }
 	;
 
 identifier_list
@@ -476,17 +500,26 @@ initializer_list
 
 statement
 	: labeled_statement
+	    { $$ = $1; }
 	| compound_statement
+	    { $$ = $1; }
 	| expression_statement
+	    { $$ = $1; }
 	| selection_statement
+	    { $$ = $1; }
 	| iteration_statement
+	    { $$ = $1; }
 	| jump_statement
+	    { $$ = $1; }
 	;
 
 labeled_statement
 	: IDENTIFIER ':' statement
+	    { $$ = new_ast(NODE_LABELED_STATEMENT, new_id($1), $3); }
 	| CASE constant_expression ':' statement
+	    { $$ = new_ast(NODE_LABELED_STATEMENT, $2, $4); }
 	| DEFAULT ':' statement
+	    { $$ = new_ast(NODE_LABELED_STATEMENT, $3, NULL); }
 	;
 
 compound_statement
@@ -518,69 +551,96 @@ statement_list
 
 expression_statement
 	: ';'
+	    { $$ = NULL; }
 	| expression ';'
+	    { $$ = $1; }
 	;
 
 selection_statement
 	: IF '(' expression ')' statement
+	    { $$ = new_flow(IF, $3, $5, NULL); }
 	| IF '(' expression ')' statement ELSE statement
+	    { $$ = new_flow(IF, $3, $5, $7); }
 	| SWITCH '(' expression ')' statement
+	    { $$ = new_flow(SWITCH, $3, $5, NULL); }
 	;
 
 iteration_statement
 	: WHILE '(' expression ')' statement
+	    { $$ = new_flow(WHILE, $3, $5, NULL); }
 	| DO statement WHILE '(' expression ')' ';'
+	    { $$ = new_flow(DO, $5, $2, NULL); }
 	| FOR '(' expression_statement expression_statement ')' statement
+	    { $$ = new_for($3, $4, NULL, $6); }
 	| FOR '(' expression_statement expression_statement expression ')' statement
+	    { $$ = new_for($3, $4, $5, $7); }
 	;
 
 jump_statement
 	: GOTO IDENTIFIER ';'
+	    { $$ = new_ast(GOTO, new_id($2), NULL); }
 	| CONTINUE ';'
+	    { $$ = new_word(CONTINUE); }
 	| BREAK ';'
+	    { $$ = new_word(BREAK); }
 	| RETURN ';'
+	    { $$ = new_word(RETURN); }
 	| RETURN  expression ';'
-	| ASM maybe_type_qualifier '(' expression ')' ;
+	    { $$ = new_ast(RETURN, $2, NULL); }
+	| ASM maybe_type_qualifier '(' expression ')' 
+	    { $$ = new_asm($2, $4, NULL, NULL, NULL); }
 	| ASM maybe_type_qualifier '(' expression ':' asm_operands ')' ';'
+	    { $$ = new_asm($2, $4, $6, NULL, NULL); }
 	| ASM maybe_type_qualifier '(' expression ':' asm_operands ':' asm_operands ')' ';'
+	    { $$ = new_asm($2, $4, $6, $8, NULL); }
 	| ASM maybe_type_qualifier '(' expression ':' asm_operands ':' asm_operands ':' asm_clobbers ')' ';'
+	    { $$ = new_asm($2, $4, $6, $8, $10); }
 	;
 maybe_type_qualifier
-	: {/*NULL*/}
+	: /* empty */
+	    { $$ = NULL; }
 	| type_qualifier
+	    { $$ = $1; }
 	;
 asm_operands
-	: /* empty */	{}
-        | nonnull_asm_operands
+	: /* empty */
+	    { $$ = NULL; }
+        | nonnull_asm_operands 
+    	    { $$ = $1; }
 	;
 
 nonnull_asm_operands 
 	: asm_operand
-	| nonnull_asm_operands ',' asm_operand {  }
+	    { $$ = $1; } 
+	| nonnull_asm_operands ',' asm_operand 
+	    { $$ = new_ast(NODE_NONNULL_ASM_OPERANDS, $1, $3); }
 	;
 	
 asm_operand
-	: STRING_LITERAL '(' expression ')'			{ }
-	| '[' expression ']' STRING_LITERAL '(' expression ')' 	{ }
+	: STRING_LITERAL '(' expression ')'
+	    { $$ = new_asm_operand(NULL, new_string($1), $3); }
+	| '[' expression ']' STRING_LITERAL '(' expression ')' 
+	    { $$ = new_asm_operand($2, new_string($4), $6); }
 	;
 		    		    	    
 asm_clobbers
-	: string			{ }
-        | asm_clobbers ',' string 	{ }
+	: string
+	    { $$ = $1; }
+        | asm_clobbers ',' string 
+	    { $$ = new_ast(NODE_ASM_CLOBBERS, $1, $3); }
 	;
-	
 translation_unit
 	: external_declaration 	
-		{ $$ = new_ast(NODE_TRANSLATION_UNIT, $1, NULL); root = $$; }
+		{ $$ = $1; }
 	| translation_unit external_declaration 
-		{ $$ = new_ast(NODE_TRANSLATION_UNIT, $1, $2); }
+		{ $$ = new_ast(NODE_TRANSLATION_UNIT, $1, $2); root = $$; }
 	;
 
 external_declaration
 	: function_definition 
-		{ $$ = new_ast(NODE_EXTERNAL_DECLARATION, $1, NULL); }
+		{ $$ = $1; }
 	| declaration
-		{ $$ = new_ast(NODE_EXTERNAL_DECLARATION, $1, NULL); }
+		{ $$ = $1; }
 	;
 
 function_definition
@@ -607,14 +667,14 @@ attributes
 	
 attribute
 	: ATTRIBUTE '(' '(' attribute_list ')' ')'
-		{ $$ = new_ast(ATTRIBUTE, $4, NULL); }
+		{ $$ = new_ast(NODE_ATTRIBUTE, $4, NULL); }
         ;
         
 attribute_list
 	: attrib
 	    { $$ = $1; }
         | attribute_list ',' attrib 
-    	    { $$ = new_ast(ATTRIBUTE_LIST, $1, $3); }
+    	    { $$ = new_ast(NODE_ATTRIBUTE_LIST, $1, $3); }
 	;
 
 attrib
@@ -622,9 +682,9 @@ attrib
         | any_word
     	    { $$ = new_attribute($1, NULL, NULL); }
 	| any_word '(' IDENTIFIER ')'
-    	    { $$ = new_attribute($1, $3, NULL); }
+    	    { $$ = new_attribute($1, new_id($3), NULL); }
         | any_word '(' IDENTIFIER ',' expression ')'
-    	    { $$ = new_attribute($1, $3, $5); }
+    	    { $$ = new_attribute($1, new_id($3), $5); }
 	| any_word '(' expression ')'
     	    { $$ = new_attribute($1, NULL, $3); }
         ;
@@ -648,8 +708,8 @@ extern int column;
 
 int main(int argc, char *argv[]) 
 {
-    if (argc < 3) {
-	printf("usage:%s <input file> <output file>\n", argv[0]);
+    if (argc < 4) {
+	printf("usage:%s <input file> <output file> <afs file>\n", argv[0]);
 /*	FILE *in, *out; 
 	if ((in = fopen("test.c.preprocess", "r")) == NULL) {
 	    printf("%s: can't open file: %s\n", argv[0], "test.c.preprocess");
@@ -676,11 +736,17 @@ int main(int argc, char *argv[])
 	    printf("%s: can't open file: %s\n", argv[0], argv[2]);
 	    return 1;
 	}
+	if ((afs_file = fopen(argv[3], "w")) == NULL) {
+	    printf("%s: can't open file: %s\n", argv[0], argv[3]);
+	    return 1;
+	}
 	yyin = in;
 	yyout = out;
 	addref("__builtin_va_list", TYPE_NAME);
 	addref("mm_segment_t", TYPE_NAME);
-	return (yyparse());
+	yyparse();
+	fclose(in);
+	fclose(out);
     }
     return 1;
 }

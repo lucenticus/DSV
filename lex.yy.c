@@ -1267,44 +1267,44 @@ YY_RULE_SETUP
 case 52:
 YY_RULE_SETUP
 #line 74 "parser-c.l"
-{ count(); return(CONSTANT); }
+{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
 #line 75 "parser-c.l"
-{ count(); return(CONSTANT); }
+{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
 #line 76 "parser-c.l"
-{ count(); return(CONSTANT); }
+{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 	YY_BREAK
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
 #line 77 "parser-c.l"
-{ count(); return(CONSTANT); }
+{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
 #line 79 "parser-c.l"
-{ count(); return(CONSTANT); }
+{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
 #line 80 "parser-c.l"
-{ count(); return(CONSTANT); }
+{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
 #line 81 "parser-c.l"
-{ count(); return(CONSTANT); }
+{ count(); yylval.id = strdup(yytext); return(CONSTANT); }
 	YY_BREAK
 case 59:
 /* rule 59 can match eol */
 YY_RULE_SETUP
 #line 83 "parser-c.l"
-{ count(); return(STRING_LITERAL); }
+{ count(); yylval.id = strdup(yytext); return(STRING_LITERAL); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
@@ -1419,127 +1419,127 @@ YY_RULE_SETUP
 case 82:
 YY_RULE_SETUP
 #line 107 "parser-c.l"
-{ count(); return(';'); }
+{ count(); yylval.tok = ';'; return(';'); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
 #line 108 "parser-c.l"
-{ count(); return(';'); }
+{ count(); yylval.tok = ';'; return(';'); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
 #line 109 "parser-c.l"
-{ count(); return('{'); }
+{ count(); yylval.tok = '{'; return('{'); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
 #line 110 "parser-c.l"
-{ count(); return('}'); }
+{ count(); yylval.tok = '}'; return('}'); }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
 #line 111 "parser-c.l"
-{ count(); return(','); }
+{ count(); yylval.tok = ','; return(','); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
 #line 112 "parser-c.l"
-{ count(); return(':'); }
+{ count(); yylval.tok = ':'; return(':'); }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
 #line 113 "parser-c.l"
-{ count(); return('='); }
+{ count(); yylval.tok = '='; return('='); }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
 #line 114 "parser-c.l"
-{ count(); return('('); }
+{ count(); yylval.tok = '('; return('('); }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
 #line 115 "parser-c.l"
-{ count(); return(')'); }
+{ count(); yylval.tok = ')'; return(')'); }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
 #line 116 "parser-c.l"
-{ count(); return('['); }
+{ count(); yylval.tok = '['; return('['); }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
 #line 117 "parser-c.l"
-{ count(); return(']'); }
+{ count(); yylval.tok = ']'; return(']'); }
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
 #line 118 "parser-c.l"
-{ count(); return('.'); }
+{ count(); yylval.tok = '.'; return('.'); }
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
 #line 119 "parser-c.l"
-{ count(); return('&'); }
+{ count(); yylval.tok = '&'; return('&'); }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
 #line 120 "parser-c.l"
-{ count(); return('!'); }
+{ count(); yylval.tok = '!'; return('!'); }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
 #line 121 "parser-c.l"
-{ count(); return('~'); }
+{ count(); yylval.tok = '~'; return('~'); }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
 #line 122 "parser-c.l"
-{ count(); return('-'); }
+{ count(); yylval.tok = '-'; return('-'); }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
 #line 123 "parser-c.l"
-{ count(); return('+'); }
+{ count(); yylval.tok = '+'; return('+'); }
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
 #line 124 "parser-c.l"
-{ count(); return('*'); }
+{ count(); yylval.tok = '*'; return('*'); }
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
 #line 125 "parser-c.l"
-{ count(); return('/'); }
+{ count(); yylval.tok = '/'; return('/'); }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
 #line 126 "parser-c.l"
-{ count(); return('%'); }
+{ count(); yylval.tok = '%'; return('%'); }
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
 #line 127 "parser-c.l"
-{ count(); return('<'); }
+{ count(); yylval.tok = '<'; return('<'); }
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
 #line 128 "parser-c.l"
-{ count(); return('>'); }
+{ count(); yylval.tok = '>'; return('>'); }
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
 #line 129 "parser-c.l"
-{ count(); return('^'); }
+{ count(); yylval.tok = '^'; return('^'); }
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
 #line 130 "parser-c.l"
-{ count(); return('|'); }
+{ count(); yylval.tok = '|'; return('|'); }
 	YY_BREAK
 case 106:
 YY_RULE_SETUP
 #line 131 "parser-c.l"
-{ count(); return('?'); }
+{ count(); yylval.tok = '?'; return('?'); }
 	YY_BREAK
 case 107:
 /* rule 107 can match eol */
