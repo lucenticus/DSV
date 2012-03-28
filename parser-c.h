@@ -7,6 +7,16 @@ struct ast {
     struct ast *r;
 };
 
+struct f_op {
+    char *name;
+    struct ast *func;
+};
+
+struct f_ops {
+    struct f_op *op;
+    struct f_ops *next;
+};
+
 struct term_id {
     int nodetype;
     struct ast *l;

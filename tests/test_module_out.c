@@ -9197,7 +9197,7 @@ static inline __attribute__((always_inline)) ktime_t ns_to_ktime(u64 ns)
  static const ktime_t ktime_zero = { .tv64 = 0
                                              ^
                                   syntax error
- }!t!;
+ };
  return ({ (ktime_t){ .tv64 = (
                               ^
                    syntax error
@@ -11084,7 +11084,7 @@ static inline __attribute__((always_inline)) int cap_is_fs_cap(int cap)
  const kernel_cap_t __cap_fs_set = ((kernel_cap_t){{ ((1 << ((0) & 31)) | (1 << ((27) & 31)) | (1 << ((1) & 31)) | (1 << ((2) & 31)) | (1 << ((3) & 31)) | (1 << ((4) & 31))) | (1 << ((9) & 31)), ((1 << ((32) & 31))) }
                                                                                                                                                                                                                         ^
                                                                                                                                                                                                              syntax error
-!t! });
+ });
  return !!((1 << ((cap) & 31)) & __cap_fs_set.cap[((cap) >> 5)]);
 }
 
@@ -11093,7 +11093,7 @@ static inline __attribute__((always_inline)) kernel_cap_t cap_drop_fs_set(const 
  const kernel_cap_t __cap_fs_set = ((kernel_cap_t){{ ((1 << ((0) & 31)) | (1 << ((27) & 31)) | (1 << ((1) & 31)) | (1 << ((2) & 31)) | (1 << ((3) & 31)) | (1 << ((4) & 31))) | (1 << ((9) & 31)), ((1 << ((32) & 31))) }
                                                                                                                                                                                                                         ^
                                                                                                                                                                                                              syntax error
-!t! });
+ });
  return cap_drop(a, __cap_fs_set);
 }
 
@@ -11103,7 +11103,7 @@ static inline __attribute__((always_inline)) kernel_cap_t cap_raise_fs_set(const
  const kernel_cap_t __cap_fs_set = ((kernel_cap_t){{ ((1 << ((0) & 31)) | (1 << ((27) & 31)) | (1 << ((1) & 31)) | (1 << ((2) & 31)) | (1 << ((3) & 31)) | (1 << ((4) & 31))) | (1 << ((9) & 31)), ((1 << ((32) & 31))) }
                                                                                                                                                                                                                         ^
                                                                                                                                                                                                              syntax error
-!t! });
+ });
  return cap_combine(a,
       cap_intersect(permitted, __cap_fs_set));
 }
@@ -11113,7 +11113,7 @@ static inline __attribute__((always_inline)) kernel_cap_t cap_drop_nfsd_set(cons
  const kernel_cap_t __cap_fs_set = ((kernel_cap_t){{ ((1 << ((0) & 31)) | (1 << ((27) & 31)) | (1 << ((1) & 31)) | (1 << ((2) & 31)) | (1 << ((3) & 31)) | (1 << ((4) & 31))) | (1 << ((24) & 31)), ((1 << ((32) & 31))) }
                                                                                                                                                                                                                          ^
                                                                                                                                                                                                               syntax error
-!t! });
+ });
  return cap_drop(a, __cap_fs_set);
 }
 
@@ -11123,7 +11123,7 @@ static inline __attribute__((always_inline)) kernel_cap_t cap_raise_nfsd_set(con
  const kernel_cap_t __cap_nfsd_set = ((kernel_cap_t){{ ((1 << ((0) & 31)) | (1 << ((27) & 31)) | (1 << ((1) & 31)) | (1 << ((2) & 31)) | (1 << ((3) & 31)) | (1 << ((4) & 31))) | (1 << ((24) & 31)), ((1 << ((32) & 31))) }
                                                                                                                                                                                                                            ^
                                                                                                                                                                                                                 syntax error
-!t! });
+ });
  return cap_combine(a,
       cap_intersect(permitted, __cap_nfsd_set));
 }
@@ -11150,13 +11150,10 @@ static inline __attribute__((always_inline)) void sema_init(struct semaphore *se
 spinlock_t) { .raw_lock = { }
                                                                   ^
                                                        syntax error
-!t!, }, .count = val, .
-                                                                                      ^
-                                                                           syntax error
-wait_list = { &
+, }, .count = val, .wait_list = { &
                                                                                                      ^
                                                                                           syntax error
-((*sem).wait_list), &((*sem).wait_list) }!t!, };
+((*sem).wait_list), &((*sem).wait_list) }, };
  do { (void)("semaphore->lock"); (void)(&__key); } while (0);
 }
 
@@ -13247,22 +13244,10 @@ struct file_operations test_fops = {
            ^
 syntax error
 &__this_module),
-  .
-  ^
-syntax error
-open = test_open,
-  .
-  ^
-syntax error
-write = test_write,
-  .
-  ^
-syntax error
-read = test_read,
-  .
-  ^
-syntax error
-release = test_close,
+  .open = test_open,
+  .write = test_write,
+  .read = test_read,
+  .release = test_close,
 };
 
 static int test_open(struct inode *ino, struct file *filp)

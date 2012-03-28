@@ -50,7 +50,7 @@ primary_expression
 	    { $$ = new_id($2); }
 	| '{' '.' IDENTIFIER '=' IDENTIFIER '}'		/* check */
 	    { $$ = new_id($3); }
-	| '{' error '}' { fprintf(yyout, "!t!"); }
+	| '{' error '}' 
 	    { $$ = NULL; }
 	| CONSTANT
 	    { $$ = new_id($1); }
@@ -122,6 +122,8 @@ unary_operator
 	    { $$ = '~'; }
 	| '!'
 	    { $$ = '!'; }
+	| '.' 
+	    { $$ = '.'; }
 	;
 
 cast_expression
@@ -488,7 +490,7 @@ direct_abstract_declarator
 	;
 
 initializer
-	: assignment_expression 		{ $$ = new_ast(NODE_ASSIGNMENT_EXPRESSION, NULL, NULL); }
+	: assignment_expression 		{ $$ = $1; }
 	| '{' initializer_list '}'		{ $$ = $2; }
 	| '{' initializer_list ',' '}'		{ $$ = $2; }
 	;

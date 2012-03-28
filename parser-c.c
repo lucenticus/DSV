@@ -364,6 +364,7 @@ struct ast *find_cdev_init (struct ast *node)
 	a = find_cdev_init(node->r);
     return a;
 }
+
 char * find_fops_name(struct ast *func_body)
 {
     struct ast *cdev_init = find_cdev_init(func_body);
@@ -378,6 +379,25 @@ char * find_fops_name(struct ast *func_body)
     return fops_id->name;
 }
 
+struct ast *find_fops_init(struct ast *node, char *fops_name) 
+{
+    struct ast * a;
+    if (node == NULL) {
+	return NULL;
+    }
+    if (node->nodetype == NODE_DECLARATION) {
+	a = (struct ast *) node;
+	struct term_id *id = (struct term_id*) find_id(a->r);
+	if (id != NULL && strcmp(id->name, fops_name) == 0) {
+	    return a;
+	}
+    }
+    a  = find_fops_init(node->l, fops_name);
+    if (a == NULL)
+	a = find_fops_init(node->r, fops_name);
+    return a;
+}
+
 void parse_to_afs () 
 {
     /*print_tree(root);*/
@@ -386,12 +406,21 @@ void parse_to_afs ()
 	printf("\nerr: can't find name of init function!");
 	return;
     }
-	
     struct func *func_init = find_func(root, init_func_name);
     if (func_init == NULL) {
 	printf("\nerr: can't find init function!");
 	return;
     }
     char *fops_name = find_fops_name(func_init->func_body);
-    print_tree(root);
+    /*print_tree(root);*/
+    if (fops_name == NULL) {
+	printf("\nerr: can't find fops struct name!");
+	return;
+    }
+    struct ast *fops_struct = find_fops_init(root, fops_name);
+    if (fops_name == NULL) {
+	printf("\nerr: can't find fops struct init!");
+	return;
+    }
+    print_tree(fops_struct);
 }
