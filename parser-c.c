@@ -196,6 +196,8 @@ void print_tree (struct ast *a)
     if (a == NULL)
 	return;
     printf("nodetype:%d\n", a->nodetype);
+    if (a->nodetype == NODE_ID)
+	printf("id:%s\n",((struct term_id *) a)->name);
     print_tree(a->l);
     print_tree(a->r);
 }
@@ -344,10 +346,36 @@ char * find_init_name()
     return init_id->name;
 }
 
+struct ast *find_cdev_init (struct ast *node) 
+{
+    struct ast * a;
+    if (node == NULL) {
+	return NULL;
+    }
+    if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
+	a = (struct ast *) node;
+	struct term_id *id = (struct term_id*) find_id(a->l);
+	if (id != NULL && strcmp(id->name, "cdev_init") == 0) {
+	    return a;
+	}
+    }
+    a  = find_cdev_init(node->l);
+    if (a == NULL)
+	a = find_cdev_init(node->r);
+    return a;
+}
 char * find_fops_name(struct ast *func_body)
 {
-    print_tree(func_body);
-    return NULL;
+    struct ast *cdev_init = find_cdev_init(func_body);
+    if (cdev_init == NULL)
+	return NULL;
+    struct ast *arg_expr_list = find_token(cdev_init, NODE_ARGUMENT_EXPRESSION_LIST);
+    if (arg_expr_list == NULL)
+	return NULL;
+    struct term_id *fops_id = (struct term_id *)find_id(arg_expr_list->r);
+    if (fops_id == NULL)
+	return NULL;
+    return fops_id->name;
 }
 
 void parse_to_afs () 
@@ -365,4 +393,5 @@ void parse_to_afs ()
 	return;
     }
     char *fops_name = find_fops_name(func_init->func_body);
+    print_tree(root);
 }

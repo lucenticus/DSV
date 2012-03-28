@@ -50,7 +50,7 @@ primary_expression
 	    { $$ = new_id($2); }
 	| '{' '.' IDENTIFIER '=' IDENTIFIER '}'		/* check */
 	    { $$ = new_id($3); }
-	| '{' error '}'
+	| '{' error '}' { fprintf(yyout, "!t!"); }
 	    { $$ = NULL; }
 	| CONSTANT
 	    { $$ = new_id($1); }
