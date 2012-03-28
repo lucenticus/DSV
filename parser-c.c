@@ -196,8 +196,6 @@ void print_tree (struct ast *a)
     if (a == NULL)
 	return;
     printf("nodetype:%d\n", a->nodetype);
-    if (a->nodetype == TYPEDEF)
-	printf("begin typedef declaration\n");
     print_tree(a->l);
     print_tree(a->r);
 }
@@ -324,9 +322,8 @@ struct func * find_func(struct ast *node, char *name)
     if (node->nodetype == NODE_FUNC) {
 	a = (struct func *) node;
 	struct term_id *id = (struct term_id*) find_id(a->declarator);
-	printf("test:%s\n", id->name);
-	if (id != NULL && strcmp(id->name, name) == 0) {
-	    printf("test");
+	
+	if (id != NULL && strstr(id->name, name) != NULL) {
 	    return a;
 	}
     }
@@ -337,10 +334,35 @@ struct func * find_func(struct ast *node, char *name)
 }
 char * find_init_name() 
 {
-    struct func *f = find_func(root, "init_module");
+    struct term_id *init_id;
+    struct func *f = find_func(root, "__init");
+    if (f == NULL)
+	return NULL;
+    init_id = (struct term_id *) find_id(f->func_body);
+    if (init_id == NULL)
+	return NULL;
+    return init_id->name;
+}
+
+char * find_fops_name(struct ast *func_body)
+{
+    print_tree(func_body);
+    return NULL;
 }
 
 void parse_to_afs () 
 {
-    char * init_func = find_init_name();
+    /*print_tree(root);*/
+    char * init_func_name = find_init_name();
+    if (init_func_name == NULL) {
+	printf("\nerr: can't find name of init function!");
+	return;
+    }
+	
+    struct func *func_init = find_func(root, init_func_name);
+    if (func_init == NULL) {
+	printf("\nerr: can't find init function!");
+	return;
+    }
+    char *fops_name = find_fops_name(func_init->func_body);
 }

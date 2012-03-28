@@ -2749,7 +2749,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 281 "parser-c.y"
-    { ;}
+    {  ;}
     break;
 
   case 88:
@@ -3841,7 +3841,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 660 "parser-c.y"
-    { (yyval.a) = (yyvsp[(1) - (1)].a);}
+    { (yyval.a) = (yyvsp[(1) - (1)].a) ;}
     break;
 
   case 247:

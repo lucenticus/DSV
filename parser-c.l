@@ -103,8 +103,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.id = strdup(yytext); return(STRING_LITERAL
 ">="			{ count(); return(GE_OP); }
 "=="			{ count(); return(EQ_OP); }
 "!="			{ count(); return(NE_OP); }
-";"			{ count(); yylval.tok = ';'; return(';'); }
-";;"			{ count(); yylval.tok = ';'; return(';'); }
+(";"|";;")		{ count(); yylval.tok = ';'; return(';'); }
 ("{"|"<%")		{ count(); yylval.tok = '{'; return('{'); }
 ("}"|"%>")		{ count(); yylval.tok = '}'; return('}'); }
 ","			{ count(); yylval.tok = ','; return(','); }

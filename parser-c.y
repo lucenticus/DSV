@@ -276,9 +276,9 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers  ';' 
-	| declaration_specifiers  init_declarator_list  ';' 	{ $$ = new_ast(NODE_DECLARATION, $1, $2); parse_declaration($$); }
-	| declaration_specifiers  error ';'			{ }
+	: declaration_specifiers ';' 
+	| declaration_specifiers  init_declarator_list ';' 	{ $$ = new_ast(NODE_DECLARATION, $1, $2); parse_declaration($$); }
+	| declaration_specifiers  error ';'			{  }
 	;
 
 declaration_specifiers
@@ -401,8 +401,8 @@ direct_declarator
 	| direct_declarator '[' constant_expression ']' 	{ $$ = $1; }
 	| direct_declarator '[' ']'				{ $$ = $1; }
 	| direct_declarator '(' parameter_type_list ')'		{ $$ = $1; }
-	| direct_declarator '(' identifier_list ')'		{ $$ = $1; } 
-	| direct_declarator '(' ')'				{ $$ = $1; }
+	| direct_declarator '(' identifier_list ')' 		{ $$ = $1; } 
+	| direct_declarator '(' ')' 				{ $$ = $1; }
 	;
 
 pointer

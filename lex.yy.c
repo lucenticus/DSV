@@ -384,8 +384,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 109
-#define YY_END_OF_BUFFER 110
+#define YY_NUM_RULES 108
+#define YY_END_OF_BUFFER 109
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -395,15 +395,15 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[343] =
     {   0,
-        0,    0,    0,    0,  110,  108,  107,  107,   95,  108,
-      108,  101,   94,  108,   89,   90,   99,   98,   86,   97,
-       93,  100,   54,   54,   87,   82,  102,   88,  103,  106,
-       51,   51,   91,   92,  104,   51,   51,   51,   51,   51,
+        0,    0,    0,    0,  109,  107,  106,  106,   94,  107,
+      107,  100,   93,  107,   88,   89,   98,   97,   85,   96,
+       92,   99,   54,   54,   86,   82,  101,   87,  102,  105,
+       51,   51,   90,   91,  103,   51,   51,   51,   51,   51,
        51,   51,   51,   51,   51,   51,   51,   51,   51,   51,
-       51,   51,   84,  105,   85,   96,  109,   81,    0,   59,
-        0,    0,    1,   67,   85,   76,   68,    0,    0,   65,
+       51,   51,   83,  104,   84,   95,  108,   81,    0,   59,
+        0,    0,    1,   67,   84,   76,   68,    0,    0,   65,
        73,   63,   74,   64,   75,    0,   57,    2,   66,   58,
-       53,    0,   54,    0,   54,   92,   83,   84,   91,   72,
+       53,    0,   54,    0,   54,   91,   82,   83,   90,   72,
        78,   80,   79,   71,   51,    0,    0,   69,   51,   51,
 
        51,   51,   51,   51,   51,   51,   51,   21,   51,   51,
@@ -691,14 +691,14 @@ static yyconst flex_int16_t yy_chk[545] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static yyconst flex_int32_t yy_rule_can_match_eol[110] =
+static yyconst flex_int32_t yy_rule_can_match_eol[109] =
     {   0,
 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0,     };
+    0, 0, 0, 0, 0, 0, 1, 0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -1423,140 +1423,135 @@ YY_RULE_SETUP
 case 83:
 YY_RULE_SETUP
 #line 107 "parser-c.l"
-{ count(); yylval.tok = ';'; return(';'); }
+{ count(); yylval.tok = '{'; return('{'); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
 #line 108 "parser-c.l"
-{ count(); yylval.tok = '{'; return('{'); }
+{ count(); yylval.tok = '}'; return('}'); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
 #line 109 "parser-c.l"
-{ count(); yylval.tok = '}'; return('}'); }
+{ count(); yylval.tok = ','; return(','); }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
 #line 110 "parser-c.l"
-{ count(); yylval.tok = ','; return(','); }
+{ count(); yylval.tok = ':'; return(':'); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
 #line 111 "parser-c.l"
-{ count(); yylval.tok = ':'; return(':'); }
+{ count(); yylval.tok = '='; return('='); }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
 #line 112 "parser-c.l"
-{ count(); yylval.tok = '='; return('='); }
+{ count(); yylval.tok = '('; return('('); }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
 #line 113 "parser-c.l"
-{ count(); yylval.tok = '('; return('('); }
+{ count(); yylval.tok = ')'; return(')'); }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
 #line 114 "parser-c.l"
-{ count(); yylval.tok = ')'; return(')'); }
+{ count(); yylval.tok = '['; return('['); }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
 #line 115 "parser-c.l"
-{ count(); yylval.tok = '['; return('['); }
+{ count(); yylval.tok = ']'; return(']'); }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
 #line 116 "parser-c.l"
-{ count(); yylval.tok = ']'; return(']'); }
+{ count(); yylval.tok = '.'; return('.'); }
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
 #line 117 "parser-c.l"
-{ count(); yylval.tok = '.'; return('.'); }
+{ count(); yylval.tok = '&'; return('&'); }
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
 #line 118 "parser-c.l"
-{ count(); yylval.tok = '&'; return('&'); }
+{ count(); yylval.tok = '!'; return('!'); }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
 #line 119 "parser-c.l"
-{ count(); yylval.tok = '!'; return('!'); }
+{ count(); yylval.tok = '~'; return('~'); }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
 #line 120 "parser-c.l"
-{ count(); yylval.tok = '~'; return('~'); }
+{ count(); yylval.tok = '-'; return('-'); }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
 #line 121 "parser-c.l"
-{ count(); yylval.tok = '-'; return('-'); }
+{ count(); yylval.tok = '+'; return('+'); }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
 #line 122 "parser-c.l"
-{ count(); yylval.tok = '+'; return('+'); }
+{ count(); yylval.tok = '*'; return('*'); }
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
 #line 123 "parser-c.l"
-{ count(); yylval.tok = '*'; return('*'); }
+{ count(); yylval.tok = '/'; return('/'); }
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
 #line 124 "parser-c.l"
-{ count(); yylval.tok = '/'; return('/'); }
+{ count(); yylval.tok = '%'; return('%'); }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
 #line 125 "parser-c.l"
-{ count(); yylval.tok = '%'; return('%'); }
+{ count(); yylval.tok = '<'; return('<'); }
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
 #line 126 "parser-c.l"
-{ count(); yylval.tok = '<'; return('<'); }
+{ count(); yylval.tok = '>'; return('>'); }
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
 #line 127 "parser-c.l"
-{ count(); yylval.tok = '>'; return('>'); }
+{ count(); yylval.tok = '^'; return('^'); }
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
 #line 128 "parser-c.l"
-{ count(); yylval.tok = '^'; return('^'); }
+{ count(); yylval.tok = '|'; return('|'); }
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
 #line 129 "parser-c.l"
-{ count(); yylval.tok = '|'; return('|'); }
-	YY_BREAK
-case 106:
-YY_RULE_SETUP
-#line 130 "parser-c.l"
 { count(); yylval.tok = '?'; return('?'); }
 	YY_BREAK
-case 107:
-/* rule 107 can match eol */
+case 106:
+/* rule 106 can match eol */
 YY_RULE_SETUP
-#line 132 "parser-c.l"
+#line 131 "parser-c.l"
 { count (); }
+	YY_BREAK
+case 107:
+YY_RULE_SETUP
+#line 133 "parser-c.l"
+{ /* ignore bad characters */ }
 	YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 134 "parser-c.l"
-{ /* ignore bad characters */ }
-	YY_BREAK
-case 109:
-YY_RULE_SETUP
-#line 136 "parser-c.l"
+#line 135 "parser-c.l"
 ECHO;
 	YY_BREAK
-#line 1560 "lex.yy.c"
+#line 1555 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(IFILE):
 	yyterminate();
@@ -2567,7 +2562,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 136 "parser-c.l"
+#line 135 "parser-c.l"
 
 
 
