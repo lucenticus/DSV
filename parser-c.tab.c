@@ -2638,7 +2638,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 238 "parser-c.y"
-    { (yyval.a) = new_ast((yyvsp[(2) - (3)].tok), (yyvsp[(1) - (3)].a), (yyvsp[(3) - (3)].a)); ;}
+    { (yyval.a) = new_ast(NODE_ASSIGNMENT_EXPRESSION, (yyvsp[(1) - (3)].a), (yyvsp[(3) - (3)].a)); ;}
     break;
 
   case 71:

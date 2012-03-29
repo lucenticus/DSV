@@ -105,8 +105,8 @@ struct ast *new_id(char *id)
 {
     struct term_id *a = malloc(sizeof(struct term_id));
     if (!a) {
-	yyerror("out of memory");
-	exit(0);
+		yyerror("out of memory");
+		exit(0);
     }
     a->nodetype = NODE_ID;
     a->name = strdup(id);
@@ -119,8 +119,8 @@ struct ast *new_word(int word)
 {
     struct ast *a = malloc(sizeof(struct ast));
     if (!a) {
-	yyerror("out of memory");
-	exit(0);
+		yyerror("out of memory");
+		exit(0);
     }
     a->nodetype = word;
     a->l = NULL;
@@ -132,8 +132,8 @@ struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list)
 {
     struct ast *a = malloc(sizeof(struct ast));
     if (!a) {
-	yyerror("out of memory");
-	exit(0);
+		yyerror("out of memory");
+		exit(0);
     }
     a->nodetype = NODE_STRUCT;
     a->l = NULL;
@@ -145,8 +145,8 @@ struct ast *new_enum(char *id, struct ast * enum_list)
 {
     struct ast *a = malloc(sizeof(struct ast));
     if (!a) {
-	yyerror("out of memory");
-	exit(0);
+		yyerror("out of memory");
+		exit(0);
     }
     a->nodetype = NODE_ENUM;
     a->l = NULL;
@@ -160,44 +160,44 @@ void parse_declaration(struct ast* node)
     /*print_tree(node);*/
     struct ast *tok;
     if (node->l != NULL) {
-	tok = find_token(node->l, TYPEDEF);
+		tok = find_token(node->l, TYPEDEF);
     }
     if (tok != NULL && node->r != NULL) {
         struct term_id *a = (struct term_id *) find_id(node->r);
-	if (a != NULL) {
-	    /*printf("id:%s\n", a->name);*/
-	    addref(a->name, TYPE_NAME);
-	}
+		if (a != NULL) {
+			/*printf("id:%s\n", a->name);*/
+			addref(a->name, TYPE_NAME);
+		}
     }
 }
 struct ast* find_token(struct ast *node, int nodetype) 
 {
     struct ast * a;
     if (node == NULL || node->nodetype == nodetype)
-	return node;
+		return node;
     /*printf("test: %d\n", node->nodetype);*/
     a  = find_token(node->l, nodetype);
     if (a == NULL)
-	a = find_token(node->r, nodetype);
+		a = find_token(node->r, nodetype);
     return a;
 }
 struct ast *find_id(struct ast *node) 
 {
     struct ast * a;
     if (node == NULL || node->nodetype == NODE_ID)
-	return node;
+		return node;
     a = find_id(node->l);
     if (a == NULL)
-	a = find_id(node->r);
+		a = find_id(node->r);
     return a;
 }
 void print_tree (struct ast *a) 
 {
     if (a == NULL)
-	return;
+		return;
     printf("nodetype:%d\n", a->nodetype);
     if (a->nodetype == NODE_ID)
-	printf("id:%s\n",((struct term_id *) a)->name);
+		printf("id:%s\n",((struct term_id *) a)->name);
     print_tree(a->l);
     print_tree(a->r);
 }
@@ -268,8 +268,8 @@ struct ast *new_asm_operand(struct ast * begin_expr,
 {
     struct ast *a = malloc(sizeof(struct ast));
     if (!a) {
-	yyerror("out of memory");
-	exit(0);
+		yyerror("out of memory");
+		exit(0);
     }
     a->nodetype = NODE_ASM_OPERAND;
     a->l = NULL;
@@ -285,8 +285,8 @@ struct ast * new_func(	struct ast * decl_specs,
 {
     struct func *a = malloc(sizeof(struct func));
     if (!a) {
-	yyerror("out of memory");
-	exit(0);
+		yyerror("out of memory");
+		exit(0);
     }
     a->nodetype = NODE_FUNC;
     a->l = NULL;
@@ -339,10 +339,10 @@ char * find_init_name()
     struct term_id *init_id;
     struct func *f = find_func(root, "__init");
     if (f == NULL)
-	return NULL;
+		return NULL;
     init_id = (struct term_id *) find_id(f->func_body);
     if (init_id == NULL)
-	return NULL;
+		return NULL;
     return init_id->name;
 }
 
@@ -350,18 +350,18 @@ struct ast *find_cdev_init (struct ast *node)
 {
     struct ast * a;
     if (node == NULL) {
-	return NULL;
+		return NULL;
     }
     if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
-	a = (struct ast *) node;
-	struct term_id *id = (struct term_id*) find_id(a->l);
-	if (id != NULL && strcmp(id->name, "cdev_init") == 0) {
-	    return a;
-	}
+		a = (struct ast *) node;
+		struct term_id *id = (struct term_id*) find_id(a->l);
+		if (id != NULL && strcmp(id->name, "cdev_init") == 0) {
+			return a;
+		}
     }
     a  = find_cdev_init(node->l);
     if (a == NULL)
-	a = find_cdev_init(node->r);
+		a = find_cdev_init(node->r);
     return a;
 }
 
@@ -369,13 +369,13 @@ char * find_fops_name(struct ast *func_body)
 {
     struct ast *cdev_init = find_cdev_init(func_body);
     if (cdev_init == NULL)
-	return NULL;
+		return NULL;
     struct ast *arg_expr_list = find_token(cdev_init, NODE_ARGUMENT_EXPRESSION_LIST);
     if (arg_expr_list == NULL)
-	return NULL;
+		return NULL;
     struct term_id *fops_id = (struct term_id *)find_id(arg_expr_list->r);
     if (fops_id == NULL)
-	return NULL;
+		return NULL;
     return fops_id->name;
 }
 
@@ -386,41 +386,98 @@ struct ast *find_fops_init(struct ast *node, char *fops_name)
 	return NULL;
     }
     if (node->nodetype == NODE_DECLARATION) {
-	a = (struct ast *) node;
-	struct term_id *id = (struct term_id*) find_id(a->r);
-	if (id != NULL && strcmp(id->name, fops_name) == 0) {
-	    return a;
-	}
+		a = (struct ast *) node;
+		struct term_id *id = (struct term_id*) find_id(a->r);
+		if (id != NULL && strcmp(id->name, fops_name) == 0) {
+			return a;
+		}
     }
+
     a  = find_fops_init(node->l, fops_name);
     if (a == NULL)
 	a = find_fops_init(node->r, fops_name);
     return a;
 }
 
+void  init_fops_name_list(struct ast *node) 
+{
+    struct ast * a;
+    if (node == NULL) {
+		return;
+    }
+    if (node->nodetype == NODE_ASSIGNMENT_EXPRESSION) {
+		a = (struct ast *) node;
+		struct term_id *id = (struct term_id*) find_id(a->r);
+		if (id != NULL) {
+			struct string_list *node = malloc(sizeof(struct string_list));
+			node->str = id->name;
+			node->next = NULL;
+			if (fops_name_list == NULL) {
+				fops_name_list = node;
+			} else {
+				struct string_list *tmp = fops_name_list;
+				while(tmp->next) {
+					tmp = tmp->next;
+				}
+				tmp->next = node;
+			}
+		}
+    }
+	init_fops_name_list(node->l);
+	init_fops_name_list(node->r);
+}
+
+void init_fops_list(struct ast *fops_struct) 
+{
+	struct fops_node *fops_head;
+	init_fops_name_list(fops_struct);
+	struct string_list *tmp = fops_name_list;
+	while (tmp) {
+		struct fops_node *node = malloc(sizeof(struct fops_node));
+		node->name = tmp->str;
+		node->func = find_func(root, node->name);
+		node->next = NULL;
+		if (fops_list == NULL) {
+				fops_list = node;
+			} else {
+				struct fops_node *tmp_node = fops_list;
+				while(tmp_node->next) {
+					tmp_node = tmp_node->next;
+				}
+				tmp_node->next = node;
+			}
+		tmp = tmp->next;
+	}
+}
 void parse_to_afs () 
 {
     /*print_tree(root);*/
     char * init_func_name = find_init_name();
     if (init_func_name == NULL) {
-	printf("\nerr: can't find name of init function!");
-	return;
+		printf("\nerr: can't find name of init function!");
+		return;
     }
     struct func *func_init = find_func(root, init_func_name);
     if (func_init == NULL) {
-	printf("\nerr: can't find init function!");
-	return;
+		printf("\nerr: can't find init function!");
+		return;
     }
     char *fops_name = find_fops_name(func_init->func_body);
     /*print_tree(root);*/
     if (fops_name == NULL) {
-	printf("\nerr: can't find fops struct name!");
-	return;
+		printf("\nerr: can't find fops struct name!");
+		return;
     }
     struct ast *fops_struct = find_fops_init(root, fops_name);
     if (fops_name == NULL) {
-	printf("\nerr: can't find fops struct init!");
-	return;
+		printf("\nerr: can't find fops struct init!");
+		return;
     }
-    print_tree(fops_struct);
+    init_fops_list(fops_struct);
+	struct fops_node *tmp = fops_list;
+	while(tmp) {
+		printf("------%s------\n",tmp->name);
+		print_tree(tmp->func->func_body);
+		tmp = tmp->next;
+	};
 }

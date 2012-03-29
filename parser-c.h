@@ -7,14 +7,15 @@ struct ast {
     struct ast *r;
 };
 
-struct f_op {
+struct fops_node {
     char *name;
-    struct ast *func;
+    struct func *func;
+    struct fops_node *next;
 };
 
-struct f_ops {
-    struct f_op *op;
-    struct f_ops *next;
+struct string_list {
+	char *str;
+	struct string_list *next;
 };
 
 struct term_id {
@@ -68,6 +69,9 @@ struct ast *root;
 #define NHASH (9997)
 struct symbol symtab[NHASH];
 
+struct fops_node *fops_list;
+struct string_list *fops_name_list;
+
 struct symbol *lookup(char*);
 void addref(char*, int);
 
@@ -95,7 +99,7 @@ struct ast *find_token(struct ast *a, int nodetype);
 
 
 enum NODETYPE {
-    NODE_DECLARATION,	/*0*/
+    NODE_DECLARATION,   /*0*/
     NODE_NUMBER,
     NODE_ID,
     NODE_WORD,

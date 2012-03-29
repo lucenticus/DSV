@@ -235,7 +235,7 @@ assignment_expression
 	: conditional_expression
 	    { $$ = $1; }
 	| unary_expression assignment_operator assignment_expression
-	    { $$ = new_ast($2, $1, $3); }
+	    { $$ = new_ast(NODE_ASSIGNMENT_EXPRESSION, $1, $3); }
 	;
 
 assignment_operator
