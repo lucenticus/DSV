@@ -36,214 +36,214 @@ void count()
 
 int check_type()
 {
-    struct symbol *sp = lookup(yytext);
-    if (sp->reflist && sp->reflist->type == TYPE_NAME) {
-	return(TYPE_NAME);
-    }
-    return(IDENTIFIER);
+	struct symbol *sp = lookup(yytext);
+	if (sp->reflist && sp->reflist->type == TYPE_NAME) {
+		return(TYPE_NAME);
+	}
+	return(IDENTIFIER);
 }
 
 static unsigned symhash(char *sym) 
 {
-    unsigned int hash = 0;
-    unsigned c;
-    while (c = *sym++) hash = hash * 9 ^ c;
-    return hash;
+	unsigned int hash = 0;
+	unsigned c;
+	while (c = *sym++) hash = hash * 9 ^ c;
+	return hash;
 }
 
 struct symbol* lookup(char *sym) 
 {
-    struct symbol *sp = &symtab[symhash(sym)%NHASH];
-    int scount = NHASH;
-    
-    while (--scount > 0) {
-	if (sp->name && !strcmp(sp->name, sym)) 
-	    return sp;
-	if (!sp->name) {
-	    sp->name = strdup(sym);
-	    sp->reflist = 0;
-	    return sp;
+	struct symbol *sp = &symtab[symhash(sym)%NHASH];
+	int scount = NHASH;
+	
+	while (--scount > 0) {
+		if (sp->name && !strcmp(sp->name, sym)) 
+			return sp;
+		if (!sp->name) {
+			sp->name = strdup(sym);
+			sp->reflist = 0;
+			return sp;
+		}
+		if (++sp >= symtab + NHASH)
+			sp = symtab;
 	}
-	if (++sp >= symtab + NHASH)
-	    sp = symtab;
-    }
-    fputs("symbol table overflow\n", stderr);
-    abort();
+	fputs("symbol table overflow\n", stderr);
+	abort();
 }
 
 void addref(char *word, int type)
 {
-    /*printf("%s:%d\n", word, type);*/
-    struct ref *r;
-    struct symbol *sp = lookup(word);
-    if (sp->reflist) 
-	return;
-    r = malloc(sizeof(struct ref));
-    if (!r) {
-	fputs("out of space\n",stderr);
-	abort();
-    }
-    r->next = sp->reflist;
-    r->type = type;
-    sp->reflist = r;
+	/*printf("%s:%d\n", word, type);*/
+	struct ref *r;
+	struct symbol *sp = lookup(word);
+	if (sp->reflist) 
+		return;
+	r = malloc(sizeof(struct ref));
+	if (!r) {
+		fputs("out of space\n",stderr);
+		abort();
+	}
+	r->next = sp->reflist;
+	r->type = type;
+	sp->reflist = r;
 }
 struct ast * new_ast(int nodetype, struct ast *l, struct ast *r) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
+	struct ast *a = malloc(sizeof(struct ast));
     
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = nodetype;
-    a->l = l;
-    a->r = r;
-    return a;
+	if (!a) {
+		yyerror("out of memory");
+		exit(0);
+	}
+	a->nodetype = nodetype;
+	a->l = l;
+	a->r = r;
+	return a;
 }
 
 struct ast *new_id(char *id) 
 {
-    struct term_id *a = malloc(sizeof(struct term_id));
-    if (!a) {
+	struct term_id *a = malloc(sizeof(struct term_id));
+	if (!a) {
 		yyerror("out of memory");
 		exit(0);
-    }
-    a->nodetype = NODE_ID;
-    a->name = strdup(id);
-    /* add to symtable */
-    a->l = NULL;
-    a->r = NULL;
-    return ((struct ast *) a);
+	}
+	a->nodetype = NODE_ID;
+	a->name = strdup(id);
+	/* add to symtable */
+	a->l = NULL;
+	a->r = NULL;
+	return ((struct ast *) a);
 }
 struct ast *new_word(int word) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
 		yyerror("out of memory");
 		exit(0);
-    }
-    a->nodetype = word;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
+	}
+	a->nodetype = word;
+	a->l = NULL;
+	a->r = NULL;
+	/* add to symtable */
+	return a;
 }
 struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
 		yyerror("out of memory");
 		exit(0);
-    }
-    a->nodetype = NODE_STRUCT;
-    a->l = NULL;
-    a->r = NULL;
+	}
+	a->nodetype = NODE_STRUCT;
+	a->l = NULL;
+	a->r = NULL;
     /* add to symtable */
-    return a;
+	return a;
 }
 struct ast *new_enum(char *id, struct ast * enum_list) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
 		yyerror("out of memory");
 		exit(0);
-    }
-    a->nodetype = NODE_ENUM;
-    a->l = NULL;
-    a->r = NULL;
+	}
+	a->nodetype = NODE_ENUM;
+	a->l = NULL;
+	a->r = NULL;
     /* add to symtable */
-    return a;
+	return a;
 }
 
 void parse_declaration(struct ast* node) 
 {
     /*print_tree(node);*/
-    struct ast *tok;
-    if (node->l != NULL) {
+	struct ast *tok;
+	if (node->l != NULL) {
 		tok = find_token(node->l, TYPEDEF);
-    }
-    if (tok != NULL && node->r != NULL) {
-        struct term_id *a = (struct term_id *) find_id(node->r);
+	}
+	if (tok != NULL && node->r != NULL) {
+		struct term_id *a = (struct term_id *) find_id(node->r);
 		if (a != NULL) {
 			/*printf("id:%s\n", a->name);*/
 			addref(a->name, TYPE_NAME);
 		}
-    }
+	}
 }
 struct ast* find_token(struct ast *node, int nodetype) 
 {
-    struct ast * a;
-    if (node == NULL || node->nodetype == nodetype)
+	struct ast * a;
+	if (node == NULL || node->nodetype == nodetype)
 		return node;
-    /*printf("test: %d\n", node->nodetype);*/
-    a  = find_token(node->l, nodetype);
-    if (a == NULL)
+	/*printf("test: %d\n", node->nodetype);*/
+	a  = find_token(node->l, nodetype);
+	if (a == NULL)
 		a = find_token(node->r, nodetype);
-    return a;
+	return a;
 }
 struct ast *find_id(struct ast *node) 
 {
-    struct ast * a;
-    if (node == NULL || node->nodetype == NODE_ID)
+	struct ast * a;
+	if (node == NULL || node->nodetype == NODE_ID)
 		return node;
-    a = find_id(node->l);
-    if (a == NULL)
+	a = find_id(node->l);
+	if (a == NULL)
 		a = find_id(node->r);
-    return a;
+	return a;
 }
 void print_tree (struct ast *a) 
 {
-    if (a == NULL)
+	if (a == NULL)
 		return;
-    printf("nodetype:%d\n", a->nodetype);
-    if (a->nodetype == NODE_ID)
+	printf("nodetype:%d\n", a->nodetype);
+	if (a->nodetype == NODE_ID)
 		printf("id:%s\n",((struct term_id *) a)->name);
-    print_tree(a->l);
-    print_tree(a->r);
+	print_tree(a->l);
+	print_tree(a->r);
 }
 
 
 struct ast *new_string(char *str) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_STRING;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
+		yyerror("out of memory");
+		exit(0);
+	}
+	a->nodetype = NODE_STRING;
+	a->l = NULL;
+	a->r = NULL;
+	/* add to symtable */
+	return a;
 }
 struct ast *new_flow(int nodetype, struct ast * expr, struct ast* stmt1, struct ast * stmt2) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_FLOW;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
+		yyerror("out of memory");
+		exit(0);
+	}
+	a->nodetype = NODE_FLOW;
+	a->l = NULL;
+	a->r = NULL;
+	/* add to symtable */
+	return a;
 }
 struct ast *new_for(struct ast * init_expr, 
 		    struct ast * cond_expr, 
 		    struct ast * end_expr, 
 		    struct ast * stmt) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_FOR;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
+		yyerror("out of memory");
+		exit(0);
+	}
+	a->nodetype = NODE_FOR;
+	a->l = NULL;
+	a->r = NULL;
+	/* add to symtable */
+	return a;
 }
 struct ast *new_asm(struct ast * type_qual, 
 		    struct ast * expr, 
@@ -251,31 +251,31 @@ struct ast *new_asm(struct ast * type_qual,
 		    struct ast * asm_op2, 
 		    struct ast * asm_cl) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_ASM;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
+		yyerror("out of memory");
+		exit(0);
+	}
+	a->nodetype = NODE_ASM;
+	a->l = NULL;
+	a->r = NULL;
+	/* add to symtable */
+	return a;
 }
 struct ast *new_asm_operand(struct ast * begin_expr, 
 			    struct ast * str, 
 			    struct ast * end_expr) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
 		yyerror("out of memory");
 		exit(0);
-    }
-    a->nodetype = NODE_ASM_OPERAND;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;
+	}
+	a->nodetype = NODE_ASM_OPERAND;
+	a->l = NULL;
+	a->r = NULL;
+	/* add to symtable */
+	return a;
 }
 struct ast * new_func(	struct ast * decl_specs, 
 			struct ast * declarator, 
@@ -283,129 +283,129 @@ struct ast * new_func(	struct ast * decl_specs,
 			struct ast * decl_list, 
 			struct ast * func_body) 
 {
-    struct func *a = malloc(sizeof(struct func));
-    if (!a) {
+	struct func *a = malloc(sizeof(struct func));
+	if (!a) {
 		yyerror("out of memory");
 		exit(0);
-    }
-    a->nodetype = NODE_FUNC;
-    a->l = NULL;
-    a->r = NULL;
-    
-    a->decl_specs = decl_specs; 
-    a->declarator = declarator; 
-    a->attribute = attribute;
-    a->decl_list = decl_list;
-    a->func_body = func_body;
-    return ((struct ast *) (a));
+	}
+	a->nodetype = NODE_FUNC;
+	a->l = NULL;
+	a->r = NULL;
+	
+	a->decl_specs = decl_specs; 
+	a->declarator = declarator; 
+	a->attribute = attribute;
+	a->decl_list = decl_list;
+	a->func_body = func_body;
+	return ((struct ast *) (a));
 }
 struct ast *new_attribute(	struct ast * any_word, 
 				struct ast * id, 
 				struct ast * expr) 
 {
-    struct ast *a = malloc(sizeof(struct ast));
-    if (!a) {
-	yyerror("out of memory");
-	exit(0);
-    }
-    a->nodetype = NODE_ATTRIBUTE;
-    a->l = NULL;
-    a->r = NULL;
-    /* add to symtable */
-    return a;    
+	struct ast *a = malloc(sizeof(struct ast));
+	if (!a) {
+		yyerror("out of memory");
+		exit(0);
+	}
+	a->nodetype = NODE_ATTRIBUTE;
+	a->l = NULL;
+	a->r = NULL;
+	/* add to symtable */
+	return a;    
 }
 
 struct func * find_func(struct ast *node, char *name) 
 {
-    struct func * a;
-    if (node == NULL) {
-	return NULL;
-    }
-    if (node->nodetype == NODE_FUNC) {
-	a = (struct func *) node;
-	struct term_id *id = (struct term_id*) find_id(a->declarator);
-	
-	if (id != NULL && strstr(id->name, name) != NULL) {
-	    return a;
+	struct func * a;
+	if (node == NULL) {
+		return NULL;
 	}
-    }
-    a  = find_func(node->l, name);
-    if (a == NULL)
-	a = find_func(node->r, name);
-    return a;
+	if (node->nodetype == NODE_FUNC) {
+		a = (struct func *) node;
+		struct term_id *id = (struct term_id*) find_id(a->declarator);
+		
+		if (id != NULL && strstr(id->name, name) != NULL) {
+			return a;
+		}
+	}
+	a  = find_func(node->l, name);
+	if (a == NULL)
+		a = find_func(node->r, name);
+	return a;
 }
 char * find_init_name() 
 {
-    struct term_id *init_id;
-    struct func *f = find_func(root, "__init");
-    if (f == NULL)
+	struct term_id *init_id;
+	struct func *f = find_func(root, "__init");
+	if (f == NULL)
 		return NULL;
-    init_id = (struct term_id *) find_id(f->func_body);
-    if (init_id == NULL)
+	init_id = (struct term_id *) find_id(f->func_body);
+	if (init_id == NULL)
 		return NULL;
-    return init_id->name;
+	return init_id->name;
 }
 
 struct ast *find_cdev_init (struct ast *node) 
 {
-    struct ast * a;
-    if (node == NULL) {
+	struct ast * a;
+	if (node == NULL) {
 		return NULL;
-    }
-    if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
+	}
+	if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
 		a = (struct ast *) node;
 		struct term_id *id = (struct term_id*) find_id(a->l);
 		if (id != NULL && strcmp(id->name, "cdev_init") == 0) {
 			return a;
 		}
-    }
-    a  = find_cdev_init(node->l);
-    if (a == NULL)
+	}
+	a  = find_cdev_init(node->l);
+	if (a == NULL)
 		a = find_cdev_init(node->r);
-    return a;
+	return a;
 }
 
 char * find_fops_name(struct ast *func_body)
 {
-    struct ast *cdev_init = find_cdev_init(func_body);
-    if (cdev_init == NULL)
+	struct ast *cdev_init = find_cdev_init(func_body);
+	if (cdev_init == NULL)
 		return NULL;
-    struct ast *arg_expr_list = find_token(cdev_init, NODE_ARGUMENT_EXPRESSION_LIST);
-    if (arg_expr_list == NULL)
+	struct ast *arg_expr_list = find_token(cdev_init, NODE_ARGUMENT_EXPRESSION_LIST);
+	if (arg_expr_list == NULL)
 		return NULL;
-    struct term_id *fops_id = (struct term_id *)find_id(arg_expr_list->r);
-    if (fops_id == NULL)
+	struct term_id *fops_id = (struct term_id *)find_id(arg_expr_list->r);
+	if (fops_id == NULL)
 		return NULL;
-    return fops_id->name;
+	return fops_id->name;
 }
 
 struct ast *find_fops_init(struct ast *node, char *fops_name) 
 {
-    struct ast * a;
-    if (node == NULL) {
-	return NULL;
-    }
-    if (node->nodetype == NODE_DECLARATION) {
+	struct ast * a;
+	if (node == NULL) {
+		return NULL;
+	}
+	if (node->nodetype == NODE_DECLARATION) {
 		a = (struct ast *) node;
 		struct term_id *id = (struct term_id*) find_id(a->r);
 		if (id != NULL && strcmp(id->name, fops_name) == 0) {
 			return a;
 		}
-    }
-
-    a  = find_fops_init(node->l, fops_name);
-    if (a == NULL)
-	a = find_fops_init(node->r, fops_name);
-    return a;
+	}
+	
+	a  = find_fops_init(node->l, fops_name);
+	if (a == NULL)
+		a = find_fops_init(node->r, fops_name);
+	return a;
 }
 
 void  init_fops_name_list(struct ast *node) 
 {
-    struct ast * a;
-    if (node == NULL) {
+	struct ast * a;
+	if (node == NULL) {
 		return;
-    }
-    if (node->nodetype == NODE_ASSIGNMENT_EXPRESSION) {
+	}
+	if (node->nodetype == NODE_ASSIGNMENT_EXPRESSION) {
 		a = (struct ast *) node;
 		struct term_id *id = (struct term_id*) find_id(a->r);
 		if (id != NULL) {
@@ -422,7 +422,7 @@ void  init_fops_name_list(struct ast *node)
 				tmp->next = node;
 			}
 		}
-    }
+	}
 	init_fops_name_list(node->l);
 	init_fops_name_list(node->r);
 }
@@ -449,35 +449,51 @@ void init_fops_list(struct ast *fops_struct)
 		tmp = tmp->next;
 	}
 }
+
+int fops_to_afs() 
+{
+	fprintf(afs_file, "NET\n");
+	fprintf(afs_file, "\tCHAN1 :: ALL(1) : ALL (1)\n");
+	fprintf(afs_file, "BEGIN\n");
+	struct fops_node *p = fops_list;
+	while (p) {
+		fprintf(afs_file, "\tFUN %s :: %s\n", p->name, "com");
+		p = p->next;
+	}
+	fprintf(afs_file, "END\n");
+	return 0;
+}
+
 void parse_to_afs () 
 {
-    /*print_tree(root);*/
-    char * init_func_name = find_init_name();
-    if (init_func_name == NULL) {
+	/*print_tree(root);*/
+	char * init_func_name = find_init_name();
+	if (init_func_name == NULL) {
 		printf("\nerr: can't find name of init function!");
 		return;
-    }
-    struct func *func_init = find_func(root, init_func_name);
-    if (func_init == NULL) {
+	}
+	struct func *func_init = find_func(root, init_func_name);
+	if (func_init == NULL) {
 		printf("\nerr: can't find init function!");
 		return;
-    }
-    char *fops_name = find_fops_name(func_init->func_body);
-    /*print_tree(root);*/
-    if (fops_name == NULL) {
+	}
+	char *fops_name = find_fops_name(func_init->func_body);
+	/*print_tree(root);*/
+	if (fops_name == NULL) {
 		printf("\nerr: can't find fops struct name!");
 		return;
-    }
-    struct ast *fops_struct = find_fops_init(root, fops_name);
-    if (fops_name == NULL) {
+	}
+	struct ast *fops_struct = find_fops_init(root, fops_name);
+	if (fops_name == NULL) {
 		printf("\nerr: can't find fops struct init!");
 		return;
-    }
-    init_fops_list(fops_struct);
+	}
+	init_fops_list(fops_struct);
 	struct fops_node *tmp = fops_list;
 	while(tmp) {
 		printf("------%s------\n",tmp->name);
 		print_tree(tmp->func->func_body);
 		tmp = tmp->next;
 	};
+	fops_to_afs();
 }

@@ -1,0 +1,8 @@
+NET
+	CHAN1 :: ALL(1) : ALL (1)
+BEGIN
+	FUN test_open :: com
+	FUN test_write :: com
+	FUN test_read :: com
+	FUN test_close :: com
+END
