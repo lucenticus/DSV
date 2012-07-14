@@ -453,7 +453,7 @@ void init_fops_list(struct ast *fops_struct)
 int fops_to_afs() 
 {
 	fprintf(afs_file, "NET\n");
-	fprintf(afs_file, "\tCHAN1 :: ALL(1) : ALL (1)\n");
+	/*fprintf(afs_file, "\tCHAN1 :: ALL(1) : ALL (1)\n");*/
 	fprintf(afs_file, "BEGIN\n");
 	struct fops_node *p = fops_list;
 	while (p) {
@@ -464,6 +464,25 @@ int fops_to_afs()
 	return 0;
 }
 
+void find_semaphores(struct ast *node)
+{
+  struct ast * a;
+	if (node == NULL) {
+		return;
+	}
+	if (node->nodetype == NODE_DECLARATION) {
+		a = (struct ast *) node;
+		struct term_id *id = (struct term_id*) find_id(a->l);
+		if (id != NULL && strcmp(id->name, "semaphore") == 0) {
+			printf("find!\n");
+			return;
+		}
+	}
+	
+	find_semaphores(node->l);
+	find_semaphores(node->r);
+	return;
+}
 void parse_to_afs () 
 {
 	/*print_tree(root);*/
@@ -490,10 +509,13 @@ void parse_to_afs ()
 	}
 	init_fops_list(fops_struct);
 	struct fops_node *tmp = fops_list;
-	while(tmp) {
+	/*while(tmp) {
 		printf("------%s------\n",tmp->name);
 		print_tree(tmp->func->func_body);
 		tmp = tmp->next;
 	};
+	*/
 	fops_to_afs();
+	/*find_semaphores(root);*/
+	/*print_tree(root);*/
 }
