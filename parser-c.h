@@ -18,6 +18,12 @@ struct string_list {
 	struct string_list *next;
 };
 
+struct semaphore_list {
+	char *semaphore_name;
+	int semaphore_count;
+	struct semaphore_list *next;
+};
+
 struct term_id {
 	int nodetype;
 	struct ast *l;
@@ -71,7 +77,7 @@ struct symbol symtab[NHASH];
 
 struct fops_node *fops_list;
 struct string_list *fops_name_list;
-
+struct semaphore_list *sema_list;
 struct symbol *lookup(char*);
 void addref(char*, int);
 
@@ -93,7 +99,7 @@ struct ast *new_attribute(struct ast*, struct ast*, struct ast*);
 void parse_to_afs ();
 
 void parse_declaration(struct ast*); 
-void print_tree (struct ast *a);
+void print_tree(struct ast *a);
 struct ast *find_id(struct ast *node);
 struct ast *find_token(struct ast *a, int nodetype);
 

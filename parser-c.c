@@ -136,7 +136,10 @@ struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list)
 		exit(0);
 	}
 	a->nodetype = NODE_STRUCT;
-	a->l = NULL;
+	if (id != NULL)
+		a->l = new_id(id);
+	else 
+		a->l = NULL;
 	a->r = NULL;
     /* add to symtable */
 	return a;
@@ -196,8 +199,10 @@ void print_tree (struct ast *a)
 	if (a == NULL)
 		return;
 	printf("nodetype:%d\n", a->nodetype);
-	if (a->nodetype == NODE_ID)
-		printf("id:%s\n",((struct term_id *) a)->name);
+	if (a->nodetype == NODE_ID) {
+		if (((struct term_id *) a)->name != NULL)
+			printf("id:%s\n",((struct term_id *) a)->name);
+	} 
 	print_tree(a->l);
 	print_tree(a->r);
 }
@@ -290,7 +295,7 @@ struct ast * new_func(	struct ast * decl_specs,
 	}
 	a->nodetype = NODE_FUNC;
 	a->l = NULL;
-	a->r = NULL;
+	a->r = func_body;
 	
 	a->decl_specs = decl_specs; 
 	a->declarator = declarator; 
@@ -453,6 +458,16 @@ void init_fops_list(struct ast *fops_struct)
 int fops_to_afs() 
 {
 	fprintf(afs_file, "NET\n");
+	struct semaphore_list *sp = sema_list;
+	while (sp) {
+		fprintf(afs_file, 
+			"\tCHAN %s :: ALL(%d) : ALL(%d)\n", 
+			sp->semaphore_name, 
+			sp->semaphore_count,
+			sp->semaphore_count);
+		sp = sp->next;
+	}
+
 	/*fprintf(afs_file, "\tCHAN1 :: ALL(1) : ALL (1)\n");*/
 	fprintf(afs_file, "BEGIN\n");
 	struct fops_node *p = fops_list;
@@ -464,23 +479,34 @@ int fops_to_afs()
 	return 0;
 }
 
-void find_semaphores(struct ast *node)
+void find_semaphores_init(struct ast *node)
 {
-  struct ast * a;
+	struct ast * a;
 	if (node == NULL) {
 		return;
 	}
-	if (node->nodetype == NODE_DECLARATION) {
-		a = (struct ast *) node;
-		struct term_id *id = (struct term_id*) find_id(a->l);
-		if (id != NULL && strcmp(id->name, "semaphore") == 0) {
-			printf("find!\n");
-			return;
+	a = (struct ast *) node;
+	struct term_id *id = (struct term_id*) find_id(a->l);
+	if (id != NULL && strcmp(id->name, "sema_init") == 0) {
+		struct semaphore_list *elem = malloc(sizeof(struct semaphore_list));
+		elem->semaphore_name = ((struct term_id *)a->r->l->l)->name;
+		elem->semaphore_count = atoi(((struct term_id *)a->r->r)->name);
+			
+		printf("node:%s\n",((struct term_id *)a->r->l->l)->name);			
+		printf("node:%s\n",((struct term_id *)a->r->r)->name);
+
+		if (sema_list == NULL) {
+			sema_list = elem;
+			elem->next = NULL;	
+		} else {
+			elem->next = sema_list;
+			sema_list = elem;
 		}
+		return;
 	}
 	
-	find_semaphores(node->l);
-	find_semaphores(node->r);
+	find_semaphores_init(node->l);
+	find_semaphores_init(node->r);
 	return;
 }
 void parse_to_afs () 
@@ -508,14 +534,15 @@ void parse_to_afs ()
 		return;
 	}
 	init_fops_list(fops_struct);
-	struct fops_node *tmp = fops_list;
-	/*while(tmp) {
+	/*struct fops_node *tmp = fops_list;
+	while(tmp) {
 		printf("------%s------\n",tmp->name);
 		print_tree(tmp->func->func_body);
 		tmp = tmp->next;
-	};
-	*/
+		};*/
+
+	find_semaphores_init(root);	
 	fops_to_afs();
-	/*find_semaphores(root);*/
+
 	/*print_tree(root);*/
 }

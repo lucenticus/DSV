@@ -1,6 +1,10 @@
 #/usr/bin/bash
 #cc -E test.c > test.c.preprocess
 #../dsv test.c.preprocess test_out.c test.afs
+cd ..
+rm ./dsv
+make
+cd tests
 
 cc -E test_module.c -D__KERNEL__ -DMODULE -I/usr/src/linux/include -I/usr/src/linux-headers/include/ -I/usr/src/linux-headers/arch/x86/include/ -I/usr/src/linux-headers-`uname -r`/include/ > test_module.c.preprocess
 sed -i~ "s/pte_t ((pte_t) { (pteval_t val) } )/pte_t __dsv_fix_wrong_macros(pte_t val)/g" test_module.c.preprocess
