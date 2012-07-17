@@ -60,6 +60,17 @@ struct func {
 	struct ast *decl_list; 
 	struct ast *func_body;
 };
+
+struct flow {
+	int nodetype;
+	struct ast *l;
+	struct ast *r;
+	int flowtype;
+	struct ast *expr;
+	struct ast *stmt1; 
+	struct ast *stmt2; 
+};
+
 struct symbol {
 	char *name;
 	struct ref *reflist;

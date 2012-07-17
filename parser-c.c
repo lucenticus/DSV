@@ -87,6 +87,7 @@ void addref(char *word, int type)
 	r->type = type;
 	sp->reflist = r;
 }
+
 struct ast * new_ast(int nodetype, struct ast *l, struct ast *r) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
@@ -115,6 +116,7 @@ struct ast *new_id(char *id)
 	a->r = NULL;
 	return ((struct ast *) a);
 }
+
 struct ast *new_word(int word) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
@@ -128,7 +130,10 @@ struct ast *new_word(int word)
 	/* add to symtable */
 	return a;
 }
-struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list) 
+
+struct ast *new_struct(struct ast *struct_type,
+		       char* id, 
+		       struct ast *spec_list) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
 	if (!a) {
@@ -144,7 +149,9 @@ struct ast *new_struct(struct ast *struct_type, char* id, struct ast *spec_list)
     /* add to symtable */
 	return a;
 }
-struct ast *new_enum(char *id, struct ast * enum_list) 
+
+struct ast *new_enum(char *id, 
+		     struct ast * enum_list) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
 	if (!a) {
@@ -173,7 +180,8 @@ void parse_declaration(struct ast* node)
 		}
 	}
 }
-struct ast* find_token(struct ast *node, int nodetype) 
+struct ast* find_token(struct ast *node, 
+		       int nodetype) 
 {
 	struct ast * a;
 	if (node == NULL || node->nodetype == nodetype)
@@ -194,7 +202,7 @@ struct ast *find_id(struct ast *node)
 		a = find_id(node->r);
 	return a;
 }
-void print_tree (struct ast *a) 
+void print_tree(struct ast *a) 
 {
 	if (a == NULL)
 		return;
@@ -202,7 +210,12 @@ void print_tree (struct ast *a)
 	if (a->nodetype == NODE_ID) {
 		if (((struct term_id *) a)->name != NULL)
 			printf("id:%s\n",((struct term_id *) a)->name);
-	} 
+	} else if (a->nodetype == NODE_FLOW) {
+		struct flow *tmp = (struct flow *) a; 
+		print_tree(tmp->expr);
+		print_tree(tmp->stmt1);
+		print_tree(tmp->stmt2);
+	}
 	print_tree(a->l);
 	print_tree(a->r);
 }
@@ -221,23 +234,29 @@ struct ast *new_string(char *str)
 	/* add to symtable */
 	return a;
 }
-struct ast *new_flow(int nodetype, struct ast * expr, struct ast* stmt1, struct ast * stmt2) 
+struct ast *new_flow(int nodetype, 
+		     struct ast *expr, 
+		     struct ast *stmt1,
+		     struct ast *stmt2) 
 {
-	struct ast *a = malloc(sizeof(struct ast));
+	struct flow *a = malloc(sizeof(struct flow));
 	if (!a) {
 		yyerror("out of memory");
 		exit(0);
 	}
-	a->nodetype = NODE_FLOW;
-	a->l = NULL;
-	a->r = NULL;
-	/* add to symtable */
-	return a;
+       a->nodetype = NODE_FLOW;
+       a->l = NULL;
+       a->r = NULL;
+       a->flowtype = nodetype;
+       a->expr = expr;
+       a->stmt1 = stmt1;
+       a->stmt2 = stmt2;
+       return ((struct ast*) a);
 }
-struct ast *new_for(struct ast * init_expr, 
-		    struct ast * cond_expr, 
-		    struct ast * end_expr, 
-		    struct ast * stmt) 
+struct ast *new_for(struct ast *init_expr, 
+		    struct ast *cond_expr, 
+		    struct ast *end_expr, 
+		    struct ast *stmt) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
 	if (!a) {
@@ -250,11 +269,11 @@ struct ast *new_for(struct ast * init_expr,
 	/* add to symtable */
 	return a;
 }
-struct ast *new_asm(struct ast * type_qual, 
-		    struct ast * expr, 
-		    struct ast * asm_op1, 
-		    struct ast * asm_op2, 
-		    struct ast * asm_cl) 
+struct ast *new_asm(struct ast *type_qual, 
+		    struct ast *expr, 
+		    struct ast *asm_op1, 
+		    struct ast *asm_op2, 
+		    struct ast *asm_cl) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
 	if (!a) {
@@ -267,9 +286,9 @@ struct ast *new_asm(struct ast * type_qual,
 	/* add to symtable */
 	return a;
 }
-struct ast *new_asm_operand(struct ast * begin_expr, 
-			    struct ast * str, 
-			    struct ast * end_expr) 
+struct ast *new_asm_operand(struct ast *begin_expr, 
+			    struct ast *str, 
+			    struct ast *end_expr) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
 	if (!a) {
@@ -282,11 +301,11 @@ struct ast *new_asm_operand(struct ast * begin_expr,
 	/* add to symtable */
 	return a;
 }
-struct ast * new_func(	struct ast * decl_specs, 
-			struct ast * declarator, 
-			struct ast * attribute, 
-			struct ast * decl_list, 
-			struct ast * func_body) 
+struct ast * new_func(	struct ast *decl_specs, 
+			struct ast *declarator, 
+			struct ast *attribute, 
+			struct ast *decl_list, 
+			struct ast *func_body) 
 {
 	struct func *a = malloc(sizeof(struct func));
 	if (!a) {
@@ -304,9 +323,9 @@ struct ast * new_func(	struct ast * decl_specs,
 	a->func_body = func_body;
 	return ((struct ast *) (a));
 }
-struct ast *new_attribute(	struct ast * any_word, 
-				struct ast * id, 
-				struct ast * expr) 
+struct ast *new_attribute(struct ast *any_word, 
+			  struct ast *id, 
+			  struct ast *expr) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
 	if (!a) {
@@ -320,7 +339,8 @@ struct ast *new_attribute(	struct ast * any_word,
 	return a;    
 }
 
-struct func * find_func(struct ast *node, char *name) 
+struct func * find_func(struct ast *node, 
+			char *name) 
 {
 	struct func * a;
 	if (node == NULL) {
@@ -455,6 +475,24 @@ void init_fops_list(struct ast *fops_struct)
 	}
 }
 
+int func_body_to_afs (struct ast *node)
+{
+	struct ast * a;
+	if (node == NULL) {
+		return;
+	}
+	a = (struct ast *) node;
+	struct term_id *id = (struct term_id*) find_id(a->l);
+	if (id != NULL && id->nodetype == NODE_ID && 
+	    (strcmp(id->name, "down") == 0 || strcmp(id->name, "up") == 0)) {
+		//printf ("%s\n", id->name);     
+	}
+	
+	func_body_to_afs(node->l);
+	func_body_to_afs(node->r);
+	return 0;
+}
+
 int fops_to_afs() 
 {
 	fprintf(afs_file, "NET\n");
@@ -468,11 +506,13 @@ int fops_to_afs()
 		sp = sp->next;
 	}
 
-	/*fprintf(afs_file, "\tCHAN1 :: ALL(1) : ALL (1)\n");*/
 	fprintf(afs_file, "BEGIN\n");
 	struct fops_node *p = fops_list;
 	while (p) {
 		fprintf(afs_file, "\tFUN %s :: %s\n", p->name, "com");
+		func_body_to_afs(p->func->func_body);
+		printf("fun name: %s\n", p->name);
+		print_tree(p->func->func_body);
 		p = p->next;
 	}
 	fprintf(afs_file, "END\n");
@@ -487,7 +527,9 @@ void find_semaphores_init(struct ast *node)
 	}
 	a = (struct ast *) node;
 	struct term_id *id = (struct term_id*) find_id(a->l);
-	if (id != NULL && strcmp(id->name, "sema_init") == 0) {
+	if (id != NULL && 
+	    id->nodetype == NODE_ID && 
+	    strcmp(id->name, "sema_init") == 0) {
 		struct semaphore_list *elem = malloc(sizeof(struct semaphore_list));
 		elem->semaphore_name = ((struct term_id *)a->r->l->l)->name;
 		elem->semaphore_count = atoi(((struct term_id *)a->r->r)->name);
