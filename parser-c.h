@@ -19,8 +19,8 @@ struct string_list {
 };
 
 struct semaphore_list {
-	char *semaphore_name;
-	int semaphore_count;
+	char *name;
+	int count;
 	struct semaphore_list *next;
 };
 
@@ -34,7 +34,7 @@ struct term_id {
 struct term_word {
 	int nodetype;
 	struct ast *l;
-	struct ast *r;
+	struct ast *r; 
 	int wordtype;
 };
 struct term_num {

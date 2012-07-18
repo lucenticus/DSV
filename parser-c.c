@@ -477,15 +477,43 @@ void init_fops_list(struct ast *fops_struct)
 
 int func_body_to_afs (struct ast *node)
 {
-	struct ast * a;
 	if (node == NULL) {
 		return;
 	}
-	a = (struct ast *) node;
-	struct term_id *id = (struct term_id*) find_id(a->l);
-	if (id != NULL && id->nodetype == NODE_ID && 
-	    (strcmp(id->name, "down") == 0 || strcmp(id->name, "up") == 0)) {
-		//printf ("%s\n", id->name);     
+	if (node->nodetype == NODE_ID) {
+		struct term_id *id = (struct term_id *) node;
+		if (strcmp(id->name, "down") == 0) {
+			fprintf(afs_file, "write(");
+		} else if (strcmp(id->name, "up") == 0) {
+			fprintf(afs_file, "read(");
+		} else {
+		       	struct semaphore_list *sp = sema_list;
+			while (sp) {
+				if (strcmp(id->name, sp->name) == 0)
+					break;
+				sp = sp->next;
+			}
+			if (sp) {
+				fprintf(afs_file, "%s, %d); ", sp->name, sp->count);
+			}
+		}
+	} else if (node->nodetype == NODE_FLOW) {
+		struct flow *fl = (struct flow *) node;
+		if (fl->flowtype == WHILE) {
+			fprintf(afs_file, "LOOP(");
+			fprintf(afs_file, "ALT(");
+			fprintf(afs_file, "tt -> ");
+		}
+		fprintf(afs_file, "SEQ(");
+		func_body_to_afs(fl->stmt1);
+		fprintf(afs_file, ")");
+		if (fl->flowtype == IF) {
+			fprintf(afs_file, "; ");
+			fprintf(afs_file, "SEQ(");
+			func_body_to_afs(fl->stmt2);
+			fprintf(afs_file, ")");
+		}
+		fprintf(afs_file, "))");
 	}
 	
 	func_body_to_afs(node->l);
@@ -500,19 +528,20 @@ int fops_to_afs()
 	while (sp) {
 		fprintf(afs_file, 
 			"\tCHAN %s :: ALL(%d) : ALL(%d)\n", 
-			sp->semaphore_name, 
-			sp->semaphore_count,
-			sp->semaphore_count);
+			sp->name, 
+			sp->count,
+			sp->count);
 		sp = sp->next;
 	}
 
 	fprintf(afs_file, "BEGIN\n");
 	struct fops_node *p = fops_list;
 	while (p) {
-		fprintf(afs_file, "\tFUN %s :: %s\n", p->name, "com");
-		func_body_to_afs(p->func->func_body);
-		printf("fun name: %s\n", p->name);
-		print_tree(p->func->func_body);
+		fprintf(afs_file, "\tFUN %s :: ", p->name);
+		printf("FUN NAME: %s\n", p->name);
+		func_body_to_afs(p->func->func_body);		
+		/*print_tree(p->func->func_body);*/
+		fprintf(afs_file, "\n");
 		p = p->next;
 	}
 	fprintf(afs_file, "END\n");
@@ -531,8 +560,8 @@ void find_semaphores_init(struct ast *node)
 	    id->nodetype == NODE_ID && 
 	    strcmp(id->name, "sema_init") == 0) {
 		struct semaphore_list *elem = malloc(sizeof(struct semaphore_list));
-		elem->semaphore_name = ((struct term_id *)a->r->l->l)->name;
-		elem->semaphore_count = atoi(((struct term_id *)a->r->r)->name);
+		elem->name = ((struct term_id *)a->r->l->l)->name;
+		elem->count = atoi(((struct term_id *)a->r->r)->name);
 			
 		printf("node:%s\n",((struct term_id *)a->r->l->l)->name);			
 		printf("node:%s\n",((struct term_id *)a->r->r)->name);
