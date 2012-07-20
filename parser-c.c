@@ -500,10 +500,30 @@ int func_body_to_afs (struct ast *node)
 	} else if (node->nodetype == NODE_FLOW) {
 		struct flow *fl = (struct flow *) node;
 		if (fl->flowtype == WHILE) {
-			fprintf(afs_file, "LOOP(");
-			fprintf(afs_file, "ALT(");
-			fprintf(afs_file, "tt -> ");
+			fprintf(afs_file, "LOOP(");			
 		}
+		fprintf(afs_file, "ALT(");
+		print_tree(fl->expr);
+		if (fl->expr->nodetype == NODE_ID &&
+		    fl->expr->l == NULL &&
+		    fl->expr->r == NULL) {
+			struct term_id *id = (struct term_id *) fl->expr;
+			printf("name:%s\n", id->name);
+			if (strlen(id->name) > 0 && isdigit(id->name[0])) {
+				int num = atoi(id->name);
+				if (num == 0) {
+					fprintf(afs_file, "ff");
+				} else {
+					fprintf(afs_file, "tt");
+				}
+			} else {
+				fprintf(afs_file, "b");
+			}
+		} else {
+			fprintf(afs_file, "b");
+		}
+		
+		fprintf(afs_file, " -> ");
 		fprintf(afs_file, "SEQ(");
 		func_body_to_afs(fl->stmt1);
 		fprintf(afs_file, ")");
