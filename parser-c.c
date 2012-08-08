@@ -547,10 +547,15 @@ int fops_to_afs()
 	struct semaphore_list *sp = sema_list;
 	while (sp) {
 		fprintf(afs_file, 
-			"\tCHAN %s :: ALL(%d) : ALL(%d)\n", 
+			"\tCHAN %s :: ALL(%d) : ALL(%d)", 
 			sp->name, 
 			sp->count,
 			sp->count);
+		if (sp->next)
+			fprintf(afs_file, ";\n");
+		else
+			fprintf(afs_file, "\n");
+			
 		sp = sp->next;
 	}
 
@@ -561,6 +566,8 @@ int fops_to_afs()
 		printf("FUN NAME: %s\n", p->name);
 		func_body_to_afs(p->func->func_body);		
 		/*print_tree(p->func->func_body);*/
+		if (p->next)
+			fprintf(afs_file, ";");
 		fprintf(afs_file, "\n");
 		p = p->next;
 	}
