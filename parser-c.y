@@ -4,7 +4,7 @@
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
 %token XOR_ASSIGN OR_ASSIGN TYPE_NAME
 
-%token TYPEDEF EXTERN STATIC AUTO REGISTER
+%token TYPEDEF EXTERN STATIC AUTO REGISTER INLINE
 %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID TYPEOF
 %token STRUCT UNION ENUM ELLIPSIS
 
@@ -23,7 +23,8 @@
     int	  tok;
 }
 %type <a> declaration declaration_specifiers init_declarator_list init_declarator declarator initializer
-%type <a> storage_class_specifier type_specifier type_qualifier struct_or_union_specifier struct_or_union
+%type <a> storage_class_specifier type_specifier type_qualifier struct_or_union_specifier struct_or_union 
+%type <a> function_specifier
 %type <a> enum_specifier enumerator_list enumerator direct_declarator pointer struct_declaration_list type_qualifier_list
 %type <a> struct_declaration specifier_qualifier_list struct_declarator struct_declarator_list initializer_list
 %type <a> maybe_attribute attributes attribute_list attribute attrib any_word
@@ -41,6 +42,9 @@
 
 %type <id> IDENTIFIER TYPE_NAME CONSTANT STRING_LITERAL
 %type <tok> assignment_operator unary_operator
+
+
+
 %%
 
 primary_expression
@@ -284,7 +288,6 @@ declaration
 			parse_declaration($$); 
 		}
 	| declaration_specifiers  error ';'			
-		{ }
 	;
 
 declaration_specifiers
@@ -300,6 +303,10 @@ declaration_specifiers
 		{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, NULL); }
 	| type_qualifier declaration_specifiers
 		{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, $2); }
+	| function_specifier
+		{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, NULL); }
+	| function_specifier declaration_specifiers 		
+		{ $$ = new_ast(NODE_DECLARATION_SPECIFIERS, $1, $2); } 
 	;
 
 init_declarator_list
@@ -361,7 +368,10 @@ type_specifier
 	| TYPEOF '('declaration_specifiers ')'
 		{ $$ = new_word(TYPEOF); }
 	;
-
+function_specifier 
+	: INLINE 
+		{ $$ = new_word(INLINE); }
+	;
 struct_or_union_specifier
 	: struct_or_union IDENTIFIER '{'  '}' maybe_attribute
 		{ $$ = new_struct($1, $2, NULL); }

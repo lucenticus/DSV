@@ -19,8 +19,8 @@ IS			(u|U|l|L)*
 "__asm"			{ count(); return(ASM); }
 "asm"			{ count(); return(ASM); }
 "__extension__"		{ }
-"__inline__"		{ }
-"inline"		{ count(); }
+"__inline__"		{ count(); return(INLINE); }
+"inline"		{ count(); return(INLINE); }
 "notrace"		{ }
 "__attribute__"		{ count(); return (ATTRIBUTE); }
 "__restrict"		{ }

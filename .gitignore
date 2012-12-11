@@ -3,3 +3,10 @@
 test_module.afs
 test_module.c.preprocess*
 test_module_out.c
+parser-c.output
+lex.yy.c
+parser-c.tab.c
+parser-c.tab.h
+cdrom.c.preprocess
+cdrom_out.c
+cdrom.afs
