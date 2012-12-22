@@ -83,7 +83,7 @@ struct ref {
 
 FILE *afs_file;
 struct ast *root;
-#define NHASH (9997)
+#define NHASH (35317)
 struct symbol symtab[NHASH];
 
 struct fops_node *fops_list;

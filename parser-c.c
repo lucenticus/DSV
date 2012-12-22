@@ -91,7 +91,7 @@ void addref(char *word, int type)
 struct ast * new_ast(int nodetype, struct ast *l, struct ast *r) 
 {
 	struct ast *a = malloc(sizeof(struct ast));
-    
+	//fprintf(yyout, "#%d#", nodetype);
 	if (!a) {
 		yyerror("out of memory");
 		exit(0);

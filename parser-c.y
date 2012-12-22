@@ -267,7 +267,7 @@ direct_abstract_declarator
 	| '(' ')'
 		{ $$ = NULL; }
 	| '(' parameter_type_list ')'
-		{ $$ = new_ast(NODE_DIRECT_ABSTRACT_DECLARATOR, $2, NULL); }
+		{ $$ = new_ast(NODE_DIRECT_ABSTRACT_DECLARATOR, $2, NULL); }	
 	| direct_abstract_declarator '(' ')'
 		{ $$ = $1; }
 	| direct_abstract_declarator '(' parameter_type_list ')' 
@@ -276,6 +276,8 @@ direct_abstract_declarator
 
 direct_declarator
 	: IDENTIFIER
+		{ $$ = new_id($1); }
+	| TYPE_NAME
 		{ $$ = new_id($1); }
 	| '(' declarator ')'
 		{ $$ = $2; }
@@ -407,10 +409,10 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator
+	: declarator maybe_attribute
 		{ $$ = new_ast(NODE_INIT_DECLARATOR, $1, NULL); }
-	| declarator '=' initializer
-		{ $$ = new_ast(NODE_INIT_DECLARATOR, $1, $3); }
+	| declarator maybe_attribute '=' initializer
+		{ $$ = new_ast(NODE_INIT_DECLARATOR, $1, $4); }
 	;
 
 iteration_statement
@@ -690,13 +692,18 @@ struct_declarator
 struct_or_union_specifier
 	: struct_or_union IDENTIFIER '{'  '}' maybe_attribute
 		{ $$ = new_struct($1, $2, NULL); }
+	| struct_or_union TYPE_NAME '{'  '}' maybe_attribute
+		{ $$ = new_struct($1, $2, NULL); }
 	| struct_or_union IDENTIFIER '{' struct_declaration_list '}' maybe_attribute
 		{ $$ = new_struct($1, $2, $4); }
+	| struct_or_union TYPE_NAME '{' struct_declaration_list '}' maybe_attribute
 	| struct_or_union '{'  '}' maybe_attribute
 		{ $$ = new_struct($1, NULL, NULL); }
 	| struct_or_union '{' struct_declaration_list '}' maybe_attribute
 		{ $$ = new_struct($1, NULL, $3); }
 	| struct_or_union IDENTIFIER maybe_attribute
+		{ $$ = new_struct($1, $2, NULL); }
+	| struct_or_union TYPE_NAME maybe_attribute
 		{ $$ = new_struct($1, $2, NULL); }
 	;
 
@@ -779,6 +786,11 @@ unary_expression
 		{ $$ = new_ast(SIZEOF, $2, NULL); }
 	| SIZEOF '(' type_name ')'
 		{ $$ = new_ast(SIZEOF, $3, NULL); }
+	| TYPEOF '(' expression ')'
+		{ $$ = new_word(TYPEOF); }
+	| TYPEOF '('declaration_specifiers ')'
+		{ $$ = new_word(TYPEOF); }
+
 	;
 
 unary_operator
@@ -855,6 +867,6 @@ int main(int argc, char *argv[])
 yyerror(char *s)
 {
 	fflush(stdout);
-	fprintf(yyout, "\n%*s\n%*s\n", column, "^", column, s);
+	fprintf(yyout, "\n%*s\n%*s", column, "^", column, s);
 }
 
