@@ -358,13 +358,13 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declaration_list compound_statement
+	: declaration_specifiers maybe_attribute declaration_list compound_statement
 		{ $$ = new_func($1, NULL, $2, NULL, $3); }
-	| declaration_specifiers declarator maybe_attribute compound_statement
+	| declaration_specifiers maybe_attribute declarator maybe_attribute compound_statement
 		{ $$ = new_func($1, $2, $3, NULL, $4); }
-	| declarator  maybe_attribute declaration_list compound_statement
+	| maybe_attribute declarator  maybe_attribute declaration_list compound_statement
 		{ $$ = new_func(NULL, $1, $2, $3, $4); }
-	| declarator maybe_attribute compound_statement
+	| maybe_attribute declarator maybe_attribute compound_statement
 		{ $$ = new_func(NULL, $1, $2, NULL, $3); }
 	;
 
@@ -549,6 +549,7 @@ postfix_expression
 		{ $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, new_id($3)); }
 	| postfix_expression PTR_OP IDENTIFIER
 		{ $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, NULL);/*fix*/ }
+	
 	| postfix_expression INC_OP
 		{ $$ = new_ast(INC_OP, NULL, $1); }
 	| postfix_expression DEC_OP
@@ -668,8 +669,8 @@ struct_declaration_list
 	;
 
 struct_declaration
-	: specifier_qualifier_list ';'
-	| specifier_qualifier_list struct_declarator_list ';' 
+	: specifier_qualifier_list maybe_attribute ';'
+	| specifier_qualifier_list struct_declarator_list maybe_attribute';' 
 		{ $$ = new_ast(NODE_STRUCT_DECLARATION, $1, $2); }
 	;
 
@@ -857,16 +858,22 @@ int main(int argc, char *argv[])
 		yyout = out;
 		addref("__builtin_va_list", TYPE_NAME);
 		addref("mm_segment_t", TYPE_NAME);
-		yyparse();
-		parse_to_afs();
-		fclose(in);
-		fclose(out);
+		int ret_val = yyparse();
+		if (!ret_val) {
+			parse_to_afs();
+			fclose(in);
+			fclose(out);
+		} else {
+			fclose(in);
+			fclose(out);
+			return 1;
+		}
 	}
-	return 1;
+	return 0;
 }
 yyerror(char *s)
 {
 	fflush(stdout);
-	fprintf(yyout, "\n%*s\n%*s", column, "^", column, s);
+	fprintf(yyout, "\n%*s\n%*s\n", column, "^", column, s);
 }
 
