@@ -277,8 +277,8 @@ direct_abstract_declarator
 direct_declarator
 	: IDENTIFIER
 		{ $$ = new_id($1); }
-	| TYPE_NAME
-		{ $$ = new_id($1); }
+	| error
+		{ $$ = new_id(""); }
 	| '(' declarator ')'
 		{ $$ = $2; }
 	| direct_declarator '[' constant_expression ']'
@@ -360,11 +360,11 @@ external_declaration
 function_definition
 	: declaration_specifiers maybe_attribute declaration_list compound_statement
 		{ $$ = new_func($1, NULL, $2, NULL, $3); }
-	| declaration_specifiers maybe_attribute declarator maybe_attribute compound_statement
+	| declaration_specifiers declarator maybe_attribute compound_statement
 		{ $$ = new_func($1, $2, $3, NULL, $4); }
-	| maybe_attribute declarator  maybe_attribute declaration_list compound_statement
+	| declarator maybe_attribute declaration_list compound_statement
 		{ $$ = new_func(NULL, $1, $2, $3, $4); }
-	| maybe_attribute declarator maybe_attribute compound_statement
+	| declarator maybe_attribute compound_statement
 		{ $$ = new_func(NULL, $1, $2, NULL, $3); }
 	;
 
@@ -549,7 +549,6 @@ postfix_expression
 		{ $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, new_id($3)); }
 	| postfix_expression PTR_OP IDENTIFIER
 		{ $$ = new_ast(NODE_POSTFIX_EXPRESSION, $1, NULL);/*fix*/ }
-	
 	| postfix_expression INC_OP
 		{ $$ = new_ast(INC_OP, NULL, $1); }
 	| postfix_expression DEC_OP

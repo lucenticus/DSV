@@ -71,7 +71,9 @@ set -e
 
 CURR_PATH=`pwd`
 cd $DSV_DIR
-rm dsv
+if [ -f dsv ]; then
+    rm dsv
+fi
 make
 cd $CURR_PATH
 
