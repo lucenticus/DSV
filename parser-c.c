@@ -1,4 +1,5 @@
 
+
 comment()
 {
 	char c, c1;
@@ -359,7 +360,7 @@ struct func * find_func(struct ast *node,
 		a = find_func(node->r, name);
 	return a;
 }
-char * find_init_name() 
+char * find_init_name()
 {
 	struct term_id *init_id;
 	struct func *f = find_func(root, "__init");
@@ -390,11 +391,36 @@ struct ast *find_cdev_init (struct ast *node)
 	return a;
 }
 
+struct ast *find_register_chrdev(struct ast *node) 
+{
+	struct ast * a;
+	if (node == NULL) {
+		return NULL;
+	}
+	if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
+		a = (struct ast *) node;
+		struct term_id *id = (struct term_id*) find_id(a->l);
+		if (id != NULL && strcmp(id->name, "register_chrdev") == 0) {
+			return a;
+		}
+	}
+	a  = find_register_chrdev(node->l);
+	if (a == NULL)
+		a = find_register_chrdev(node->r);
+	return a;
+}
+
+
 char * find_fops_name(struct ast *func_body)
 {
 	struct ast *cdev_init = find_cdev_init(func_body);
-	if (cdev_init == NULL)
+	
+	if (cdev_init == NULL) {
+		cdev_init = find_register_chrdev(func_body);
+	}
+	if (cdev_init == NULL) 
 		return NULL;
+	
 	struct ast *arg_expr_list = find_token(cdev_init, NODE_ARGUMENT_EXPRESSION_LIST);
 	if (arg_expr_list == NULL)
 		return NULL;
@@ -503,7 +529,7 @@ int func_body_to_afs (struct ast *node)
 			fprintf(afs_file, "LOOP(");			
 		}
 		fprintf(afs_file, "ALT(");
-		print_tree(fl->expr);
+		/*print_tree(fl->expr);*/
 		if (fl->expr->nodetype == NODE_ID &&
 		    fl->expr->l == NULL &&
 		    fl->expr->r == NULL) {
@@ -607,29 +633,30 @@ void find_semaphores_init(struct ast *node)
 	find_semaphores_init(node->r);
 	return;
 }
-void parse_to_afs () 
+int parse_to_afs () 
 {
 	/*print_tree(root);*/
 	char * init_func_name = find_init_name();
 	if (init_func_name == NULL) {
 		printf("\nerr: can't find name of init function!");
-		return;
+		return 1;
 	}
 	struct func *func_init = find_func(root, init_func_name);
 	if (func_init == NULL) {
 		printf("\nerr: can't find init function!");
-		return;
+		return 1;
 	}
+	//print_tree(root);
 	char *fops_name = find_fops_name(func_init->func_body);
-	/*print_tree(root);*/
-	if (fops_name == NULL) {
+	printf("\nfops name = %s", fops_name);
+	if (fops_name == NULL) { 
 		printf("\nerr: can't find fops struct name!");
-		return;
+		return 1;
 	}
 	struct ast *fops_struct = find_fops_init(root, fops_name);
 	if (fops_name == NULL) {
 		printf("\nerr: can't find fops struct init!");
-		return;
+		return 1;
 	}
 	init_fops_list(fops_struct);
 	/*struct fops_node *tmp = fops_list;
@@ -641,6 +668,7 @@ void parse_to_afs ()
 
 	find_semaphores_init(root);	
 	fops_to_afs();
-
+	
+	return 0;
 	/*print_tree(root);*/
 }

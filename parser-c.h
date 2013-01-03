@@ -82,6 +82,7 @@ struct ref {
 };
 
 FILE *afs_file;
+FILE *orig_file;
 struct ast *root;
 #define NHASH (35317)
 struct symbol symtab[NHASH];
@@ -107,7 +108,7 @@ struct ast *new_asm_operand(struct ast*, struct ast*, struct ast*);
 struct ast *new_func(struct ast*, struct ast*, struct ast*, struct ast*, struct ast*);
 struct ast *new_attribute(struct ast*, struct ast*, struct ast*);
 
-void parse_to_afs ();
+int parse_to_afs();
 
 void parse_declaration(struct ast*); 
 void print_tree(struct ast *a);
