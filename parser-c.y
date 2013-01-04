@@ -562,6 +562,8 @@ primary_expression
 		{ $$ = new_id($2); }
 	| '{' '.' IDENTIFIER '=' IDENTIFIER '}'		/* check */
 		{ $$ = new_id($3); }
+	| '{' '.' IDENTIFIER '=' primary_expression '}'		/* check */
+		{ $$ = new_id($3); }
 	| '{' error '}' 
 		{ $$ = NULL; }
 	| CONSTANT

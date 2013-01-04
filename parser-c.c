@@ -418,8 +418,9 @@ char * find_fops_name(struct ast *func_body)
 	if (cdev_init == NULL) {
 		cdev_init = find_register_chrdev(func_body);
 	}
-	if (cdev_init == NULL) 
-		return NULL;
+	if (cdev_init == NULL) {
+		return fops_name;
+	}
 	
 	struct ast *arg_expr_list = find_token(cdev_init, NODE_ARGUMENT_EXPRESSION_LIST);
 	if (arg_expr_list == NULL)
@@ -478,7 +479,7 @@ void  init_fops_name_list(struct ast *node)
 	init_fops_name_list(node->r);
 }
 
-void init_fops_list(struct ast *fops_struct) 
+int init_fops_list(struct ast *fops_struct) 
 {
 	struct fops_node *fops_head;
 	init_fops_name_list(fops_struct);
@@ -487,6 +488,12 @@ void init_fops_list(struct ast *fops_struct)
 		struct fops_node *node = malloc(sizeof(struct fops_node));
 		node->name = tmp->str;
 		node->func = find_func(root, node->name);
+		if (node->func == NULL) { 
+			fops_name_list = NULL;
+			printf("\nerr: can't find fops function:%s!", 
+			       tmp->str);
+			return 1;
+		}
 		node->next = NULL;
 		if (fops_list == NULL) {
 				fops_list = node;
@@ -499,6 +506,7 @@ void init_fops_list(struct ast *fops_struct)
 			}
 		tmp = tmp->next;
 	}
+	return 0;
 }
 
 int func_body_to_afs (struct ast *node)
@@ -647,9 +655,7 @@ int parse_to_afs ()
 		return 1;
 	}
 	//print_tree(root);
-	char *fn = fops_name;
-	if (fn == NULL)
-		fn = find_fops_name(func_init->func_body);
+	char *fn = find_fops_name(func_init->func_body);
 
 	if (fn == NULL) {
 		printf("\nerr: can't find fops struct name!");
@@ -665,6 +671,9 @@ int parse_to_afs ()
 		return 1;
 	}
 	init_fops_list(fops_struct);
+	if (fops_name_list == NULL) {
+		return 1;
+	}
 	/*struct fops_node *tmp = fops_list;
 	while(tmp) {
 		printf("------%s------\n",tmp->name);

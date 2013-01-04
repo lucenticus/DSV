@@ -23,11 +23,14 @@ function ProcessDir
 	    if [ $extension == "c" ]; then
 		relative_path=`echo ${f#$TARGET_DIR}`
 		let TOTAL_FILES=TOTAL_FILES+1
-		if grep -q "module_init(" "$f"; then   
-		    let PROCESSED_FILES=PROCESSED_FILES+1
-		    echo "Processing: $relative_path"
-		    preprocess_file $relative_path
-		    echo "Total files:$TOTAL_FILES processed files:$PROCESSED_FILES parsed:$PARSED_FILES"
+		if grep -q "module_init(" "$f"; then
+		    if grep -q "file_operations" "$f"; then
+			let PROCESSED_FILES=PROCESSED_FILES+1
+			echo "Processing: $relative_path"
+			preprocess_file $relative_path
+			echo "Total files:$TOTAL_FILES processed \
+files:$PROCESSED_FILES parsed:$PARSED_FILES"
+		    fi
 		fi
 	    fi
 	fi 
@@ -64,6 +67,7 @@ function preprocess_file
 	echo "File: $work_dir/$work_file" >> $PARSE_ERRORS_LOG
 	tail $out_file -n 30 >> $PARSE_ERRORS_LOG
     else
+	cp $afs_file $DSV_DIR/afs
 	let PARSED_FILES=PARSED_FILES+1
     fi 
 }
@@ -76,7 +80,13 @@ if [ -f dsv ]; then
     rm dsv
 fi
 make
-cd $CURR_PATH
+cd $CURR_PATHcase 
+
+if [ -d $DSV_DIR/afs ]; then
+    rm -R $DSV_DIR/afs
+fi
+
+mkdir $DSV_DIR/afs
 
 if [ -d $OUT_DIR ]; then
     rm -R $OUT_DIR
