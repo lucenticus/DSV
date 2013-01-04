@@ -80,7 +80,7 @@ if [ -f dsv ]; then
     rm dsv
 fi
 make
-cd $CURR_PATHcase 
+cd $CURR_PATH 
 
 if [ -d $DSV_DIR/afs ]; then
     rm -R $DSV_DIR/afs

@@ -484,6 +484,10 @@ int init_fops_list(struct ast *fops_struct)
 	struct fops_node *fops_head;
 	init_fops_name_list(fops_struct);
 	struct string_list *tmp = fops_name_list;
+	if (fops_name_list == NULL) {
+		printf("\nerr: fops name list is null!");
+		return 1;
+	}
 	while (tmp) {
 		struct fops_node *node = malloc(sizeof(struct fops_node));
 		node->name = tmp->str;
@@ -663,23 +667,22 @@ int parse_to_afs ()
 	
 	}
 	
-	printf("\nfops name = %s", fn);
-
 	struct ast *fops_struct = find_fops_init(root, fn);
 	if (fops_struct == NULL) {
 		printf("\nerr: can't find fops struct init!");
 		return 1;
 	}
-	init_fops_list(fops_struct);
-	if (fops_name_list == NULL) {
+	print_tree(fops_struct);
+	if (init_fops_list(fops_struct)) {
+		printf("\nerr: can't find fops function!");
 		return 1;
 	}
-	/*struct fops_node *tmp = fops_list;
+	struct fops_node *tmp = fops_list;
 	while(tmp) {
 		printf("------%s------\n",tmp->name);
 		print_tree(tmp->func->func_body);
 		tmp = tmp->next;
-		};*/
+	};
 
 	find_semaphores_init(root);	
 	fops_to_afs();
