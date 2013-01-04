@@ -85,8 +85,9 @@ FILE *afs_file;
 FILE *orig_file;
 struct ast *root;
 #define NHASH (35317)
+#define BUF_SIZE (10240)
 struct symbol symtab[NHASH];
-
+char *fops_name;
 struct fops_node *fops_list;
 struct string_list *fops_name_list;
 struct semaphore_list *sema_list;
@@ -109,7 +110,7 @@ struct ast *new_func(struct ast*, struct ast*, struct ast*, struct ast*, struct 
 struct ast *new_attribute(struct ast*, struct ast*, struct ast*);
 
 int parse_to_afs();
-
+int pp_find_fops_name();
 void parse_declaration(struct ast*); 
 void print_tree(struct ast *a);
 struct ast *find_id(struct ast *node);

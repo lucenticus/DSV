@@ -862,19 +862,26 @@ int main(int argc, char *argv[])
 		yyout = out;
 		addref("__builtin_va_list", TYPE_NAME);
 		addref("mm_segment_t", TYPE_NAME);
+		pp_find_fops_name();
 		int ret_val = yyparse();
 		if (ret_val) {
-		  fclose(in);
-		  fclose(out);
-		  return 1;
-		}
+			fclose(in);
+			fclose(out);
+			printf("\nerr: can't finish parsing!");
+			return 1;
+		} else {
+			printf("\nparsing: success!");
+		} 
 		
 		ret_val = parse_to_afs();
 		if (ret_val) {
-		  fclose(in);
-		  fclose(out);
-		  return 1;
-		}
+			fclose(in);
+			fclose(out);
+			printf("\nerr: can't convert to afs!");
+			return 1;
+		} else {
+			printf("\nconverting: success!");
+		} 
 		
 		fclose(in);
 		fclose(out);

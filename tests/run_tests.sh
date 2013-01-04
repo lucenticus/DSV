@@ -15,4 +15,4 @@ sed -i~ "s/pmd_t ((pmd_t) { (pmdval_t val) } )/pte_t __dsv_fix_wrong_macros(pte_
 sed -i~ "s/pmdval_t ((&pmd_t pmd)->pmd\[0\])/pte_t __dsv_fix_wrong_macros(pte_t pte)/g" test_module.c.preprocess
 sed -i~ "s/void do { ({ unsigned long __dummy; typeof(unsigned long f) __dummy2; (void)(&__dummy == &__dummy2); 1; }); local_irq_restore(unsigned long f); } while (0)/pte_t __dsv_fix_wrong_macros(pte_t pte)/g" test_module.c.preprocess
 
-../dsv test_module.c.preprocess test_module_out.c test_module.afs
+../dsv test_module.c.preprocess test_module_out.c test_module.afs test_module.c

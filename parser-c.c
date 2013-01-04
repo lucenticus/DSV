@@ -647,14 +647,20 @@ int parse_to_afs ()
 		return 1;
 	}
 	//print_tree(root);
-	char *fops_name = find_fops_name(func_init->func_body);
-	printf("\nfops name = %s", fops_name);
-	if (fops_name == NULL) { 
+	char *fn = fops_name;
+	if (fn == NULL)
+		fn = find_fops_name(func_init->func_body);
+
+	if (fn == NULL) {
 		printf("\nerr: can't find fops struct name!");
 		return 1;
+	
 	}
-	struct ast *fops_struct = find_fops_init(root, fops_name);
-	if (fops_name == NULL) {
+	
+	printf("\nfops name = %s", fn);
+
+	struct ast *fops_struct = find_fops_init(root, fn);
+	if (fops_struct == NULL) {
 		printf("\nerr: can't find fops struct init!");
 		return 1;
 	}
@@ -671,4 +677,31 @@ int parse_to_afs ()
 	
 	return 0;
 	/*print_tree(root);*/
+}
+int pp_find_fops_name() 
+{
+	char buf[BUF_SIZE];
+	char *w = "struct file_operations ";
+	while (fgets(buf,BUF_SIZE, orig_file) != NULL) {
+		char * tmp = NULL;
+		if ((tmp = strstr(buf, w)) != NULL) {
+			if (fops_name == NULL)
+				fops_name = malloc(BUF_SIZE * sizeof(char));
+	
+			tmp = tmp + strlen(w);
+			int i = 0;
+			while (tmp[i] != ' ' && 
+			       tmp[i] != '\t' &&
+			       tmp[i] != '\n' &&
+			       tmp[i] != '\0' &&
+			       i < BUF_SIZE) 
+			{
+				fops_name[i] = tmp[i];
+				i++;
+			}
+			fops_name[++i] = '\0';
+		}
+	}
+	printf("\nfops name = %s", fops_name);
+	fclose(orig_file);
 }
