@@ -59,7 +59,10 @@ function preprocess_file
     sed -i~ "s/pmd_t ((pmd_t) { (pmdval_t val) } )/pte_t __dsv_fix_wrong_macros(pte_t pte)/g" $pp_file
     sed -i~ "s/pmdval_t ((&pmd_t pmd)->pmd\[0\])/pte_t __dsv_fix_wrong_macros(pte_t pte)/g" $pp_file
     sed -i~ "s/void do { ({ unsigned long __dummy; typeof(unsigned long f) __dummy2; (void)(&__dummy == &__dummy2); 1; }); local_irq_restore(unsigned long f); } while (0)/pte_t __dsv_fix_wrong_macros(pte_t pte)/g" $pp_file
-
+    sed -i~ "s/{ \.lock = (spinlock_t) { \.raw_lock = { }, }, \.count = val, \.wait_list = { &((\*sem)\.wait_list), &((\*sem)\.wait_list) }, }/__dsv_fix_lock/g" $pp_file
+    sed -i~ "s/__attribute__((section(\"\.data\" \"\"))) __typeof__(struct acpi_processor \*) per_cpu__processors;/struct acpi_processor \*__dsv_fix;/g" $pp_file
+    sed -i~ "s/DECLARE_EARLY_PER_CPU(u16, .*);/;/g" $pp_file
+    
     $DSV_DIR/dsv $pp_file $out_file $afs_file $orig_file>>$errors_file 2>&1
     if [ "$?" -ne "0" ]; then
 	echo "Can't parse file: $work_dir/$work_file" 
