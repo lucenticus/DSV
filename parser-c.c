@@ -521,9 +521,16 @@ int func_body_to_afs (struct ast *node)
 	if (node->nodetype == NODE_ID) {
 		struct term_id *id = (struct term_id *) node;
 		if (strcmp(id->name, "down") == 0) {
-			fprintf(afs_file, "write(");
+			fprintf(afs_file, "write(...);");
 		} else if (strcmp(id->name, "up") == 0) {
-			fprintf(afs_file, "read(");
+			fprintf(afs_file, "read(...);");
+		} else if (strcmp(id->name, "spin_lock") == 0) {
+			fprintf(afs_file, 
+				"LOOP(ALT(write(...) -> break));");
+			
+		} else if (strcmp(id->name, "spin_unlock") == 0) {
+			fprintf(afs_file, "read(...);");
+			
 		} else {
 		       	struct semaphore_list *sp = sema_list;
 			while (sp) {

@@ -62,7 +62,7 @@ function preprocess_file
     sed -i~ "s/{ \.lock = (spinlock_t) { \.raw_lock = { }, }, \.count = val, \.wait_list = { &((\*sem)\.wait_list), &((\*sem)\.wait_list) }, }/__dsv_fix_lock/g" $pp_file
     sed -i~ "s/__attribute__((section(\"\.data\" \"\"))) __typeof__(struct acpi_processor \*) per_cpu__processors;/struct acpi_processor \*__dsv_fix;/g" $pp_file
     sed -i~ "s/DECLARE_EARLY_PER_CPU(u16, .*);/;/g" $pp_file
-    
+    rm $pp_file~
     $DSV_DIR/dsv $pp_file $out_file $afs_file $orig_file>>$errors_file 2>&1
     if [ "$?" -ne "0" ]; then
 	echo "Can't parse file: $work_dir/$work_file" 

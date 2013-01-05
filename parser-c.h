@@ -23,7 +23,10 @@ struct semaphore_list {
 	int count;
 	struct semaphore_list *next;
 };
-
+struct spinlock_list {
+	char *name;
+	struct spinlock_list *next;
+};
 struct term_id {
 	int nodetype;
 	struct ast *l;
@@ -91,6 +94,7 @@ char *fops_name;
 struct fops_node *fops_list;
 struct string_list *fops_name_list;
 struct semaphore_list *sema_list;
+struct spinlock_list *sl_list;
 struct symbol *lookup(char*);
 void addref(char*, int);
 
