@@ -520,7 +520,9 @@ int func_body_to_afs (struct ast *node)
 	}
 	if (node->nodetype == NODE_ID) {
 		struct term_id *id = (struct term_id *) node;
-		if (strcmp(id->name, "down") == 0) {
+		if (strcmp(id->name, "down") == 0 ||
+		    strcmp(id->name, "down_interruptible") == 0 ||
+		    strcmp(id->name, "down_killable") == 0) {
 			fprintf(afs_file, "write(...);");
 		} else if (strcmp(id->name, "up") == 0) {
 			fprintf(afs_file, "read(...);");
@@ -531,6 +533,15 @@ int func_body_to_afs (struct ast *node)
 		} else if (strcmp(id->name, "spin_unlock") == 0) {
 			fprintf(afs_file, "read(...);");
 			
+		} else if (strcmp(id->name, "mutex_lock") == 0 ||
+			   strcmp(id->name, 
+				  "mutex_lock_interruptible") == 0 ||
+			   strcmp(id->name, 
+				  "mutex_lock_killable") == 0
+			   ) {
+			fprintf(afs_file, "write(...);");	
+		} else if (strcmp(id->name, "mutex_unlock") == 0) {
+			fprintf(afs_file, "read(...);");	
 		} else {
 		       	struct semaphore_list *sp = sema_list;
 			while (sp) {
