@@ -217,7 +217,14 @@ declaration
 			$$ = new_ast(NODE_DECLARATION, $1, $2); 
 			parse_declaration($$); 
 		}
-	| declaration_specifiers  error ';'			
+	| declaration_specifiers  init_declarator_list ';'';'
+		{ 
+			$$ = new_ast(NODE_DECLARATION, $1, $2); 
+			parse_declaration($$); 
+		}
+	| declaration_specifiers  error ';'
+	/* | error ';'  */
+	/* 	{ } */
 	;
 
 declaration_list
