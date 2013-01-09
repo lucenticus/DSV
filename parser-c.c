@@ -526,12 +526,18 @@ int func_body_to_afs (struct ast *node)
 			fprintf(afs_file, "write(...);");
 		} else if (strcmp(id->name, "up") == 0) {
 			fprintf(afs_file, "read(...);");
-		} else if (strcmp(id->name, "spin_lock") == 0) {
+		} else if (strcmp(id->name, "_spin_lock") == 0 ||
+			   strcmp(id->name, "_spin_lock_irqsave") == 0 ||
+			   strcmp(id->name, "_spin_lock_irq") == 0 ||
+			   strcmp(id->name, "_spin_lock_bh") == 0) {
 			fprintf(afs_file, 
-				"LOOP(ALT(write(...) -> break));");
+				"LOOP(ALT(write_lock(...) -> break));");
 			
-		} else if (strcmp(id->name, "spin_unlock") == 0) {
-			fprintf(afs_file, "read(...);");
+		} else if (strcmp(id->name, "_spin_unlock") == 0 ||
+			   strcmp(id->name, "_spin_unlock_irqrestore") == 0 ||
+			   strcmp(id->name, "_spin_unlock_irq") == 0 ||
+			   strcmp(id->name, "_spin_unlock_bh") == 0) {
+			fprintf(afs_file, "read_lock(...);");
 			
 		} else if (strcmp(id->name, "mutex_lock") == 0 ||
 			   strcmp(id->name, 
