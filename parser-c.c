@@ -512,7 +512,69 @@ int init_fops_list(struct ast *fops_struct)
 	}
 	return 0;
 }
+int func_body_to_afs_struct(struct ast *node, struct ast *afs_func) 
+{
+	if (node == NULL) {
+		return 0;	       
+	}
+	if (node->nodetype == NODE_FLOW) {
+		struct flow *fl = (struct flow *) node;
+		func_body_to_afs_struct(fl->stmt1, afs_func); 
+		func_body_to_afs_struct(fl->stmt2, afs_func); 
+		return 0;
+	} else if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
+		printf("\n::::::\n");
+		printf("\nLEFT:\n");
+		struct term_id * id = (struct term_id *) find_id(node->l);
+		if (!id) {
+			if (strcmp(id->name, "down") == 0 ||
+			    strcmp(id->name, "down_interruptible") == 0 ||
+			    strcmp(id->name, "down_killable") == 0 ||
+			    
+			    strcmp(id->name, "up") == 0) {
+				struct term_id * sem_id = (struct term_id *) find_id(node->r);
+				if (!sem_id) {
+					printf("\nerr: can't find semaphore name");
+					return 1;
+				}
+				afs_add_semaphore(afs_func, id->name, sem_id->name);
+			} else if (strcmp(id->name, "_spin_lock") == 0 ||
+				   strcmp(id->name, "_spin_lock_irqsave") == 0 ||
+				   strcmp(id->name, "_spin_lock_irq") == 0 ||
+				   strcmp(id->name, "_spin_lock_bh") == 0 ||
 
+				   strcmp(id->name, "_spin_unlock") == 0 ||
+				   strcmp(id->name, "_spin_unlock_irqrestore") == 0 ||
+				   strcmp(id->name, "_spin_unlock_irq") == 0 ||
+				   strcmp(id->name, "_spin_unlock_bh") == 0) {
+				struct term_id * spin_id = (struct term_id *) find_id(node->r);
+				if (!spin_id) {
+					printf("\nerr: can't find spinlock name");
+					return 1;
+				}
+				afs_add_spinlock(afs_func, id->name, spin_id->name);
+			} else if (strcmp(id->name, "mutex_lock") == 0 ||
+				   strcmp(id->name, "mutex_lock_interruptible") == 0 ||
+				   strcmp(id->name, "mutex_lock_killable") == 0 || 
+				   
+				   strcmp(id->name, "mutex_unlock") == 0) {
+				struct term_id * mutex_id = (struct term_id *) find_id(node->r);
+				if (!mutex_id) {
+					printf("\nerr: can't find mutex name");
+					return 1;
+				}
+				afs_add_mutex(afs_func, id->name, mutex_id->name);
+			}
+		}
+			
+	} else {
+		
+	} 
+ 	
+	func_body_to_afs_struct(node->l, afs_func); 
+	func_body_to_afs_struct(node->r, afs_func); 
+
+}
 int func_body_to_afs (struct ast *node)
 {
 	if (node == NULL) {
@@ -626,8 +688,9 @@ int fops_to_afs()
 	while (p) {
 		fprintf(afs_file, "\tFUN %s :: ", p->name);
 		printf("FUN NAME: %s\n", p->name);
-		func_body_to_afs(p->func->func_body);		
-		/*print_tree(p->func->func_body);*/
+		func_body_to_afs_struct(p->func->func_body, NULL);
+		//func_body_to_afs(p->func->func_body);		
+		//print_tree(p->func->func_body);
 		if (p->next)
 			fprintf(afs_file, ";");
 		fprintf(afs_file, "\n");
@@ -696,17 +759,17 @@ int parse_to_afs ()
 		printf("\nerr: can't find fops struct init!");
 		return 1;
 	}
-	print_tree(fops_struct);
+	//print_tree(fops_struct);
 	if (init_fops_list(fops_struct)) {
 		printf("\nerr: can't find fops function!");
 		return 1;
 	}
 	struct fops_node *tmp = fops_list;
-	while(tmp) {
-		printf("------%s------\n",tmp->name);
-		print_tree(tmp->func->func_body);
-		tmp = tmp->next;
-	};
+	/* while(tmp) { */
+	/* 	printf("------%s------\n",tmp->name); */
+	/* 	print_tree(tmp->func->func_body); */
+	/* 	tmp = tmp->next; */
+	/* }; */
 
 	find_semaphores_init(root);	
 	fops_to_afs();
@@ -740,4 +803,19 @@ int pp_find_fops_name()
 	}
 	printf("\nfops name = %s", fops_name);
 	fclose(orig_file);
+}
+int afs_add_semaphore(struct ast *afs_func, char *semaphore_func_name, char *semaphore_var_name) 
+{
+	// TO DO
+	return 0;
+}
+int afs_add_spinlock(struct ast *afs_func, char *spinlock_func_name, char *spinlock_var_name)
+{
+	// TO DO
+	return 0;
+}
+int afs_add_mutex(struct ast *afs_func, char *mutex_func_name, char *mutex_var_name) 
+{
+	// TO DO
+	return 0;
 }

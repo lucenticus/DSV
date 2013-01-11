@@ -120,8 +120,11 @@ void print_tree(struct ast *a);
 struct ast *find_id(struct ast *node);
 struct ast *find_token(struct ast *a, int nodetype);
 
+int afs_add_semaphore(struct ast *afs_func, char *semaphore_func_name, char *semaphore_var_name);
+int afs_add_spinlock(struct ast *afs_func, char *spinlock_func_name, char *spinlock_var_name);
+int afs_add_mutex(struct ast *afs_func, char *mutex_func_name, char *mutex_var_name);
 
-enum NODETYPE {
+enum NODE_TYPE {
 	NODE_DECLARATION,   /*0*/
 	NODE_NUMBER,
 	NODE_ID,
@@ -172,6 +175,25 @@ enum NODETYPE {
 	NODE_INITIALIZER_LIST,
 	NODE_ENUMERATOR_LIST,
 	NODE_ATTRIB,
-	NODE_IDENTIFIERS
+	NODE_IDENTIFIERS,
+	_NODE_LAST
+};
+enum AFS_NODE_TYPE {
+	AFS_ID=_NODE_LAST,
+	AFS_CHAN,	
+	AFS_FUNC,
+	AFS_WRITE,
+	AFS_READ,
+	AFS_COM,
+	AFS_SKIP,
+	AFS_EXIT,
+	AFS_BREAK,
+	AFS_SEQ,
+	AFS_PAR,
+	AFS_ALT,
+	AFS_LOOP,
+	AFS_TT,
+	AFS_FF,
+	AFS_B
 };
 #endif /*PARSER_C_H*/
