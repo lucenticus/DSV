@@ -523,8 +523,6 @@ int func_body_to_afs_struct(struct ast *node, struct ast *afs_func)
 		func_body_to_afs_struct(fl->stmt2, afs_func); 
 		return 0;
 	} else if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
-		printf("\n::::::\n");
-		printf("\nLEFT:\n");
 		struct term_id * id = (struct term_id *) find_id(node->l);
 		if (id && 
 		    (strcmp(id->name, "down") == 0 ||
@@ -565,7 +563,9 @@ int func_body_to_afs_struct(struct ast *node, struct ast *afs_func)
 				printf("\nerr: can't find mutex name");
 				return 1;
 			}
-			afs_add_mutex(afs_func, id->name, mutex_id->name);
+			afs_add_mutex(afs_func, 
+				      id->name, 
+				      mutex_id->name);
 		}
 	} else {
 		
@@ -620,7 +620,7 @@ int func_body_to_afs (struct ast *node)
 			}
 			if (sp) {
 				fprintf(afs_file, "%s, %d); ", sp->name, sp->count);
-			}
+			} 
 		}
 	} else if (node->nodetype == NODE_FLOW) {
 		struct flow *fl = (struct flow *) node;
@@ -668,36 +668,33 @@ int func_body_to_afs (struct ast *node)
 
 int fops_to_afs() 
 {
-	fprintf(afs_file, "NET\n");
-	struct semaphore_list *sp = sema_list;
-	while (sp) {
-		fprintf(afs_file, 
-			"\tCHAN %s :: ALL(%d) : ALL(%d)", 
-			sp->name, 
-			sp->count,
-			sp->count);
-		if (sp->next)
-			fprintf(afs_file, ";\n");
-		else
-			fprintf(afs_file, "\n");
-			
-		sp = sp->next;
-	}
-
-	fprintf(afs_file, "BEGIN\n");
+       
 	struct fops_node *p = fops_list;
 	while (p) {
-		fprintf(afs_file, "\tFUN %s :: ", p->name);
-		printf("FUN NAME: %s\n", p->name);
-		func_body_to_afs_struct(p->func->func_body, NULL);
-		//func_body_to_afs(p->func->func_body);		
-		//print_tree(p->func->func_body);
-		if (p->next)
-			fprintf(afs_file, ";");
-		fprintf(afs_file, "\n");
+		struct ast *afs_func = new_ast(AFS_FUNC, new_id(p->name), NULL);
+		struct ast *t = afs_func;
+		func_body_to_afs_struct(p->func->func_body, t);
+		if (afs_func->r) {
+			printf("\n+++AFS FUNC BEGIN+++\n");
+			print_tree(afs_func);
+			printf("\n+++AFS FUNC END+++\n");
+		}
+		struct afs_func_list *n = malloc(sizeof(struct afs_func_list));
+		n->func = afs_func;
+		if (afl) {
+			n->next = afl;
+		} else {
+			n->next = NULL;
+		}
+		afl = n;
 		p = p->next;
 	}
-	fprintf(afs_file, "END\n");
+	struct afs_func_list *pafl = afl;
+	while (pafl) {
+		printf("FUN NAME: %s\n", 
+		       ((struct term_id*)pafl->func->l)->name);
+		pafl = pafl->next;		
+	}
 	return 0;
 }
 

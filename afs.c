@@ -27,19 +27,24 @@ int afs_add_mutex(struct ast *afs_func, char *func_name, char *var_name)
 	    strcmp(func_name, "mutex_lock_interruptible") == 0 ||
 	    strcmp(func_name, "mutex_lock_killable") == 0) {
 		rw->nodetype = AFS_WRITE;
+		printf("\n%d\n", AFS_WRITE);
 		rw->chan_io_num = "1";
 		
 	} else if (strcmp(func_name, "mutex_unlock") == 0) {
 		rw->nodetype = AFS_READ;
+		printf("\n%d\n", AFS_READ);
 		rw->chan_io_num = "1";
 	}
-	if (afs_func->r) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  afs_func->r, 
-					  (struct ast*)rw);
-		afs_func->r = seq;
-	} else {
+	if (afs_func && afs_func->nodetype == AFS_FUNC) {
 		afs_func->r = (struct ast *) rw;
+		afs_func = afs_func->r;
+		printf("\nT1\n");
+	} else {
+		struct ast *seq = new_ast(AFS_SEQ, 
+					  afs_func, 
+					  (struct ast*)rw);
+		afs_func = seq;
+		printf("\nT2\n");
 	}
 		
 	return 0;
