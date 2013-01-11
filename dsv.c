@@ -1,4 +1,4 @@
-
+#include "afs.h"
 
 comment()
 {
@@ -526,47 +526,47 @@ int func_body_to_afs_struct(struct ast *node, struct ast *afs_func)
 		printf("\n::::::\n");
 		printf("\nLEFT:\n");
 		struct term_id * id = (struct term_id *) find_id(node->l);
-		if (!id) {
-			if (strcmp(id->name, "down") == 0 ||
-			    strcmp(id->name, "down_interruptible") == 0 ||
-			    strcmp(id->name, "down_killable") == 0 ||
-			    
-			    strcmp(id->name, "up") == 0) {
-				struct term_id * sem_id = (struct term_id *) find_id(node->r);
-				if (!sem_id) {
-					printf("\nerr: can't find semaphore name");
-					return 1;
-				}
-				afs_add_semaphore(afs_func, id->name, sem_id->name);
-			} else if (strcmp(id->name, "_spin_lock") == 0 ||
-				   strcmp(id->name, "_spin_lock_irqsave") == 0 ||
-				   strcmp(id->name, "_spin_lock_irq") == 0 ||
-				   strcmp(id->name, "_spin_lock_bh") == 0 ||
-
-				   strcmp(id->name, "_spin_unlock") == 0 ||
-				   strcmp(id->name, "_spin_unlock_irqrestore") == 0 ||
-				   strcmp(id->name, "_spin_unlock_irq") == 0 ||
-				   strcmp(id->name, "_spin_unlock_bh") == 0) {
-				struct term_id * spin_id = (struct term_id *) find_id(node->r);
-				if (!spin_id) {
-					printf("\nerr: can't find spinlock name");
-					return 1;
-				}
-				afs_add_spinlock(afs_func, id->name, spin_id->name);
-			} else if (strcmp(id->name, "mutex_lock") == 0 ||
-				   strcmp(id->name, "mutex_lock_interruptible") == 0 ||
-				   strcmp(id->name, "mutex_lock_killable") == 0 || 
-				   
-				   strcmp(id->name, "mutex_unlock") == 0) {
-				struct term_id * mutex_id = (struct term_id *) find_id(node->r);
-				if (!mutex_id) {
-					printf("\nerr: can't find mutex name");
-					return 1;
-				}
-				afs_add_mutex(afs_func, id->name, mutex_id->name);
+		if (id && 
+		    (strcmp(id->name, "down") == 0 ||
+		     strcmp(id->name, "down_interruptible") == 0 ||
+		     strcmp(id->name, "down_killable") == 0 ||		    
+		     strcmp(id->name, "up") == 0)) {
+			struct term_id * sem_id = 
+				(struct term_id *) find_id(node->r);
+			if (!sem_id) {
+				printf("\nerr: can't find semaphore name");
+				return 1;
 			}
+			afs_add_semaphore(afs_func, id->name, sem_id->name);
+		} else if (id && 
+			   (strcmp(id->name, "_spin_lock") == 0 ||
+			    strcmp(id->name, "_spin_lock_irqsave") == 0 ||
+			    strcmp(id->name, "_spin_lock_irq") == 0 ||
+			    strcmp(id->name, "_spin_lock_bh") == 0 ||
+			    strcmp(id->name, "_spin_unlock") == 0 ||
+			    strcmp(id->name, "_spin_unlock_irqrestore") == 0 ||
+			    strcmp(id->name, "_spin_unlock_irq") == 0 ||
+			    strcmp(id->name, "_spin_unlock_bh") == 0)) {
+			struct term_id * spin_id = 
+				(struct term_id *) find_id(node->r);
+			if (!spin_id) {
+				printf("\nerr: can't find spinlock name");
+				return 1;
+			}
+			afs_add_spinlock(afs_func, id->name, spin_id->name);
+		} else if (id && 
+			   (strcmp(id->name, "mutex_lock") == 0 ||
+			    strcmp(id->name, "mutex_lock_interruptible") == 0 ||
+			    strcmp(id->name, "mutex_lock_killable") == 0 || 
+			    strcmp(id->name, "mutex_unlock") == 0)) {
+			struct term_id * mutex_id = 
+				(struct term_id *) find_id(node->r);
+			if (!mutex_id) {
+				printf("\nerr: can't find mutex name");
+				return 1;
+			}
+			afs_add_mutex(afs_func, id->name, mutex_id->name);
 		}
-			
 	} else {
 		
 	} 
@@ -575,6 +575,7 @@ int func_body_to_afs_struct(struct ast *node, struct ast *afs_func)
 	func_body_to_afs_struct(node->r, afs_func); 
 
 }
+
 int func_body_to_afs (struct ast *node)
 {
 	if (node == NULL) {
@@ -803,19 +804,4 @@ int pp_find_fops_name()
 	}
 	printf("\nfops name = %s", fops_name);
 	fclose(orig_file);
-}
-int afs_add_semaphore(struct ast *afs_func, char *semaphore_func_name, char *semaphore_var_name) 
-{
-	// TO DO
-	return 0;
-}
-int afs_add_spinlock(struct ast *afs_func, char *spinlock_func_name, char *spinlock_var_name)
-{
-	// TO DO
-	return 0;
-}
-int afs_add_mutex(struct ast *afs_func, char *mutex_func_name, char *mutex_var_name) 
-{
-	// TO DO
-	return 0;
 }

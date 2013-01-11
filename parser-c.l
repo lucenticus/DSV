@@ -10,7 +10,7 @@ IS			(u|U|l|L)*
 %{
 #include <stdio.h>
 #include "parser-c.tab.h"
-#include "parser-c.h"
+#include "dsv.h"
 %}
 %%
 "#".*\n			{ }
@@ -134,4 +134,4 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.id = strdup(yytext); return(STRING_LITERAL
 
 %%
 
-#include "parser-c.c"
+#include "dsv.c"
