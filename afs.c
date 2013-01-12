@@ -14,7 +14,55 @@ int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name)
 }
 int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name)
 {
-	// TO DO
+	struct afs_rw *rw = malloc(sizeof(struct afs_rw));
+	rw->l = NULL;
+	rw->r = NULL;
+	rw->chan_name = strdup(var_name);
+	if (strcmp(func_name, "_spin_lock") == 0 ||
+	    strcmp(func_name, "_spin_lock_irqsave") == 0 ||
+	    strcmp(func_name, "_spin_lock_irq") == 0 ||
+	    strcmp(func_name, "_spin_lock_bh") == 0) {
+		rw->nodetype = AFS_WRITE;
+		printf("\n%d\n", AFS_WRITE);
+		rw->chan_io_num = "1";
+		
+	} else if (strcmp(func_name, "_spin_unlock") == 0 ||
+		   strcmp(func_name, "_spin_unlock_irqrestore") == 0 ||
+		   strcmp(func_name, "_spin_unlock_irq") == 0 ||
+		   strcmp(func_name, "_spin_unlock_bh") == 0) {
+		rw->nodetype = AFS_READ;
+		printf("\n%d\n", AFS_READ);
+		rw->chan_io_num = "1";
+	}
+	if (rw->nodetype == AFS_WRITE) {
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		struct ast *gc = new_ast(AFS_GC, 
+					 (struct ast*)rw, 
+					 new_ast(AFS_BREAK, NULL, NULL));
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		node->next = NULL;
+		node->a = gc;
+		alt->alt_list = node;
+		struct ast *loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
+		rw = (struct afs_rw *)loop;
+	}
+	if ((*afs_func) && (*afs_func)->nodetype == AFS_FUNC) {
+		printf("\nafs_func = %d\n", *afs_func);
+		(*afs_func)->r = (struct ast *) rw;
+		(*afs_func) = (*afs_func)->r;
+		printf("\nT1\n");
+		printf("\nafs_func = %d\n", (*afs_func));
+	} else {
+		struct ast *seq = new_ast(AFS_SEQ, 
+					  (*afs_func), 
+					  (struct ast*)rw);
+		(*afs_func) = seq;
+		printf("\nT2\n");
+	}
+		
 	return 0;
 }
 int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name) 
@@ -25,7 +73,8 @@ int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name)
 	rw->chan_name = strdup(var_name);
 	if (strcmp(func_name, "mutex_lock") == 0 ||
 	    strcmp(func_name, "mutex_lock_interruptible") == 0 ||
-	    strcmp(func_name, "mutex_lock_killable") == 0) {
+	    strcmp(func_name, "mutex_lock_killable") == 0 ||
+	    strcmp(func_name, "mutex_trylock") == 0) {
 		rw->nodetype = AFS_WRITE;
 		printf("\n%d\n", AFS_WRITE);
 		rw->chan_io_num = "1";

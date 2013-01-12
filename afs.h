@@ -31,18 +31,18 @@ struct afs_alt {
 	int nodetype;
 	struct ast *l;
 	struct ast *r;
-	struct ast *alt_list;
+	struct ast_list *alt_list;
 };
 
-struct afs_func_list {
-	struct ast *func;
-	struct afs_func_list *next;
+struct ast_list {
+	struct ast *a;
+	struct ast_list *next;
 };
 struct afs_chan_list {
 	struct afs_chan *chan;
 	struct afs_chan_list *next;
 };
-struct afs_func_list *afl;
+struct ast_list *afl;
 struct afs_chan_list *acl;
 int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name);
 int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name);

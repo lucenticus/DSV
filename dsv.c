@@ -678,8 +678,8 @@ int fops_to_afs()
 			print_tree(afs_func);
 			printf("\n+++AFS FUNC END+++\n");
 		}
-		struct afs_func_list *n = malloc(sizeof(struct afs_func_list));
-		n->func = afs_func;
+		struct ast_list *n = malloc(sizeof(struct ast_list));
+		n->a = afs_func;
 		if (afl) {
 			n->next = afl;
 		} else {
@@ -688,10 +688,8 @@ int fops_to_afs()
 		afl = n;
 		p = p->next;
 	}
-	struct afs_func_list *pafl = afl;
+	struct ast_list *pafl = afl;
 	while (pafl) {
-		printf("FUN NAME: %s\n", 
-		       ((struct term_id*)pafl->func->l)->name);
 		pafl = pafl->next;		
 	}
 	return 0;
