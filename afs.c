@@ -1,6 +1,29 @@
 #include "afs.h"
 #include <string.h>
 #include <stdlib.h>
+int afs_add_flow(struct **afs_func, struct flow *fl) {
+	if (fl->flowtype == IF) {
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		struct ast *st1 = NULL;
+		func_body_to_afs_struct(fl->stmt1, st1);
+		struct ast *gc = new_ast(AFS_GC, 
+					 new_ast(AFS_B, NULL, NULL),
+					 st1);
+		
+	} else if (fl->flowtype == FOR) {
+		
+	} else if (fl->flowtype == WHILE) {
+		
+	} else if (fl->flowtype == DO) {
+		
+	} else if (fl->flowtype == SWITCH) {
+		
+	}
+	return 0;
+}
 int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name) 
 {
 

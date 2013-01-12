@@ -519,6 +519,9 @@ int func_body_to_afs_struct(struct ast *node, struct ast **afs_func)
 	}
 	if (node->nodetype == NODE_FLOW) {
 		struct flow *fl = (struct flow *) node;
+		
+		afs_add_flow(afs_func, fl);
+		
 		func_body_to_afs_struct(fl->stmt1, afs_func); 
 		func_body_to_afs_struct(fl->stmt2, afs_func); 
 		return 0;
