@@ -1,18 +1,54 @@
 #include "afs.h"
+#include "parser-c.tab.h"
 #include <string.h>
 #include <stdlib.h>
-int afs_add_flow(struct **afs_func, struct flow *fl) {
+int afs_add_flow(struct ast **afs_func, struct flow *fl) {
 	if (fl->flowtype == IF) {
 		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 		alt->nodetype = AFS_ALT;
 		alt->l = NULL;
 		alt->r = NULL;
-		struct ast *st1 = NULL;
-		func_body_to_afs_struct(fl->stmt1, st1);
+		struct ast *st = NULL;
+		func_body_to_afs_struct(fl->stmt1, st);
 		struct ast *gc = new_ast(AFS_GC, 
 					 new_ast(AFS_B, NULL, NULL),
-					 st1);
+					 st);
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		node->next = NULL;
+		node->a = gc; 
+		alt->alt_list = node;
+		if (fl->stmt2) {
+			st = NULL;
+			func_body_to_afs_struct(fl->stmt2, st);
 		
+			gc = new_ast(AFS_GC,
+				     new_ast(AFS_B, NULL, NULL),
+				     st);
+			node = malloc(sizeof(struct ast_list));
+			node->next = NULL;
+			node->a = gc;
+			struct ast_list *t = alt->alt_list;
+			while (t->next) {
+				t = t->next;
+			}
+			t->next = node;
+		}
+		if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
+			printf("\nafs_func = %d\n", *afs_func);
+			(*afs_func)->r = (struct ast *) alt;
+			(*afs_func) = (*afs_func)->r;
+			printf("\nT5\n");
+			printf("\nafs_func = %d\n", (*afs_func));
+		} else if (afs_func) {
+			struct ast *seq = new_ast(AFS_SEQ, 
+						  (*afs_func), 
+						  (struct ast*)alt);
+			(*afs_func) = seq;
+			printf("\nT6\n");
+		} else {
+			afs_func = &alt;
+			printf("\nT7\n");
+		}
 	} else if (fl->flowtype == FOR) {
 		
 	} else if (fl->flowtype == WHILE) {
@@ -72,18 +108,20 @@ int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name)
 		struct ast *loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
 		rw = (struct afs_rw *)loop;
 	}
-	if ((*afs_func) && (*afs_func)->nodetype == AFS_FUNC) {
+	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
 		printf("\nafs_func = %d\n", *afs_func);
 		(*afs_func)->r = (struct ast *) rw;
 		(*afs_func) = (*afs_func)->r;
 		printf("\nT1\n");
 		printf("\nafs_func = %d\n", (*afs_func));
-	} else {
+	} else if (afs_func) {
 		struct ast *seq = new_ast(AFS_SEQ, 
 					  (*afs_func), 
 					  (struct ast*)rw);
 		(*afs_func) = seq;
 		printf("\nT2\n");
+	} else {
+		afs_func = &rw;
 	}
 		
 	return 0;
@@ -107,18 +145,20 @@ int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name)
 		printf("\n%d\n", AFS_READ);
 		rw->chan_io_num = "1";
 	}
-	if ((*afs_func) && (*afs_func)->nodetype == AFS_FUNC) {
+	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
 		printf("\nafs_func = %d\n", *afs_func);
 		(*afs_func)->r = (struct ast *) rw;
 		(*afs_func) = (*afs_func)->r;
 		printf("\nT1\n");
 		printf("\nafs_func = %d\n", (*afs_func));
-	} else {
+	} else if (afs_func) {
 		struct ast *seq = new_ast(AFS_SEQ, 
 					  (*afs_func), 
 					  (struct ast*)rw);
 		(*afs_func) = seq;
 		printf("\nT2\n");
+	} else {
+		afs_func = & rw;
 	}
 		
 	return 0;
