@@ -1,7 +1,7 @@
 #include "afs.h"
 #include <string.h>
 #include <stdlib.h>
-int afs_add_semaphore(struct ast *afs_func, char *func_name, char *var_name) 
+int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name) 
 {
 
 	if (strcmp(func_name, "down") == 0 ||
@@ -12,12 +12,12 @@ int afs_add_semaphore(struct ast *afs_func, char *func_name, char *var_name)
 	}
 	return 0;
 }
-int afs_add_spinlock(struct ast *afs_func, char *func_name, char *var_name)
+int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name)
 {
 	// TO DO
 	return 0;
 }
-int afs_add_mutex(struct ast *afs_func, char *func_name, char *var_name) 
+int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name) 
 {
 	struct afs_rw *rw = malloc(sizeof(struct afs_rw));
 	rw->l = NULL;
@@ -35,15 +35,17 @@ int afs_add_mutex(struct ast *afs_func, char *func_name, char *var_name)
 		printf("\n%d\n", AFS_READ);
 		rw->chan_io_num = "1";
 	}
-	if (afs_func && afs_func->nodetype == AFS_FUNC) {
-		afs_func->r = (struct ast *) rw;
-		afs_func = afs_func->r;
+	if ((*afs_func) && (*afs_func)->nodetype == AFS_FUNC) {
+		printf("\nafs_func = %d\n", *afs_func);
+		(*afs_func)->r = (struct ast *) rw;
+		(*afs_func) = (*afs_func)->r;
 		printf("\nT1\n");
+		printf("\nafs_func = %d\n", (*afs_func));
 	} else {
 		struct ast *seq = new_ast(AFS_SEQ, 
-					  afs_func, 
+					  (*afs_func), 
 					  (struct ast*)rw);
-		afs_func = seq;
+		(*afs_func) = seq;
 		printf("\nT2\n");
 	}
 		

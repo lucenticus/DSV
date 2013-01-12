@@ -44,9 +44,9 @@ struct afs_chan_list {
 };
 struct afs_func_list *afl;
 struct afs_chan_list *acl;
-int afs_add_semaphore(struct ast *afs_func, char *func_name, char *var_name);
-int afs_add_spinlock(struct ast *afs_func, char *func_name, char *var_name);
-int afs_add_mutex(struct ast *afs_func, char *func_name, char *var_name);
+int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name);
+int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name);
+int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name);
 
 enum AFS_NODE_TYPE {
 	AFS_ID=_NODE_LAST,

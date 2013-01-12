@@ -512,7 +512,7 @@ int init_fops_list(struct ast *fops_struct)
 	}
 	return 0;
 }
-int func_body_to_afs_struct(struct ast *node, struct ast *afs_func) 
+int func_body_to_afs_struct(struct ast *node, struct ast **afs_func) 
 {
 	if (node == NULL) {
 		return 0;	       
@@ -672,8 +672,7 @@ int fops_to_afs()
 	struct fops_node *p = fops_list;
 	while (p) {
 		struct ast *afs_func = new_ast(AFS_FUNC, new_id(p->name), NULL);
-		struct ast *t = afs_func;
-		func_body_to_afs_struct(p->func->func_body, t);
+		func_body_to_afs_struct(p->func->func_body, &afs_func);
 		if (afs_func->r) {
 			printf("\n+++AFS FUNC BEGIN+++\n");
 			print_tree(afs_func);
