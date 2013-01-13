@@ -676,6 +676,7 @@ int fops_to_afs()
 	while (p) {
 		struct ast *afs_func = new_ast(AFS_FUNC, new_id(p->name), NULL);
 		func_body_to_afs_struct(p->func->func_body, &afs_func);
+		fprintf(afs_file, "\nTEST::%s", p->name);
 		if (afs_func->r) {
 			printf("\n+++AFS FUNC BEGIN+++\n");
 			print_tree(afs_func);
