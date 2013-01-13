@@ -44,10 +44,12 @@ struct afs_chan_list {
 };
 struct ast_list *afl;
 struct afs_chan_list *acl;
+
 int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name);
 int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name);
 int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name);
-
+int afs_struct_to_file();
+int afs_add_flow(struct ast **afs_func, struct flow *fl);
 enum AFS_NODE_TYPE {
 	AFS_ID=_NODE_LAST,
 	AFS_CHAN,	

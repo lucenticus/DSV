@@ -522,9 +522,9 @@ int func_body_to_afs_struct(struct ast *node, struct ast **afs_func)
 		
 		afs_add_flow(afs_func, fl);
 		
-		func_body_to_afs_struct(fl->stmt1, afs_func); 
-		func_body_to_afs_struct(fl->stmt2, afs_func); 
-		return 0;
+		//func_body_to_afs_struct(fl->stmt1, afs_func); 
+		//func_body_to_afs_struct(fl->stmt2, afs_func); 
+		//return 0;
 	} else if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
 		struct term_id * id = (struct term_id *) find_id(node->l);
 		if (id && 
@@ -695,6 +695,7 @@ int fops_to_afs()
 	while (pafl) {
 		pafl = pafl->next;		
 	}
+	afs_struct_to_file();
 	return 0;
 }
 

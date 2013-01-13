@@ -163,3 +163,19 @@ int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name)
 		
 	return 0;
 }
+
+int afs_struct_to_file() 
+{
+	struct ast_list *t = afl;
+	while (t) {
+		struct term_id *id = find_id(t->a->l);
+		if (!id) {
+			printf("\nerr: can't find afs function name!");
+			return 1;
+		}
+		fprintf(afs_file, "FUNC %s :: ", id->name);
+		fprintf(afs_file, "\n");
+		t = t->next;
+	}
+	return 0;
+}
