@@ -259,16 +259,20 @@ struct ast *new_for(struct ast *init_expr,
 		    struct ast *end_expr, 
 		    struct ast *stmt) 
 {
-	struct ast *a = malloc(sizeof(struct ast));
+	struct flow *a = malloc(sizeof(struct flow));
 	if (!a) {
 		yyerror("out of memory");
 		exit(0);
 	}
-	a->nodetype = NODE_FOR;
+	a->nodetype = NODE_FLOW;
 	a->l = NULL;
 	a->r = NULL;
-	/* add to symtable */
-	return a;
+	a->flowtype = FOR;
+	a->stmt1 = init_expr;
+	a->expr = cond_expr;
+	a->stmt2 = end_expr;
+	a->l = stmt;
+	return ((struct ast*)a);
 }
 struct ast *new_asm(struct ast *type_qual, 
 		    struct ast *expr, 

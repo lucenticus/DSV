@@ -2,6 +2,7 @@
 #include "parser-c.tab.h"
 #include <string.h>
 #include <stdlib.h>
+
 int afs_add_flow(struct ast **afs_func, struct flow *fl) {
 	if (fl->flowtype == IF) {
 		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
@@ -50,11 +51,114 @@ int afs_add_flow(struct ast **afs_func, struct flow *fl) {
 			printf("\nT7\n");
 		}
 	} else if (fl->flowtype == FOR) {
+		struct ast *loop = malloc(sizeof(struct ast));
+		loop->nodetype = AFS_LOOP;
+		loop->l = NULL;
+		loop->r = NULL;
+		struct ast *st = NULL;
+		func_body_to_afs_struct(fl->l, st);
 		
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		struct ast *gc = new_ast(AFS_GC, 
+					 new_ast(AFS_B, NULL, NULL),
+					 st);
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		node->next = NULL;
+		node->a = gc; 
+		alt->alt_list = node;
+		loop->l = alt;
+		if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
+			printf("\nafs_func = %d\n", *afs_func);
+			(*afs_func)->r = (struct ast *) loop;
+			(*afs_func) = (*afs_func)->r;
+			printf("\nT8\n");
+			printf("\nafs_func = %d\n", (*afs_func));
+		} else if (afs_func) {
+			struct ast *seq = new_ast(AFS_SEQ, 
+						  (*afs_func), 
+						  loop);
+			(*afs_func) = seq;
+			printf("\nT9\n");
+		} else {
+			afs_func = &loop;
+			printf("\nT10\n");
+		}
 	} else if (fl->flowtype == WHILE) {
+		struct ast *loop = malloc(sizeof(struct ast));
+		loop->nodetype = AFS_LOOP;
+		loop->l = NULL;
+		loop->r = NULL;
+		struct ast *st = NULL;
+		func_body_to_afs_struct(fl->stmt1, st);
 		
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		struct ast *gc = new_ast(AFS_GC, 
+					 new_ast(AFS_B, NULL, NULL),
+					 st);
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		node->next = NULL;
+		node->a = gc; 
+		alt->alt_list = node;
+		loop->l = alt;
+		if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
+			printf("\nafs_func = %d\n", *afs_func);
+			(*afs_func)->r = (struct ast *) loop;
+			(*afs_func) = (*afs_func)->r;
+			printf("\nT11\n");
+			printf("\nafs_func = %d\n", (*afs_func));
+		} else if (afs_func) {
+			struct ast *seq = new_ast(AFS_SEQ, 
+						  (*afs_func), 
+						  loop);
+			(*afs_func) = seq;
+			printf("\nT12\n");
+		} else {
+			afs_func = &loop;
+			printf("\nT13\n");
+		}
 	} else if (fl->flowtype == DO) {
+		struct ast *loop = malloc(sizeof(struct ast));
+		loop->nodetype = AFS_LOOP;
+		loop->l = NULL;
+		loop->r = NULL;
+		struct ast *st = NULL;
+		func_body_to_afs_struct(fl->stmt1, st);
 		
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		struct ast *gc = new_ast(AFS_GC, 
+					 new_ast(AFS_B, NULL, NULL),
+					 st);
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		node->next = NULL;
+		node->a = gc; 
+		alt->alt_list = node;
+		loop->l = alt;
+		struct ast *loop_seq = new_ast(AFS_SEQ, st, loop);
+		if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
+			printf("\nafs_func = %d\n", *afs_func);
+			(*afs_func)->r = (struct ast *) loop_seq;
+			(*afs_func) = (*afs_func)->r;
+			printf("\nT14\n");
+			printf("\nafs_func = %d\n", (*afs_func));
+		} else if (afs_func) {
+			struct ast *seq = new_ast(AFS_SEQ, 
+						  (*afs_func), 
+						  loop_seq);
+			(*afs_func) = seq;
+			printf("\nT15\n");
+		} else {
+			afs_func = &loop_seq;
+			printf("\nT16\n");
+		}
 	} else if (fl->flowtype == SWITCH) {
 		
 	}
