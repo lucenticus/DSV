@@ -160,10 +160,79 @@ int afs_add_flow(struct ast **afs_func, struct flow *fl) {
 			printf("\nT16\n");
 		}
 	} else if (fl->flowtype == SWITCH) {
-		
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		alt->alt_list = NULL;
+		struct ast_list *stmts_list = get_case_stmts_list(fl->stmt1);
+		while (stmts_list) {
+			struct ast *gc = new_ast(AFS_GC, 
+						 new_ast(AFS_B, NULL, NULL),
+						 stmts_list->a);
+			struct ast_list *node = malloc(sizeof(struct ast_list));
+			node->a = gc;
+			node->next = NULL;
+			if (alt->alt_list == NULL) {
+				alt->alt_list = node;				
+			} else {
+				struct ast_list *tmp = alt->alt_list;
+				while (tmp->next) {
+					tmp = tmp->next;
+				}
+				tmp->next = node;
+			}
+
+			stmts_list = stmts_list->next;
+		}
+		if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
+			printf("\nafs_func = %d\n", *afs_func);
+			(*afs_func)->r = (struct ast *) alt;
+			(*afs_func) = (*afs_func)->r;
+			printf("\nT17\n");
+			printf("\nafs_func = %d\n", (*afs_func));
+		} else if (afs_func) {
+			struct ast *seq = new_ast(AFS_SEQ, 
+						  (*afs_func), 
+						  (struct ast*)alt);
+			(*afs_func) = seq;
+			printf("\nT18\n");
+		} else {
+			afs_func = &alt;
+			printf("\nT19\n");
+		}
 	}
 	return 0;
 }
+struct ast_list *get_case_stmts_list(struct ast *node) 
+{
+	if (node == NULL)
+		return NULL;
+	struct ast_list *first = get_case_stmts_list(node->l);
+	struct ast_list *second = get_case_stmts_list(node->r);
+	if (node->nodetype == NODE_LABELED_STATEMENT) {
+		if (first == NULL && second == NULL) {
+			struct ast_list *n = malloc(sizeof(struct ast_list));
+			n->next = NULL;
+			n->a = node->r;
+			return n;
+		} else {
+			struct ast_list *n = 
+					malloc(sizeof(struct ast_list));
+				n->a = node->r;
+				
+			if (first != NULL) {
+				first->next = second;
+				n->next = first;
+			} else {
+				n->next = second;
+			}
+			return n;
+		}
+	}
+	return NULL;
+}
+		
 int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name) 
 {
 
