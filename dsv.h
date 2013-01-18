@@ -119,7 +119,7 @@ void parse_declaration(struct ast*);
 void print_tree(struct ast *a);
 struct ast *find_id(struct ast *node);
 struct ast *find_token(struct ast *a, int nodetype);
-struct ast *func_body_to_afs_struct(struct ast *node, struct ast *afs_node);
+struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node);
 enum NODE_TYPE {
 	NODE_DECLARATION,   /*0*/
 	NODE_NUMBER,

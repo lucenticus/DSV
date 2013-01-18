@@ -3,7 +3,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct ast *afs_add_flow(struct ast *afs_node, struct flow *fl) {
+struct ast *afs_add_com(struct ast **afs_node, struct ast *node)
+{
+	struct ast *com = new_ast(AFS_COM, NULL, NULL);
+	com = add_new_node_to_afs_node(afs_node, com);
+	return com;
+}
+ 
+struct ast *afs_add_flow(struct ast **afs_node, struct flow *fl) 
+{
 	switch (fl->flowtype) {
 	case IF: {
 		return afs_add_flow_if(afs_node, fl);
@@ -26,24 +34,27 @@ struct ast *afs_add_flow(struct ast *afs_node, struct flow *fl) {
 	}
 	}	
 }
-struct ast * add_new_node_to_afs_node(struct ast *afs_node,
+struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 				      struct ast *new_node) 
 {
 	if (afs_node == NULL) {
-		if (curr_afs_root == NULL) 
-			curr_afs_root = new_node;
-		
+		afs_node = &new_node;		
 		return new_node;
-	} else if (afs_node->nodetype == AFS_SEQ) {
-		struct ast *seq = new_ast(AFS_SEQ, afs_node->r, new_node);
-		afs_node->r = seq;
+	} else if ((*afs_node)->nodetype == AFS_SEQ) {
+		struct ast *seq = new_ast(AFS_SEQ, (*afs_node)->r, new_node);
+		(*afs_node)->r = seq;
+		afs_node = &seq;
 		return seq;
 	} else {
-		struct ast *seq = new_ast(AFS_SEQ, afs_node, new_node);
+		struct ast *seq = new_ast(AFS_SEQ, (*afs_node), new_node);
+
+		afs_node = &seq;
+		if (curr_afs_root == NULL) 
+			curr_afs_root = *afs_node;
 		return seq;
 	}
 }
-struct ast* afs_add_flow_if(struct ast *afs_node, struct flow *fl) 
+struct ast* afs_add_flow_if(struct ast **afs_node, struct flow *fl) 
 {
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -99,7 +110,7 @@ struct ast* afs_add_flow_if(struct ast *afs_node, struct flow *fl)
 	}
 	return add_new_node_to_afs_node(afs_node, (struct ast*)alt);
 }
-struct ast * afs_add_flow_for(struct ast *afs_node, struct flow *fl)
+struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
 	loop->nodetype = AFS_LOOP;
@@ -122,7 +133,7 @@ struct ast * afs_add_flow_for(struct ast *afs_node, struct flow *fl)
 	return add_new_node_to_afs_node(afs_node, loop);
 }
 
-struct ast *afs_add_flow_while_do(struct ast *afs_node, struct flow *fl)
+struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
 	loop->nodetype = AFS_LOOP;
@@ -144,7 +155,7 @@ struct ast *afs_add_flow_while_do(struct ast *afs_node, struct flow *fl)
 	loop->l = (struct ast *) alt;
 	return add_new_node_to_afs_node(afs_node, loop);
 }
-struct ast *afs_add_flow_do_while(struct ast *afs_node, struct flow *fl)
+struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
 	loop->nodetype = AFS_LOOP;
@@ -168,7 +179,7 @@ struct ast *afs_add_flow_do_while(struct ast *afs_node, struct flow *fl)
 	return add_new_node_to_afs_node(afs_node, loop_seq);
 }
 
-struct ast * afs_add_flow_switch(struct ast *afs_node, struct flow *fl)
+struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 {
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -226,7 +237,7 @@ struct ast_list *get_case_stmts_list(struct ast *node)
 	}
 	return NULL;
 }
-struct ast * afs_add_semaphore(struct ast *afs_node, 
+struct ast * afs_add_semaphore(struct ast **afs_node, 
 			       char *func_name, 
 			       char *var_name) 
 {
@@ -237,9 +248,9 @@ struct ast * afs_add_semaphore(struct ast *afs_node,
 		
 	} else if (strcmp(func_name, "up") == 0) {
 	}
-	return afs_node;
+	return *afs_node;
 }
-struct ast * afs_add_spinlock(struct ast *afs_node, 
+struct ast * afs_add_spinlock(struct ast **afs_node, 
 			      char *func_name, 
 			      char *var_name)
 {
@@ -280,7 +291,7 @@ struct ast * afs_add_spinlock(struct ast *afs_node,
 	return add_new_node_to_afs_node(afs_node, rw);
 }
 
-struct ast * afs_add_mutex(struct ast *afs_node, 
+struct ast * afs_add_mutex(struct ast **afs_node, 
 			   char *func_name, 
 			   char *var_name) 
 {
@@ -351,7 +362,7 @@ int afs_struct_node_to_file(struct ast *node)
 		//TODO
 	} break;
 	case AFS_COM: {
-		fprintf(afs_file, "A");
+		fprintf(afs_file, "a");
 		if (node->l) {
 			fprintf(afs_file, "(%s)", 
 				((struct term_id *)node)->name);

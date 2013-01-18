@@ -516,10 +516,13 @@ int init_fops_list(struct ast *fops_struct)
 	}
 	return 0;
 }
-struct ast *func_body_to_afs_struct(struct ast *node, struct ast *afs_node) 
+struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node) 
 {
 	if (node == NULL) {
-		return 0;	       
+		if (afs_node)
+			return *afs_node;	       
+		else 
+			return NULL;
 	}
 	if (node->nodetype == NODE_FLOW) {
 		struct flow *fl = (struct flow *) node;
@@ -572,14 +575,18 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast *afs_node)
 			return afs_add_mutex(afs_node, 
 				      id->name, 
 				      mutex_id->name);
+		} else {
+			struct ast *com = afs_add_com(afs_node, node);
+			com = func_body_to_afs_struct(node->l, &com); 
+			com = func_body_to_afs_struct(node->r, &com);
+			return com;
 		}
 	} else {
-		
+		struct ast *com = afs_add_com(afs_node, node);
+		com = func_body_to_afs_struct(node->l, &com); 
+		com = func_body_to_afs_struct(node->r, &com);
+		return com;
 	} 
- 	
-	func_body_to_afs_struct(node->l, afs_node); 
-	func_body_to_afs_struct(node->r, afs_node); 
-
 }
 
 int fops_to_afs() 
