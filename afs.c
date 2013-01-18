@@ -18,7 +18,33 @@ int afs_add_flow(struct ast **afs_func, struct flow *fl) {
 		node->next = NULL;
 		node->a = gc; 
 		alt->alt_list = node;
-		if (fl->stmt2) {
+		if (fl->stmt2 && 
+		    fl->stmt2->nodetype == NODE_FLOW &&
+		    ((struct flow*)fl->stmt2)->flowtype == IF) {
+			struct ast *tf = fl->stmt2;
+			while (tf &&
+			       tf->nodetype == NODE_FLOW && 
+			       ((struct flow*)tf)->flowtype == IF) {
+				struct flow *f = (struct flow*) tf;
+				st = NULL;
+				func_body_to_afs_struct(f->stmt1, st);
+				struct ast *gc = new_ast(AFS_GC, 
+							 new_ast(AFS_B,
+								 NULL, 
+								 NULL),
+							 st);
+				struct ast_list *node = 
+					malloc(sizeof(struct ast_list));
+				node->next = NULL;
+				node->a = gc; 
+				struct ast_list *t = alt->alt_list;
+				while (t->next) {
+					t = t->next;
+				}
+				t->next = node;
+				tf = f->stmt2;
+			}
+		} else if (fl->stmt2) {
 			st = NULL;
 			func_body_to_afs_struct(fl->stmt2, st);
 		
@@ -35,7 +61,6 @@ int afs_add_flow(struct ast **afs_func, struct flow *fl) {
 			t->next = node;
 		}
 		if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-			printf("\nafs_func = %d\n", *afs_func);
 			(*afs_func)->r = (struct ast *) alt;
 			(*afs_func) = (*afs_func)->r;
 			printf("\nT5\n");
@@ -343,13 +368,14 @@ int afs_struct_to_file()
 			printf("\nerr: can't find afs function name!");
 			return 1;
 		}
-		fprintf(afs_file, "FUNC %s :: ", id->name);
+		fprintf(afs_file, "\nFUNC %s :: ", id->name);
 		afs_struct_node_to_file(t->a->r);
 		fprintf(afs_file, "\n");
 		t = t->next;
 	}
 	return 0;
 }
+
 int afs_struct_node_to_file(struct ast *node) 
 {
 	if (node == NULL)
