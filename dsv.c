@@ -586,7 +586,7 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		com = func_body_to_afs_struct(node->l, &com); 
 		com = func_body_to_afs_struct(node->r, &com);
 		return com;
-	} 
+	}
 }
 
 int fops_to_afs() 
@@ -608,6 +608,7 @@ int fops_to_afs()
 		afl = n;
 		p = p->next;
 	}
+	afs_simplify_struct();
 	afs_struct_to_file();
 	return 0;
 }

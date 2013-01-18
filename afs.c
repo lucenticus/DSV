@@ -429,3 +429,26 @@ int afs_struct_node_to_file(struct ast *node)
 	}
 	return 0;
 }
+int afs_simplify_struct() 
+{
+	struct ast_list *t = afl;
+	while (t) {
+		afs_simplify_node(t->a->r);
+		t = t->next;
+	}
+	return 0;
+}
+int afs_simplify_node(struct ast *node) 
+{
+	if (node == NULL)
+		return 0;
+	if (node->nodetype == AFS_SEQ &&
+	    node->l && node->l->nodetype == AFS_COM &&
+	    node->r && node->r->nodetype == AFS_SEQ) {
+		node->l = node->r->l;
+		node->r = node->r->r;
+		afs_simplify_node(node);
+	} 
+	afs_simplify_node(node->l);
+	afs_simplify_node(node->r);
+}
