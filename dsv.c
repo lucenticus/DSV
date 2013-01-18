@@ -523,12 +523,7 @@ int func_body_to_afs_struct(struct ast *node, struct ast **afs_func)
 	}
 	if (node->nodetype == NODE_FLOW) {
 		struct flow *fl = (struct flow *) node;
-		
 		afs_add_flow(afs_func, fl);
-		
-		//func_body_to_afs_struct(fl->stmt1, afs_func); 
-		//func_body_to_afs_struct(fl->stmt2, afs_func); 
-		//return 0;
 	} else if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
 		struct term_id * id = (struct term_id *) find_id(node->l);
 		if (id && 
@@ -581,96 +576,6 @@ int func_body_to_afs_struct(struct ast *node, struct ast **afs_func)
 	func_body_to_afs_struct(node->l, afs_func); 
 	func_body_to_afs_struct(node->r, afs_func); 
 
-}
-
-int func_body_to_afs (struct ast *node)
-{
-	if (node == NULL) {
-		return;
-	}
-	if (node->nodetype == NODE_ID) {
-		struct term_id *id = (struct term_id *) node;
-		if (strcmp(id->name, "down") == 0 ||
-		    strcmp(id->name, "down_interruptible") == 0 ||
-		    strcmp(id->name, "down_killable") == 0) {
-			fprintf(afs_file, "write(...);");
-		} else if (strcmp(id->name, "up") == 0) {
-			fprintf(afs_file, "read(...);");
-		} else if (strcmp(id->name, "_spin_lock") == 0 ||
-			   strcmp(id->name, "_spin_lock_irqsave") == 0 ||
-			   strcmp(id->name, "_spin_lock_irq") == 0 ||
-			   strcmp(id->name, "_spin_lock_bh") == 0) {
-			fprintf(afs_file, 
-				"LOOP(ALT(write_lock(...) -> break));");
-			
-		} else if (strcmp(id->name, "_spin_unlock") == 0 ||
-			   strcmp(id->name, "_spin_unlock_irqrestore") == 0 ||
-			   strcmp(id->name, "_spin_unlock_irq") == 0 ||
-			   strcmp(id->name, "_spin_unlock_bh") == 0) {
-			fprintf(afs_file, "read_lock(...);");
-			
-		} else if (strcmp(id->name, "mutex_lock") == 0 ||
-			   strcmp(id->name, 
-				  "mutex_lock_interruptible") == 0 ||
-			   strcmp(id->name, 
-				  "mutex_lock_killable") == 0
-			   ) {
-			fprintf(afs_file, "write(...);");	
-		} else if (strcmp(id->name, "mutex_unlock") == 0) {
-			fprintf(afs_file, "read(...);");	
-		} else {
-		       	struct semaphore_list *sp = sema_list;
-			while (sp) {
-				if (strcmp(id->name, sp->name) == 0)
-					break;
-				sp = sp->next;
-			}
-			if (sp) {
-				fprintf(afs_file, "%s, %d); ", sp->name, sp->count);
-			} 
-		}
-	} else if (node->nodetype == NODE_FLOW) {
-		struct flow *fl = (struct flow *) node;
-		if (fl->flowtype == WHILE) {
-			fprintf(afs_file, "LOOP(");			
-		}
-		fprintf(afs_file, "ALT(");
-		/*print_tree(fl->expr);*/
-		if (fl->expr->nodetype == NODE_ID &&
-		    fl->expr->l == NULL &&
-		    fl->expr->r == NULL) {
-			struct term_id *id = (struct term_id *) fl->expr;
-			printf("name:%s\n", id->name);
-			if (strlen(id->name) > 0 && isdigit(id->name[0])) {
-				int num = atoi(id->name);
-				if (num == 0) {
-					fprintf(afs_file, "ff");
-				} else {
-					fprintf(afs_file, "tt");
-				}
-			} else {
-				fprintf(afs_file, "b");
-			}
-		} else {
-			fprintf(afs_file, "b");
-		}
-		
-		fprintf(afs_file, " -> ");
-		fprintf(afs_file, "SEQ(");
-		func_body_to_afs(fl->stmt1);
-		fprintf(afs_file, ")");
-		if (fl->flowtype == IF) {
-			fprintf(afs_file, "; ");
-			fprintf(afs_file, "SEQ(");
-			func_body_to_afs(fl->stmt2);
-			fprintf(afs_file, ")");
-		}
-		fprintf(afs_file, "))");
-	}
-	
-	func_body_to_afs(node->l);
-	func_body_to_afs(node->r);
-	return 0;
 }
 
 int fops_to_afs() 

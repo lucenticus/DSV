@@ -3,13 +3,6 @@
 #include <stdio.h>
 #include "dsv.h"
 
-struct afs_rw {
-	int nodetype;
-	struct ast *l;
-	struct ast *r;
-	char *chan_name;
-	char *chan_io_num;
-};
 struct afs_chan {
 	int nodetype;
 	struct ast *l;
@@ -51,22 +44,22 @@ int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name);
 int afs_struct_to_file();
 int afs_add_flow(struct ast **afs_func, struct flow *fl);
 enum AFS_NODE_TYPE {
-	AFS_ID=_NODE_LAST,
-	AFS_CHAN,	
-	AFS_FUNC,
-	AFS_WRITE,
-	AFS_READ,
+	AFS_ALT = _NODE_LAST,
+	AFS_B,
+       	AFS_BREAK,
+	AFS_CHAN,
 	AFS_COM,
-	AFS_SKIP,
 	AFS_EXIT,
-	AFS_BREAK,
-	AFS_SEQ,
-	AFS_PAR,
-	AFS_ALT,
-	AFS_GC,
-	AFS_LOOP,
-	AFS_TT,
 	AFS_FF,
-	AFS_B
+	AFS_FUNC,
+	AFS_GC,
+	AFS_ID,
+	AFS_LOOP,	
+	AFS_PAR,
+	AFS_READ,
+	AFS_SEQ,
+	AFS_SKIP,
+	AFS_TT,
+	AFS_WRITE
 };
 #endif //AFS_H
