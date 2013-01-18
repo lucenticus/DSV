@@ -3,37 +3,53 @@
 #include <string.h>
 #include <stdlib.h>
 
-int afs_add_flow(struct ast **afs_func, struct flow *fl) {
+struct ast *afs_add_flow(struct ast *afs_node, struct flow *fl) {
 	switch (fl->flowtype) {
 	case IF: {
-		afs_add_flow_if(afs_func, fl);
+		return afs_add_flow_if(afs_node, fl);
 	} break;
 	case FOR: {
-		afs_add_flow_for(afs_func, fl);		
+		return afs_add_flow_for(afs_node, fl);		
 	} break;
 	case WHILE: {
-		afs_add_flow_while_do(afs_func, fl);		
+		return afs_add_flow_while_do(afs_node, fl);		
 	} break;
 	case DO: {
-		afs_add_flow_do_while(afs_func, fl);		
+		return afs_add_flow_do_while(afs_node, fl);		
 	} break;
 	case SWITCH: {
-		afs_add_flow_switch(afs_func, fl);
+		return afs_add_flow_switch(afs_node, fl);
 	} break;
 	default: {
 		printf("\nerr:unknown flow type %d in afs_add_flow!");
+		return NULL;
 	}
-	}
-	return 0;
+	}	
 }
-int afs_add_flow_if(struct ast **afs_func, struct flow *fl) 
+struct ast * add_new_node_to_afs_node(struct ast *afs_node,
+				      struct ast *new_node) 
+{
+	if (afs_node == NULL) {
+		if (curr_afs_root == NULL) 
+			curr_afs_root = new_node;
+		
+		return new_node;
+	} else if (afs_node->nodetype == AFS_SEQ) {
+		struct ast *seq = new_ast(AFS_SEQ, afs_node->r, new_node);
+		afs_node->r = seq;
+		return seq;
+	} else {
+		struct ast *seq = new_ast(AFS_SEQ, afs_node, new_node);
+		return seq;
+	}
+}
+struct ast* afs_add_flow_if(struct ast *afs_node, struct flow *fl) 
 {
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
-	struct ast *st = NULL;
-	func_body_to_afs_struct(fl->stmt1, st);
+	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 	struct ast *gc = new_ast(AFS_GC, 
 				 new_ast(AFS_B, NULL, NULL),
 				 st);
@@ -49,8 +65,7 @@ int afs_add_flow_if(struct ast **afs_func, struct flow *fl)
 		       tf->nodetype == NODE_FLOW && 
 		       ((struct flow*)tf)->flowtype == IF) {
 			struct flow *f = (struct flow*) tf;
-			st = NULL;
-			func_body_to_afs_struct(f->stmt1, st);
+			st = func_body_to_afs_struct(f->stmt1, NULL);
 			struct ast *gc = new_ast(AFS_GC, 
 						 new_ast(AFS_B,
 							 NULL, 
@@ -68,8 +83,7 @@ int afs_add_flow_if(struct ast **afs_func, struct flow *fl)
 			tf = f->stmt2;
 		}
 	} else if (fl->stmt2) {
-		st = NULL;
-		func_body_to_afs_struct(fl->stmt2, st);
+		st = func_body_to_afs_struct(fl->stmt2, NULL);
 		
 		gc = new_ast(AFS_GC,
 			     new_ast(AFS_B, NULL, NULL),
@@ -83,30 +97,15 @@ int afs_add_flow_if(struct ast **afs_func, struct flow *fl)
 		}
 		t->next = node;
 	}
-	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-		(*afs_func)->r = (struct ast *) alt;
-		(*afs_func) = (*afs_func)->r;
-		printf("\nT5\n");
-		printf("\nafs_func = %d\n", (*afs_func));
-	} else if (afs_func) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  (*afs_func), 
-					  (struct ast*)alt);
-		(*afs_func) = seq;
-		printf("\nT6\n");
-	} else {
-		afs_func = &alt;
-		printf("\nT7\n");
-	}
+	return add_new_node_to_afs_node(afs_node, (struct ast*)alt);
 }
-int afs_add_flow_for(struct ast **afs_func, struct flow *fl)
+struct ast * afs_add_flow_for(struct ast *afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
 	loop->nodetype = AFS_LOOP;
 	loop->l = NULL;
 	loop->r = NULL;
-	struct ast *st = NULL;
-	func_body_to_afs_struct(fl->l, st);
+	struct ast *st = func_body_to_afs_struct(fl->l, NULL);
 		
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -119,33 +118,17 @@ int afs_add_flow_for(struct ast **afs_func, struct flow *fl)
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
-	loop->l = alt;
-	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-		printf("\nafs_func = %d\n", *afs_func);
-		(*afs_func)->r = (struct ast *) loop;
-		(*afs_func) = (*afs_func)->r;
-		printf("\nT8\n");
-		printf("\nafs_func = %d\n", (*afs_func));
-	} else if (afs_func) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  (*afs_func), 
-					  loop);
-		(*afs_func) = seq;
-		printf("\nT9\n");
-	} else {
-		afs_func = &loop;
-		printf("\nT10\n");
-	}
+	loop->l = (struct ast*)alt;
+	return add_new_node_to_afs_node(afs_node, loop);
 }
 
-int afs_add_flow_while_do(struct ast **afs_func, struct flow *fl)
+struct ast *afs_add_flow_while_do(struct ast *afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
 	loop->nodetype = AFS_LOOP;
 	loop->l = NULL;
 	loop->r = NULL;
-	struct ast *st = NULL;
-	func_body_to_afs_struct(fl->stmt1, st);
+	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 		
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -158,33 +141,16 @@ int afs_add_flow_while_do(struct ast **afs_func, struct flow *fl)
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
-	loop->l = alt;
-	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-		printf("\nafs_func = %d\n", *afs_func);
-		(*afs_func)->r = (struct ast *) loop;
-		(*afs_func) = (*afs_func)->r;
-		printf("\nT11\n");
-		printf("\nafs_func = %d\n", (*afs_func));
-	} else if (afs_func) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  (*afs_func), 
-					  loop);
-		(*afs_func) = seq;
-		printf("\nT12\n");
-	} else {
-		afs_func = &loop;
-		printf("\nT13\n");
-	}
-
+	loop->l = (struct ast *) alt;
+	return add_new_node_to_afs_node(afs_node, loop);
 }
-int afs_add_flow_do_while(struct ast **afs_func, struct flow *fl)
+struct ast *afs_add_flow_do_while(struct ast *afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
 	loop->nodetype = AFS_LOOP;
 	loop->l = NULL;
 	loop->r = NULL;
-	struct ast *st = NULL;
-	func_body_to_afs_struct(fl->stmt1, st);
+	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 		
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -197,27 +163,12 @@ int afs_add_flow_do_while(struct ast **afs_func, struct flow *fl)
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
-	loop->l = alt;
+	loop->l = (struct ast*) alt;
 	struct ast *loop_seq = new_ast(AFS_SEQ, st, loop);
-	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-		printf("\nafs_func = %d\n", *afs_func);
-		(*afs_func)->r = (struct ast *) loop_seq;
-		(*afs_func) = (*afs_func)->r;
-		printf("\nT14\n");
-		printf("\nafs_func = %d\n", (*afs_func));
-	} else if (afs_func) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  (*afs_func), 
-					  loop_seq);
-		(*afs_func) = seq;
-		printf("\nT15\n");
-	} else {
-		afs_func = &loop_seq;
-		printf("\nT16\n");
-	}
+	return add_new_node_to_afs_node(afs_node, loop_seq);
 }
 
-int afs_add_flow_switch(struct ast **afs_func, struct flow *fl)
+struct ast * afs_add_flow_switch(struct ast *afs_node, struct flow *fl)
 {
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -244,22 +195,7 @@ int afs_add_flow_switch(struct ast **afs_func, struct flow *fl)
 
 		stmts_list = stmts_list->next;
 	}
-	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-		printf("\nafs_func = %d\n", *afs_func);
-		(*afs_func)->r = (struct ast *) alt;
-		(*afs_func) = (*afs_func)->r;
-		printf("\nT17\n");
-		printf("\nafs_func = %d\n", (*afs_func));
-	} else if (afs_func) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  (*afs_func), 
-					  (struct ast*)alt);
-		(*afs_func) = seq;
-		printf("\nT18\n");
-	} else {
-		afs_func = &alt;
-		printf("\nT19\n");
-	}
+	return add_new_node_to_afs_node(afs_node, (struct ast*)alt);
 }
 
 struct ast_list *get_case_stmts_list(struct ast *node) 
@@ -290,7 +226,9 @@ struct ast_list *get_case_stmts_list(struct ast *node)
 	}
 	return NULL;
 }
-int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name) 
+struct ast * afs_add_semaphore(struct ast *afs_node, 
+			       char *func_name, 
+			       char *var_name) 
 {
 
 	if (strcmp(func_name, "down") == 0 ||
@@ -299,9 +237,11 @@ int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name)
 		
 	} else if (strcmp(func_name, "up") == 0) {
 	}
-	return 0;
+	return afs_node;
 }
-int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name)
+struct ast * afs_add_spinlock(struct ast *afs_node, 
+			      char *func_name, 
+			      char *var_name)
 {
 	struct ast *rw = malloc(sizeof(struct ast));
 	rw->l = new_id(var_name);
@@ -336,26 +276,13 @@ int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name)
 		struct ast *loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
 		rw = loop;
 	}
-	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-		printf("\nafs_func = %d\n", *afs_func);
-		(*afs_func)->r = rw;
-		(*afs_func) = (*afs_func)->r;
-		printf("\nT1\n");
-		printf("\nafs_func = %d\n", (*afs_func));
-	} else if (afs_func) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  (*afs_func), 
-					  rw);
-		(*afs_func) = seq;
-		printf("\nT2\n");
-	} else {
-		afs_func = &rw;
-	}
-		
-	return 0;
+	
+	return add_new_node_to_afs_node(afs_node, rw);
 }
 
-int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name) 
+struct ast * afs_add_mutex(struct ast *afs_node, 
+			   char *func_name, 
+			   char *var_name) 
 {
 	struct ast *rw = malloc(sizeof(struct ast));
 	
@@ -373,30 +300,14 @@ int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name)
 		printf("\n%d\n", AFS_READ);
 		rw->r = new_id("1");
 	}
-	if (afs_func && (*afs_func)->nodetype == AFS_FUNC) {
-		printf("\nafs_func = %d\n", *afs_func);
-		(*afs_func)->r = rw;
-		(*afs_func) = (*afs_func)->r;
-		printf("\nT1\n");
-		printf("\nafs_func = %d\n", (*afs_func));
-	} else if (afs_func) {
-		struct ast *seq = new_ast(AFS_SEQ, 
-					  (*afs_func), 
-					  rw);
-		(*afs_func) = seq;
-		printf("\nT2\n");
-	} else {
-		afs_func = &rw;
-	}
-		
-	return 0;
+	return add_new_node_to_afs_node(afs_node, rw);	
 }
 
 int afs_struct_to_file() 
 {
 	struct ast_list *t = afl;
 	while (t) {
-		struct term_id *id = find_id(t->a->l);
+		struct term_id *id = (struct term_id*)find_id(t->a->l);
 		if (!id) {
 			printf("\nerr: can't find afs function name!");
 			return 1;

@@ -37,19 +37,28 @@ struct afs_chan_list {
 };
 struct ast_list *afl;
 struct afs_chan_list *acl;
+struct ast *curr_afs_root;
 struct ast_list *get_case_stmts_list(struct ast *node);
+struct ast * add_new_node_to_afs_node(struct ast *afs_node,
+				      struct ast *new_node);
+struct ast * afs_add_flow(struct ast *afs_node, struct flow *fl);
+struct ast * afs_add_flow_if(struct ast *afs_node, struct flow *fl);
+struct ast * afs_add_flow_for(struct ast *afs_node, struct flow *fl);
+struct ast * afs_add_flow_do_while(struct ast *afs_node, struct flow *fl);
+struct ast * afs_add_flow_while_do(struct ast *afs_node, struct flow *fl);
+struct ast * afs_add_flow_switch(struct ast *afs_node, struct flow *fl);
 
-int afs_add_flow_if(struct ast **afs_func, struct flow *fl);
-int afs_add_flow_for(struct ast **afs_func, struct flow *fl);
-int afs_add_flow_do_while(struct ast **afs_func, struct flow *fl);
-int afs_add_flow_while_do(struct ast **afs_func, struct flow *fl);
-int afs_add_flow_switch(struct ast **afs_func, struct flow *fl);
-
-int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name);
-int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name);
-int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name);
+struct ast * afs_add_semaphore(struct ast *afs_node, 
+			      char *func_name, 
+			      char *var_name);
+struct ast * afs_add_spinlock(struct ast *afs_node, 
+			      char *func_name, 
+			      char *var_name);
+struct ast * afs_add_mutex(struct ast *afs_node, 
+			   char *func_name, 
+			   char *var_name);
 int afs_struct_to_file();
-int afs_add_flow(struct ast **afs_func, struct flow *fl);
+
 enum AFS_NODE_TYPE {
 	AFS_ALT = _NODE_LAST,
 	AFS_B,
