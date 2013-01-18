@@ -38,6 +38,13 @@ struct afs_chan_list {
 struct ast_list *afl;
 struct afs_chan_list *acl;
 struct ast_list *get_case_stmts_list(struct ast *node);
+
+int afs_add_flow_if(struct ast **afs_func, struct flow *fl);
+int afs_add_flow_for(struct ast **afs_func, struct flow *fl);
+int afs_add_flow_do_while(struct ast **afs_func, struct flow *fl);
+int afs_add_flow_while_do(struct ast **afs_func, struct flow *fl);
+int afs_add_flow_switch(struct ast **afs_func, struct flow *fl);
+
 int afs_add_semaphore(struct ast **afs_func, char *func_name, char *var_name);
 int afs_add_spinlock(struct ast **afs_func, char *func_name, char *var_name);
 int afs_add_mutex(struct ast **afs_func, char *func_name, char *var_name);
