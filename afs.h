@@ -55,6 +55,9 @@ struct ast * afs_add_flow_do_while(struct ast **afs_node, struct flow *fl);
 struct ast * afs_add_flow_while_do(struct ast **afs_node, struct flow *fl);
 struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl);
 
+struct ast * afs_add_wait_complete(struct ast **afs_node, 
+			      char *func_name, 
+			      char *var_name);
 struct ast * afs_add_semaphore(struct ast **afs_node, 
 			      char *func_name, 
 			      char *var_name);

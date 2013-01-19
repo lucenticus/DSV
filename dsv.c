@@ -575,6 +575,28 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 			return afs_add_mutex(afs_node, 
 				      id->name, 
 				      mutex_id->name);
+		} else if (id &&
+		    (strcmp(id->name, "wait_for_completion") == 0 ||
+		     strcmp(id->name, "wait_for_completion_timeout") == 0 ||
+		     strcmp(id->name, 
+			    "wait_for_completion_interruptible") == 0 ||
+		     strcmp(id->name, 
+			    "wait_for_completion_interruptible_timeout") == 0 ||
+		     strcmp(id->name, 
+			    "wait_for_completion_killable") == 0 ||
+		     strcmp(id->name, 
+			    "wait_for_completion_killable_timeout") == 0 ||
+		     strcmp(id->name, "complete") == 0 ||
+		     strcmp(id->name, "complete_all") == 0)) {
+			struct term_id * completion_id = 
+				(struct term_id *) find_id(node->r);
+			if (!completion_id) {
+				printf("\nerr: can't find completion name!");
+				return NULL;
+			}
+			return afs_add_wait_complete(afs_node, 
+				      id->name, 
+				      completion_id->name);
 		} else {
 			struct ast *com = afs_add_com(afs_node, node);
 			com = func_body_to_afs_struct(node->l, &com); 
@@ -634,7 +656,6 @@ void find_semaphores_init(struct ast *a)
 		struct sema_list *elem = malloc(sizeof(struct sema_list));
 		elem->name = name;
 		elem->count = sema_count;
-
 		if (sema_list == NULL) {
 			sema_list = elem;
 			elem->next = NULL;	

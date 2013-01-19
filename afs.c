@@ -274,7 +274,32 @@ int afs_add_chan_to_list(char *chan_name,
 	}
 	return 0;
 }
+struct ast * afs_add_wait_complete(struct ast **afs_node, 
+				   char *func_name, 
+				   char *var_name) 
+{
+	struct ast *rw = malloc(sizeof(struct ast));
+	
+	rw->l = new_id(var_name);
+	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 
+	if (strcmp(func_name, "wait_for_completion") == 0 ||
+	    strcmp(func_name, "wait_for_completion_timeout") == 0 ||
+	    strcmp(func_name, "wait_for_completion_interruptible") == 0 ||
+	    strcmp(func_name, 
+		   "wait_for_completion_interruptible_timeout") == 0 ||
+	    strcmp(func_name, "wait_for_completion_killable") == 0 ||
+	    strcmp(func_name, "wait_for_completion_killable_timeout") == 0) {
+		rw->nodetype = AFS_READ;
+		rw->r = new_id("1");
+	} else if (strcmp(func_name, "complete") == 0 ||
+		   strcmp(func_name, "complete_all") == 0) {
+		rw->nodetype = AFS_WRITE;
+		rw->r = new_id("1");
+	}
+	
+	return add_new_node_to_afs_node(afs_node, rw);	
+}
 struct ast * afs_add_semaphore(struct ast **afs_node, 
 			       char *func_name, 
 			       char *var_name) 
