@@ -386,7 +386,7 @@ int afs_struct_node_to_file(struct ast *node)
 		fprintf(afs_file, " -> ");
 		afs_struct_node_to_file(node->r);
 	} break;
-	case AFS_ID: {
+	case NODE_ID: {
 		fprintf(afs_file, 
 			"%s", 
 			((struct term_id*)node)->name);
