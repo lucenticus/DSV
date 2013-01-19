@@ -18,10 +18,10 @@ struct string_list {
 	struct string_list *next;
 };
 
-struct semaphore_list {
+struct sema_list {
 	char *name;
 	int count;
-	struct semaphore_list *next;
+	struct sema_list *next;
 };
 struct spinlock_list {
 	char *name;
@@ -93,7 +93,7 @@ struct symbol symtab[NHASH];
 char *fops_name;
 struct fops_node *fops_list;
 struct string_list *fops_name_list;
-struct semaphore_list *sema_list;
+struct sema_list *sema_list;
 struct spinlock_list *sl_list;
 struct symbol *lookup(char*);
 void addref(char*, int);

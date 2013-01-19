@@ -279,14 +279,21 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 			       char *func_name, 
 			       char *var_name) 
 {
+	struct ast *rw = malloc(sizeof(struct ast));
+	rw->l = new_id(var_name);
+	
+	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 
 	if (strcmp(func_name, "down") == 0 ||
 	    strcmp(func_name, "down_interruptible") == 0 ||
 	    strcmp(func_name, "down_killable") == 0) {
-		
+		rw->nodetype = AFS_WRITE;
+		rw->r = new_id("1");
 	} else if (strcmp(func_name, "up") == 0) {
+		rw->nodetype = AFS_READ;
+		rw->r = new_id("1");
 	}
-	return *afs_node;
+	return add_new_node_to_afs_node(afs_node, rw);
 }
 
 struct ast * afs_add_spinlock(struct ast **afs_node, 
@@ -341,11 +348,9 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 	    strcmp(func_name, "mutex_lock_killable") == 0 ||
 	    strcmp(func_name, "mutex_trylock") == 0) {
 		rw->nodetype = AFS_WRITE;
-		printf("\n%d\n", AFS_WRITE);
 		rw->r = new_id("1");
 	} else if (strcmp(func_name, "mutex_unlock") == 0) {
 		rw->nodetype = AFS_READ;
-		printf("\n%d\n", AFS_READ);
 		rw->r = new_id("1");
 	}
 	return add_new_node_to_afs_node(afs_node, rw);	

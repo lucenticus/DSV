@@ -613,23 +613,30 @@ int fops_to_afs()
 	return 0;
 }
 
-void find_semaphores_init(struct ast *node)
+void find_semaphores_init(struct ast *a)
 {
-	struct ast * a;
-	if (node == NULL) {
+	if (a == NULL) {
 		return;
 	}
-	a = (struct ast *) node;
+	printf("TEST");
 	struct term_id *id = (struct term_id*) find_id(a->l);
 	if (id != NULL && 
 	    id->nodetype == NODE_ID && 
 	    strcmp(id->name, "sema_init") == 0) {
-		struct semaphore_list *elem = malloc(sizeof(struct semaphore_list));
-		elem->name = ((struct term_id *)a->r->l->l)->name;
-		elem->count = atoi(((struct term_id *)a->r->r)->name);
-			
-		printf("node:%s\n",((struct term_id *)a->r->l->l)->name);			
-		printf("node:%s\n",((struct term_id *)a->r->r)->name);
+		char *name = ((struct term_id *)a->r->l->l)->name;
+		int sema_count = atoi(((struct term_id *)a->r->r)->name);
+		int i = 1;
+		printf("TEST00");
+		while (i < sema_count) {
+			char sema_name[1000];
+			sprintf(sema_name, "%s_%d", name, i);
+			afs_add_chan_to_list(sema_name, ALL, 1, ALL, 1);
+			i++;
+			printf("TEST11");
+		}
+		struct sema_list *elem = malloc(sizeof(struct sema_list));
+		elem->name = name;
+		elem->count = sema_count;
 
 		if (sema_list == NULL) {
 			sema_list = elem;
@@ -641,8 +648,8 @@ void find_semaphores_init(struct ast *node)
 		return;
 	}
 	
-	find_semaphores_init(node->l);
-	find_semaphores_init(node->r);
+	find_semaphores_init(a->l);
+	find_semaphores_init(a->r);
 	return;
 }
 int parse_to_afs () 
