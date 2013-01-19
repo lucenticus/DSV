@@ -2,14 +2,22 @@
 #include "parser-c.tab.h"
 #include <string.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 struct ast *afs_add_com(struct ast **afs_node, struct ast *node)
 {
-	struct ast *com = new_ast(AFS_COM, NULL, NULL);
+	char buf[10];
+	sprintf(buf, "%d", curr_com_idx++);
+	struct ast *com = new_ast(AFS_COM, new_id(buf), NULL);
 	com = add_new_node_to_afs_node(afs_node, com);
 	return com;
 }
- 
+struct ast *afs_create_b(struct ast *node) 
+{
+	char buf[10];
+	sprintf(buf, "%d", curr_b_idx++);	
+	struct ast *b = new_ast(AFS_B, new_id(buf), NULL);
+	return b;
+} 
 struct ast *afs_add_flow(struct ast **afs_node, struct flow *fl) 
 {
 	switch (fl->flowtype) {
@@ -62,7 +70,7 @@ struct ast* afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 	alt->r = NULL;
 	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 	struct ast *gc = new_ast(AFS_GC, 
-				 new_ast(AFS_B, NULL, NULL),
+				 afs_create_b(fl->expr),
 				 st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
 	node->next = NULL;
@@ -78,9 +86,7 @@ struct ast* afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 			struct flow *f = (struct flow*) tf;
 			st = func_body_to_afs_struct(f->stmt1, NULL);
 			struct ast *gc = new_ast(AFS_GC, 
-						 new_ast(AFS_B,
-							 NULL, 
-							 NULL),
+						 afs_create_b(fl->expr),
 						 st);
 			struct ast_list *node = 
 				malloc(sizeof(struct ast_list));
@@ -97,7 +103,7 @@ struct ast* afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 		st = func_body_to_afs_struct(fl->stmt2, NULL);
 		
 		gc = new_ast(AFS_GC,
-			     new_ast(AFS_B, NULL, NULL),
+			     afs_create_b(fl->expr),
 			     st);
 		node = malloc(sizeof(struct ast_list));
 		node->next = NULL;
@@ -123,7 +129,7 @@ struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 	alt->l = NULL;
 	alt->r = NULL;
 	struct ast *gc = new_ast(AFS_GC, 
-				 new_ast(AFS_B, NULL, NULL),
+				 afs_create_b(fl->expr),
 				 st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
 	node->next = NULL;
@@ -145,8 +151,8 @@ struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
-	struct ast *gc = new_ast(AFS_GC, 
-				 new_ast(AFS_B, NULL, NULL),
+	struct ast *gc = new_ast(AFS_GC,
+				 afs_create_b(fl->expr),
 				 st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
 	node->next = NULL;
@@ -168,7 +174,7 @@ struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 	alt->l = NULL;
 	alt->r = NULL;
 	struct ast *gc = new_ast(AFS_GC, 
-				 new_ast(AFS_B, NULL, NULL),
+				 afs_create_b(fl->expr),
 				 st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
 	node->next = NULL;
@@ -188,9 +194,9 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 	alt->alt_list = NULL;
 	struct ast_list *stmts_list = get_case_stmts_list(fl->stmt1);
 	while (stmts_list) {
-		struct ast *gc = new_ast(AFS_GC, 
-					 new_ast(AFS_B, NULL, NULL),
-					 stmts_list->a);
+		struct ast *gc = new_ast(AFS_GC,
+					 afs_create_b(fl->expr),
+				 	 stmts_list->a);
 		struct ast_list *node = malloc(sizeof(struct ast_list));
 		node->a = gc;
 		node->next = NULL;
@@ -349,10 +355,10 @@ int afs_struct_node_to_file(struct ast *node)
 		fprintf(afs_file, ")");
 	} break;
 	case AFS_B: {
-		fprintf(afs_file, "B");
+		fprintf(afs_file, "b");
 		if (node->l) {
 			fprintf(afs_file, "(%s)", 
-				((struct term_id *)node)->name);
+				((struct term_id *)node->l)->name);
 		}
 	} break;
 	case AFS_BREAK: {
@@ -363,9 +369,10 @@ int afs_struct_node_to_file(struct ast *node)
 	} break;
 	case AFS_COM: {
 		fprintf(afs_file, "a");
-		if (node->l) {
+		if (node->l && 
+		    ((struct term_id *)node->l)->name) {
 			fprintf(afs_file, "(%s)", 
-				((struct term_id *)node)->name);
+				((struct term_id *)node->l)->name);
 		}
 	} break;
 	case AFS_EXIT: {
