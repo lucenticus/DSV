@@ -243,6 +243,38 @@ struct ast_list *get_case_stmts_list(struct ast *node)
 	}
 	return NULL;
 }
+
+int afs_add_chan_to_list(char *chan_name, 
+		     int in_type, int in_num,
+		     int out_type, int out_num) 
+{
+	struct afs_chan_list *t = acl;
+	while (t) {
+		if (strcmp(chan_name, t->chan->name) == 0)
+			return 1;
+		t = t->next;
+	}
+	struct afs_chan *new_chan = malloc(sizeof(struct afs_chan));
+	new_chan->nodetype = AFS_CHAN;
+	new_chan->l = NULL;
+	new_chan->r = NULL;
+	new_chan->name = strdup(chan_name);
+	new_chan->in_type = in_type;
+	new_chan->in_num = in_num;
+	new_chan->out_type = out_type;
+	new_chan->out_num = out_num;
+	struct afs_chan_list *nc = malloc(sizeof(struct afs_chan_list));
+	nc->chan = new_chan;
+	nc->next = NULL;
+	if (acl) {
+		nc->next = acl;
+		acl = nc;
+	} else {
+		acl = nc;
+	}
+	return 0;
+}
+
 struct ast * afs_add_semaphore(struct ast **afs_node, 
 			       char *func_name, 
 			       char *var_name) 
@@ -256,26 +288,25 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 	}
 	return *afs_node;
 }
+
 struct ast * afs_add_spinlock(struct ast **afs_node, 
 			      char *func_name, 
 			      char *var_name)
 {
 	struct ast *rw = malloc(sizeof(struct ast));
 	rw->l = new_id(var_name);
+	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 	if (strcmp(func_name, "_spin_lock") == 0 ||
 	    strcmp(func_name, "_spin_lock_irqsave") == 0 ||
 	    strcmp(func_name, "_spin_lock_irq") == 0 ||
 	    strcmp(func_name, "_spin_lock_bh") == 0) {
 		rw->nodetype = AFS_WRITE;
-		printf("\n%d\n", AFS_WRITE);
 		rw->r = new_id("1");
-		
 	} else if (strcmp(func_name, "_spin_unlock") == 0 ||
 		   strcmp(func_name, "_spin_unlock_irqrestore") == 0 ||
 		   strcmp(func_name, "_spin_unlock_irq") == 0 ||
 		   strcmp(func_name, "_spin_unlock_bh") == 0) {
 		rw->nodetype = AFS_READ;
-		printf("\n%d\n", AFS_READ);
 		rw->r = new_id("1");
 	}
 	if (rw->nodetype == AFS_WRITE) {
@@ -304,6 +335,7 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 	struct ast *rw = malloc(sizeof(struct ast));
 	
 	rw->l = new_id(var_name);
+	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 	if (strcmp(func_name, "mutex_lock") == 0 ||
 	    strcmp(func_name, "mutex_lock_interruptible") == 0 ||
 	    strcmp(func_name, "mutex_lock_killable") == 0 ||
@@ -311,7 +343,6 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 		rw->nodetype = AFS_WRITE;
 		printf("\n%d\n", AFS_WRITE);
 		rw->r = new_id("1");
-		
 	} else if (strcmp(func_name, "mutex_unlock") == 0) {
 		rw->nodetype = AFS_READ;
 		printf("\n%d\n", AFS_READ);
@@ -322,18 +353,28 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 
 int afs_struct_to_file() 
 {
-	struct ast_list *t = afl;
-	while (t) {
-		struct term_id *id = (struct term_id*)find_id(t->a->l);
+	struct afs_chan_list *tc = acl;
+	struct ast_list *tf = afl;
+	fprintf(afs_file, "NET\n");
+	while (tc) {
+		fprintf(afs_file, "\t");
+		afs_struct_node_to_file(tc->chan);
+		fprintf(afs_file, ";\n");
+		tc = tc->next;
+	}
+	fprintf(afs_file, "BEGIN\n");
+	while (tf) {
+		struct term_id *id = (struct term_id*)find_id(tf->a->l);
 		if (!id) {
 			printf("\nerr: can't find afs function name!");
 			return 1;
 		}
-		fprintf(afs_file, "\nFUNC %s :: ", id->name);
-		afs_struct_node_to_file(t->a->r);
-		fprintf(afs_file, "\n");
-		t = t->next;
+		fprintf(afs_file, "\tFUNC %s :: ", id->name);
+		afs_struct_node_to_file(tf->a->r);
+		fprintf(afs_file, ";\n");
+		tf = tf->next;
 	}
+	fprintf(afs_file, "END\n");
 	return 0;
 }
 
@@ -365,7 +406,19 @@ int afs_struct_node_to_file(struct ast *node)
 		fprintf(afs_file, "break");
 	} break;
 	case AFS_CHAN: {
-		//TODO
+		struct afs_chan *chan = (struct afs_chan*) node;
+		fprintf(afs_file, "CHAN %s :: ", chan->name);
+		if (chan->in_type == ALL) 
+			fprintf(afs_file, "ALL");
+		else
+			fprintf(afs_file, "ANY");
+		fprintf(afs_file, "(%d) : ", chan->in_num);
+		if (chan->out_type == ALL) 
+			fprintf(afs_file, "ALL");
+		else
+			fprintf(afs_file, "ANY");
+		fprintf(afs_file, "(%d)", chan->out_num);
+		
 	} break;
 	case AFS_COM: {
 		fprintf(afs_file, "a");

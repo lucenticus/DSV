@@ -65,7 +65,13 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 			   char *func_name, 
 			   char *var_name);
 int afs_struct_to_file();
-
+int afs_add_chan_to_list(char *chan_name, 
+		     int in_type, int in_num,
+		     int out_type, int out_num);
+enum AFS_CHAN_TYPE {
+	ALL,
+	ANY
+};
 enum AFS_NODE_TYPE {
 	AFS_ALT = _NODE_LAST,
 	AFS_B,
