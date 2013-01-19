@@ -618,7 +618,6 @@ void find_semaphores_init(struct ast *a)
 	if (a == NULL) {
 		return;
 	}
-	printf("TEST");
 	struct term_id *id = (struct term_id*) find_id(a->l);
 	if (id != NULL && 
 	    id->nodetype == NODE_ID && 
@@ -626,13 +625,11 @@ void find_semaphores_init(struct ast *a)
 		char *name = ((struct term_id *)a->r->l->l)->name;
 		int sema_count = atoi(((struct term_id *)a->r->r)->name);
 		int i = 1;
-		printf("TEST00");
-		while (i < sema_count) {
+		while (i <= sema_count) {
 			char sema_name[1000];
 			sprintf(sema_name, "%s_%d", name, i);
 			afs_add_chan_to_list(sema_name, ALL, 1, ALL, 1);
 			i++;
-			printf("TEST11");
 		}
 		struct sema_list *elem = malloc(sizeof(struct sema_list));
 		elem->name = name;

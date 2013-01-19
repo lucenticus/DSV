@@ -279,21 +279,58 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 			       char *func_name, 
 			       char *var_name) 
 {
-	struct ast *rw = malloc(sizeof(struct ast));
-	rw->l = new_id(var_name);
+	int sema_count = 0;
+	struct sema_list *ts = sema_list;
+	while (ts) {
+		if (strcmp(ts->name, var_name) == 0)
+			sema_count = ts->count;
+		ts = ts->next;
+	}
+	if (sema_count == 0) {
+		printf("\nerr: can't find semaphore count!");
+		return NULL;
+	}
 	
-	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
-
+	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+	alt->nodetype = AFS_ALT;
+	alt->l = NULL;
+	alt->r = NULL;
+	int  op_type;
 	if (strcmp(func_name, "down") == 0 ||
 	    strcmp(func_name, "down_interruptible") == 0 ||
 	    strcmp(func_name, "down_killable") == 0) {
+		op_type = AFS_WRITE;
+	} else if (strcmp(func_name, "up") == 0) {
+		op_type = AFS_READ;
+	}
+	int i = 1;
+	while (i <= sema_count) {
+		struct ast *rw = malloc(sizeof(struct ast));
+		char chan_name[1000];
+		sprintf(chan_name, "%s_%d", var_name, i);
+		rw->l = new_id(chan_name);
+			
 		rw->nodetype = AFS_WRITE;
 		rw->r = new_id("1");
-	} else if (strcmp(func_name, "up") == 0) {
-		rw->nodetype = AFS_READ;
-		rw->r = new_id("1");
+		struct ast *gc = new_ast(AFS_GC, 
+					 rw, 
+					 new_ast(AFS_SKIP, NULL, NULL));
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		node->a = gc;
+		node->next = NULL;
+		
+		if (alt->alt_list == NULL) {
+			alt->alt_list = node;				
+		} else {
+			struct ast_list *tmp = alt->alt_list;
+			while (tmp->next) {
+				tmp = tmp->next;
+			}
+			tmp->next = node;
+		}
+		i++;
 	}
-	return add_new_node_to_afs_node(afs_node, rw);
+	return add_new_node_to_afs_node(afs_node, (struct ast*) alt);
 }
 
 struct ast * afs_add_spinlock(struct ast **afs_node, 
