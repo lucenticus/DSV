@@ -300,6 +300,24 @@ struct ast * afs_add_wait_complete(struct ast **afs_node,
 	
 	return add_new_node_to_afs_node(afs_node, rw);	
 }
+struct ast * afs_add_rw_semaphore(struct ast **afs_node, 
+				  char *func_name, 
+				  char *var_name) 
+{
+	
+	
+	int  op_type;
+	if (strcmp(func_name, "down_read") == 0 ||
+	    strcmp(func_name, "down_read_trylock") == 0) {
+	} else if (strcmp(func_name, "down_write") == 0 ||
+		   strcmp(func_name, "down_write_trylock") == 0) {
+	} else if (strcmp(func_name, "up_read") == 0) {
+	} else if (strcmp(func_name, "up_write") == 0) {
+	}
+	
+	return (*afs_node);
+}
+
 struct ast * afs_add_semaphore(struct ast **afs_node, 
 			       char *func_name, 
 			       char *var_name) 
@@ -316,10 +334,7 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 		return NULL;
 	}
 	
-	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
-	alt->nodetype = AFS_ALT;
-	alt->l = NULL;
-	alt->r = NULL;
+	
 	int  op_type;
 	if (strcmp(func_name, "down") == 0 ||
 	    strcmp(func_name, "down_interruptible") == 0 ||
@@ -329,33 +344,52 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 		op_type = AFS_READ;
 	}
 	int i = 1;
-	while (i <= sema_count) {
-		struct ast *rw = malloc(sizeof(struct ast));
-		char chan_name[1000];
-		sprintf(chan_name, "%s_%d", var_name, i);
-		rw->l = new_id(chan_name);
+	if (op_type == AFS_WRITE) {
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		while (i <= sema_count) {
+			struct ast *rw = malloc(sizeof(struct ast));
+			char chan_name[1000];
+			sprintf(chan_name, "%s_%d", var_name, i);
+			rw->l = new_id(chan_name);
 			
-		rw->nodetype = AFS_WRITE;
-		rw->r = new_id("1");
-		struct ast *gc = new_ast(AFS_GC, 
-					 rw, 
-					 new_ast(AFS_SKIP, NULL, NULL));
-		struct ast_list *node = malloc(sizeof(struct ast_list));
-		node->a = gc;
-		node->next = NULL;
-		
-		if (alt->alt_list == NULL) {
-			alt->alt_list = node;				
-		} else {
-			struct ast_list *tmp = alt->alt_list;
-			while (tmp->next) {
-				tmp = tmp->next;
+			rw->nodetype = AFS_WRITE;
+			rw->r = new_id("1");
+			struct ast *gc = new_ast(AFS_GC, 
+						 rw, 
+						 new_ast(AFS_SKIP, NULL, NULL));
+			struct ast_list *node = malloc(sizeof(struct ast_list));
+			node->a = gc;
+			node->next = NULL;
+			
+			if (alt->alt_list == NULL) {
+				alt->alt_list = node;				
+			} else {
+				struct ast_list *tmp = alt->alt_list;
+				while (tmp->next) {
+					tmp = tmp->next;
+				}
+				tmp->next = node;
 			}
-			tmp->next = node;
+			i++;
 		}
-		i++;
+		return add_new_node_to_afs_node(afs_node, (struct ast*) alt);
+	} else {
+		struct ast *rw;
+		while (i <= sema_count) {
+			rw = malloc(sizeof(struct ast));
+			char chan_name[1000];
+			sprintf(chan_name, "%s_%d", var_name, i);
+			rw->l = new_id(chan_name);
+			rw->nodetype = AFS_READ;
+			rw->r = new_id("1");
+			add_new_node_to_afs_node(afs_node, rw);
+			i++;
+		}
+		return (*afs_node);
 	}
-	return add_new_node_to_afs_node(afs_node, (struct ast*) alt);
 }
 
 struct ast * afs_add_spinlock(struct ast **afs_node, 

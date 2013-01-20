@@ -533,6 +533,7 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		    (strcmp(id->name, "down") == 0 ||
 		     strcmp(id->name, "down_interruptible") == 0 ||
 		     strcmp(id->name, "down_killable") == 0 ||		    
+		     strcmp(id->name, "down_trylock") == 0 ||		    
 		     strcmp(id->name, "up") == 0)) {
 			struct term_id * sem_id = 
 				(struct term_id *) find_id(node->r);
@@ -543,6 +544,22 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 			return afs_add_semaphore(afs_node, 
 						 id->name, 
 						 sem_id->name);
+		} else if (id && 
+			   (strcmp(id->name, "down_read") == 0 ||
+			    strcmp(id->name, "down_read_trylock") == 0 ||
+			    strcmp(id->name, "down_write") == 0 ||
+			    strcmp(id->name, "down_write_trylock") == 0 ||
+			    strcmp(id->name, "up_read") == 0 || 
+			    strcmp(id->name, "up_write") == 0)) {
+			struct term_id * sem_id = 
+				(struct term_id *) find_id(node->r);
+			if (!sem_id) {
+				printf("\nerr: can't find semaphore name");
+				return NULL;
+			}
+			return afs_add_rw_semaphore(afs_node, 
+						    id->name, 
+						    sem_id->name);
 		} else if (id && 
 			   (strcmp(id->name, "_spin_lock") == 0 ||
 			    strcmp(id->name, "_spin_lock_irqsave") == 0 ||
