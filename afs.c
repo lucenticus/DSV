@@ -16,7 +16,22 @@ struct ast *afs_create_b(struct ast *node)
 	char buf[10];
 	sprintf(buf, "%d", curr_b_idx++);	
 	struct ast *b = new_ast(AFS_B, new_id(buf), NULL);
+		
+	if (node) {
+		struct term_id * id = (struct term_id *) find_id(node);
+		if (id &&
+		    (strcmp(id->name, "down_trylock") == 0 ||
+		     strcmp(id->name, "spin_trylock") == 0 ||
+		     strcmp(id->name, "mutex_trylock") == 0 ||
+		     strcmp(id->name, "spin_trylock_bh") == 0 ||
+		     strcmp(id->name, "down_read_trylock") == 0 ||
+		     strcmp(id->name, "down_write_trylock") == 0)) {
+			printf("TEEST");
+		}
+	}
+	
 	return b;
+ 
 } 
 struct ast *afs_add_flow(struct ast **afs_node, struct flow *fl) 
 {
@@ -62,7 +77,8 @@ struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 		return seq;
 	}
 }
-struct ast* afs_add_flow_if(struct ast **afs_node, struct flow *fl) 
+
+struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl) 
 {
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -325,8 +341,7 @@ struct ast * afs_add_rw_semaphore(struct ast **afs_node,
 
 	struct ast *rw;
 
-	if (strcmp(func_name, "down_read") == 0 ||
-	    strcmp(func_name, "down_read_trylock") == 0) {
+	if (strcmp(func_name, "down_read") == 0) {
 		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
 		add_new_node_to_afs_node(afs_node, rw);
 
@@ -336,8 +351,7 @@ struct ast * afs_add_rw_semaphore(struct ast **afs_node,
 		rw = create_rw_operation(AFS_READ, chan_name_write, "1");
 		add_new_node_to_afs_node(afs_node, rw);
 
-	} else if (strcmp(func_name, "down_write") == 0 ||
-		   strcmp(func_name, "down_write_trylock") == 0) {
+	} else if (strcmp(func_name, "down_write") == 0 ) {
 		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
 		add_new_node_to_afs_node(afs_node, rw);
 
@@ -383,7 +397,7 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 		op_type = AFS_WRITE;
 	} else if (strcmp(func_name, "up") == 0) {
 		op_type = AFS_READ;
-	}
+	} 
 	int i = 1;
 	if (op_type == AFS_WRITE) {
 		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
@@ -595,8 +609,7 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 	if (strcmp(func_name, "mutex_lock") == 0 ||
 	    strcmp(func_name, "mutex_lock_interruptible") == 0 ||
-	    strcmp(func_name, "mutex_lock_killable") == 0 ||
-	    strcmp(func_name, "mutex_trylock") == 0) {
+	    strcmp(func_name, "mutex_lock_killable") == 0) {
 		rw->nodetype = AFS_WRITE;
 		rw->r = new_id("1");
 	} else if (strcmp(func_name, "mutex_unlock") == 0) {

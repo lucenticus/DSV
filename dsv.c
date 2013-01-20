@@ -521,7 +521,6 @@ int is_sema_func(char *name)
 	if (strcmp(name, "down") == 0 ||
 	    strcmp(name, "down_interruptible") == 0 ||
 	    strcmp(name, "down_killable") == 0 ||		    
-	    strcmp(name, "down_trylock") == 0 ||		    
 	    strcmp(name, "up") == 0)
 		return 1;
 	return 0;
@@ -529,9 +528,7 @@ int is_sema_func(char *name)
 int is_rw_sema_func(char *name) 
 {
 	if (strcmp(name, "down_read") == 0 ||
-	    strcmp(name, "down_read_trylock") == 0 ||
 	    strcmp(name, "down_write") == 0 ||
-	    strcmp(name, "down_write_trylock") == 0 ||
 	    strcmp(name, "up_read") == 0 || 
 	    strcmp(name, "up_write") == 0)
 		return 1;
