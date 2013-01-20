@@ -74,6 +74,7 @@ int afs_struct_to_file();
 int afs_add_chan_to_list(char *chan_name, 
 		     int in_type, int in_num,
 		     int out_type, int out_num);
+struct ast *create_rw_operation(int op_type, char *name, char *num);
 enum AFS_CHAN_TYPE {
 	ALL,
 	ANY

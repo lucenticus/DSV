@@ -300,6 +300,14 @@ struct ast * afs_add_wait_complete(struct ast **afs_node,
 	
 	return add_new_node_to_afs_node(afs_node, rw);	
 }
+struct ast *create_rw_operation(int op_type, char *name, char *num) 
+{
+	struct ast *rw = malloc(sizeof(struct ast));
+	rw->nodetype = op_type;
+	rw->l = new_id(name);
+	rw->r = new_id(num);
+	return rw;
+}
 struct ast * afs_add_rw_semaphore(struct ast **afs_node, 
 				  char *func_name, 
 				  char *var_name) 
@@ -307,12 +315,45 @@ struct ast * afs_add_rw_semaphore(struct ast **afs_node,
 	
 	
 	int  op_type;
+	char chan_name_write[1000];
+	char chan_name_read[1000];
+	sprintf(chan_name_write, "%s_w", var_name);
+	sprintf(chan_name_read, "%s_r", var_name);
+		
+	afs_add_chan_to_list(chan_name_write, ALL, 1, ALL, 1);
+	afs_add_chan_to_list(chan_name_read, ALL, 1, ALL, 1);
+
+	struct ast *rw;
+
 	if (strcmp(func_name, "down_read") == 0 ||
 	    strcmp(func_name, "down_read_trylock") == 0) {
+		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
+		add_new_node_to_afs_node(afs_node, rw);
+
+		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
+		add_new_node_to_afs_node(afs_node, rw);
+
+		rw = create_rw_operation(AFS_READ, chan_name_write, "1");
+		add_new_node_to_afs_node(afs_node, rw);
+
 	} else if (strcmp(func_name, "down_write") == 0 ||
 		   strcmp(func_name, "down_write_trylock") == 0) {
+		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
+		add_new_node_to_afs_node(afs_node, rw);
+
+		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
+		add_new_node_to_afs_node(afs_node, rw);
+
+		rw = create_rw_operation(AFS_READ, chan_name_read, "1");
+		add_new_node_to_afs_node(afs_node, rw);
+
 	} else if (strcmp(func_name, "up_read") == 0) {
+		rw = create_rw_operation(AFS_READ, chan_name_read, "1");
+		add_new_node_to_afs_node(afs_node, rw);
+		
 	} else if (strcmp(func_name, "up_write") == 0) {
+		rw = create_rw_operation(AFS_READ, chan_name_write, "1");
+		add_new_node_to_afs_node(afs_node, rw);
 	}
 	
 	return (*afs_node);
