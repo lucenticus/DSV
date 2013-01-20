@@ -67,6 +67,10 @@ struct ast * afs_add_rw_semaphore(struct ast **afs_node,
 struct ast * afs_add_spinlock(struct ast **afs_node, 
 			      char *func_name, 
 			      char *var_name);
+struct ast * afs_add_rw_spinlock(struct ast **afs_node, 
+				 char *func_name, 
+				 char *var_name);
+
 struct ast * afs_add_mutex(struct ast **afs_node, 
 			   char *func_name, 
 			   char *var_name);

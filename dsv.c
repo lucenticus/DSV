@@ -516,6 +516,86 @@ int init_fops_list(struct ast *fops_struct)
 	}
 	return 0;
 }
+int is_sema_func(char *name) 
+{
+	if (strcmp(name, "down") == 0 ||
+	    strcmp(name, "down_interruptible") == 0 ||
+	    strcmp(name, "down_killable") == 0 ||		    
+	    strcmp(name, "down_trylock") == 0 ||		    
+	    strcmp(name, "up") == 0)
+		return 1;
+	return 0;
+}
+int is_rw_sema_func(char *name) 
+{
+	if (strcmp(name, "down_read") == 0 ||
+	    strcmp(name, "down_read_trylock") == 0 ||
+	    strcmp(name, "down_write") == 0 ||
+	    strcmp(name, "down_write_trylock") == 0 ||
+	    strcmp(name, "up_read") == 0 || 
+	    strcmp(name, "up_write") == 0)
+		return 1;
+	return 0;
+}
+int is_spinlock_func(char *name) 
+{
+	if (strcmp(name, "_spin_lock") == 0 ||
+	    strcmp(name, "_spin_lock_irqsave") == 0 ||
+	    strcmp(name, "_spin_lock_irq") == 0 ||
+	    strcmp(name, "_spin_lock_bh") == 0 ||
+	    strcmp(name, "_spin_unlock") == 0 ||
+	    strcmp(name, "_spin_unlock_irqrestore") == 0 ||
+	    strcmp(name, "_spin_unlock_irq") == 0 ||
+	    strcmp(name, "_spin_unlock_bh") == 0)
+		return 1;
+	return 0;
+}
+
+int is_rw_spinlock_func(char *name) 
+{
+	if (strcmp(name, "_read_lock") == 0 ||
+	    strcmp(name, "_read_lock_irqsave") == 0 ||
+	    strcmp(name, "_read_lock_irq") == 0 ||
+	    strcmp(name, "_read_lock_bh") == 0 || 
+	    strcmp(name, "__read_unlock") == 0 ||
+	    strcmp(name, "__read_unlock_irqrestore") == 0 ||
+	    strcmp(name, "__read_unlock_irq") == 0 ||
+	    strcmp(name, "__read_unlock_bh") == 0 || 
+	    strcmp(name, "_write_lock") == 0 ||
+	    strcmp(name, "_write_lock_irqsave") == 0 ||
+	    strcmp(name, "_write_lock_irq") == 0 ||
+	    strcmp(name, "_write_lock_bh") == 0 ||
+	    strcmp(name, "__write_unlock") == 0 ||
+	    strcmp(name, "__write_unlock_irqrestore") == 0 ||
+	    strcmp(name, "__write_unlock_irq") == 0 ||
+	    strcmp(name, "__write_unlock_bh") == 0)
+		return 1;
+	return 0;
+}
+
+int is_mutex_func(char *name) 
+{
+	if (strcmp(name, "mutex_lock") == 0 ||
+	    strcmp(name, "mutex_lock_interruptible") == 0 ||
+	    strcmp(name, "mutex_lock_killable") == 0 || 
+	    strcmp(name, "mutex_unlock") == 0)
+		return 1;
+	return 0;
+}
+int is_wait_complete_func(char *name) 
+{
+	if (strcmp(name, "wait_for_completion") == 0 ||
+	    strcmp(name, "wait_for_completion_timeout") == 0 ||
+	    strcmp(name, "wait_for_completion_interruptible") == 0 ||
+	    strcmp(name, "wait_for_completion_interruptible_timeout") == 0 ||
+	    strcmp(name, "wait_for_completion_killable") == 0 ||
+	    strcmp(name, "wait_for_completion_killable_timeout") == 0 ||
+	    strcmp(name, "complete") == 0 ||
+	    strcmp(name, "complete_all") == 0)
+		return 1;
+	return 0;
+}
+
 struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node) 
 {
 	if (node == NULL) {
@@ -529,12 +609,9 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		return afs_add_flow(afs_node, fl);
 	} else if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
 		struct term_id * id = (struct term_id *) find_id(node->l);
-		if (id && 
-		    (strcmp(id->name, "down") == 0 ||
-		     strcmp(id->name, "down_interruptible") == 0 ||
-		     strcmp(id->name, "down_killable") == 0 ||		    
-		     strcmp(id->name, "down_trylock") == 0 ||		    
-		     strcmp(id->name, "up") == 0)) {
+		if (id == NULL)
+			return NULL;
+		if (is_sema_func(id->name)) {
 			struct term_id * sem_id = 
 				(struct term_id *) find_id(node->r);
 			if (!sem_id) {
@@ -544,31 +621,17 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 			return afs_add_semaphore(afs_node, 
 						 id->name, 
 						 sem_id->name);
-		} else if (id && 
-			   (strcmp(id->name, "down_read") == 0 ||
-			    strcmp(id->name, "down_read_trylock") == 0 ||
-			    strcmp(id->name, "down_write") == 0 ||
-			    strcmp(id->name, "down_write_trylock") == 0 ||
-			    strcmp(id->name, "up_read") == 0 || 
-			    strcmp(id->name, "up_write") == 0)) {
+		} else if (is_rw_sema_func(id->name)) {
 			struct term_id * sem_id = 
 				(struct term_id *) find_id(node->r);
 			if (!sem_id) {
-				printf("\nerr: can't find semaphore name");
+				printf("\nerr: can't find rw semaphore name");
 				return NULL;
 			}
 			return afs_add_rw_semaphore(afs_node, 
 						    id->name, 
 						    sem_id->name);
-		} else if (id && 
-			   (strcmp(id->name, "_spin_lock") == 0 ||
-			    strcmp(id->name, "_spin_lock_irqsave") == 0 ||
-			    strcmp(id->name, "_spin_lock_irq") == 0 ||
-			    strcmp(id->name, "_spin_lock_bh") == 0 ||
-			    strcmp(id->name, "_spin_unlock") == 0 ||
-			    strcmp(id->name, "_spin_unlock_irqrestore") == 0 ||
-			    strcmp(id->name, "_spin_unlock_irq") == 0 ||
-			    strcmp(id->name, "_spin_unlock_bh") == 0)) {
+		} else if (is_spinlock_func(id->name)) {
 			struct term_id * spin_id = 
 				(struct term_id *) find_id(node->r);
 			if (!spin_id) {
@@ -578,11 +641,17 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 			return afs_add_spinlock(afs_node, 
 						id->name, 
 						spin_id->name);
-		} else if (id && 
-			   (strcmp(id->name, "mutex_lock") == 0 ||
-			    strcmp(id->name, "mutex_lock_interruptible") == 0 ||
-			    strcmp(id->name, "mutex_lock_killable") == 0 || 
-			    strcmp(id->name, "mutex_unlock") == 0)) {
+		} else if (is_rw_spinlock_func(id->name)) {
+			struct term_id * spin_id = 
+				(struct term_id *) find_id(node->r);
+			if (!spin_id) {
+				printf("\nerr: can't find rw spinlock name");
+				return NULL;
+			}
+			return afs_add_rw_spinlock(afs_node, 
+						   id->name, 
+						   spin_id->name);
+		} else if (is_mutex_func(id->name)) {
 			struct term_id * mutex_id = 
 				(struct term_id *) find_id(node->r);
 			if (!mutex_id) {
@@ -592,19 +661,7 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 			return afs_add_mutex(afs_node, 
 				      id->name, 
 				      mutex_id->name);
-		} else if (id &&
-		    (strcmp(id->name, "wait_for_completion") == 0 ||
-		     strcmp(id->name, "wait_for_completion_timeout") == 0 ||
-		     strcmp(id->name, 
-			    "wait_for_completion_interruptible") == 0 ||
-		     strcmp(id->name, 
-			    "wait_for_completion_interruptible_timeout") == 0 ||
-		     strcmp(id->name, 
-			    "wait_for_completion_killable") == 0 ||
-		     strcmp(id->name, 
-			    "wait_for_completion_killable_timeout") == 0 ||
-		     strcmp(id->name, "complete") == 0 ||
-		     strcmp(id->name, "complete_all") == 0)) {
+		} else if (is_wait_complete_func(id->name)) {
 			struct term_id * completion_id = 
 				(struct term_id *) find_id(node->r);
 			if (!completion_id) {

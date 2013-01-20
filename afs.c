@@ -300,6 +300,8 @@ struct ast * afs_add_wait_complete(struct ast **afs_node,
 	
 	return add_new_node_to_afs_node(afs_node, rw);	
 }
+
+
 struct ast *create_rw_operation(int op_type, char *name, char *num) 
 {
 	struct ast *rw = malloc(sizeof(struct ast));
@@ -312,8 +314,6 @@ struct ast * afs_add_rw_semaphore(struct ast **afs_node,
 				  char *func_name, 
 				  char *var_name) 
 {
-	
-	
 	int  op_type;
 	char chan_name_write[1000];
 	char chan_name_read[1000];
@@ -431,6 +431,59 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 		}
 		return (*afs_node);
 	}
+}
+
+struct ast * afs_add_rw_spinlock(struct ast **afs_node, 
+			      char *func_name, 
+			      char *var_name)
+{
+	struct ast *rw = malloc(sizeof(struct ast));
+	rw->l = new_id(var_name);
+	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
+
+	if (strcmp(func_name, "_read_lock") == 0 ||
+	    strcmp(func_name, "_read_lock_irqsave") == 0 ||
+	    strcmp(func_name, "_read_lock_irq") == 0 ||
+	    strcmp(func_name, "_read_lock_bh") == 0) {
+		rw->nodetype = AFS_WRITE;
+		rw->r = new_id("1");
+	} else if (strcmp(func_name, "__read_unlock") == 0 ||
+		   strcmp(func_name, "__read_unlock_irqrestore") == 0 ||
+		   strcmp(func_name, "__read_unlock_irq") == 0 ||
+		   strcmp(func_name, "__read_unlock_bh") == 0) {
+		rw->nodetype = AFS_READ;
+		rw->r = new_id("1");
+	} else if (strcmp(func_name, "_write_lock") == 0 ||
+	    strcmp(func_name, "_write_lock_irqsave") == 0 ||
+	    strcmp(func_name, "_write_lock_irq") == 0 ||
+	    strcmp(func_name, "_write_lock_bh") == 0) {
+		rw->nodetype = AFS_WRITE;
+		rw->r = new_id("1");
+	} else if (strcmp(func_name, "__write_unlock") == 0 ||
+		   strcmp(func_name, "__write_unlock_irqrestore") == 0 ||
+		   strcmp(func_name, "__write_unlock_irq") == 0 ||
+		   strcmp(func_name, "__write_unlock_bh") == 0) {
+		rw->nodetype = AFS_READ;
+		rw->r = new_id("1");
+	}
+
+	if (rw->nodetype == AFS_WRITE) {
+		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		alt->nodetype = AFS_ALT;
+		alt->l = NULL;
+		alt->r = NULL;
+		struct ast *gc = new_ast(AFS_GC, 
+					 rw, 
+					 new_ast(AFS_BREAK, NULL, NULL));
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		node->next = NULL;
+		node->a = gc;
+		alt->alt_list = node;
+		struct ast *loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
+		rw = loop;
+	}
+	
+	return add_new_node_to_afs_node(afs_node, rw);
 }
 
 struct ast * afs_add_spinlock(struct ast **afs_node, 
