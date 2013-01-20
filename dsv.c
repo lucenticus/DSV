@@ -738,8 +738,7 @@ void find_semaphores_init(struct ast *a)
 			sema_list = elem;
 		}
 		return;
-	}
-	
+	}	
 	find_semaphores_init(a->l);
 	find_semaphores_init(a->r);
 	return;
@@ -759,7 +758,6 @@ int parse_to_afs ()
 	}
 	//print_tree(root);
 	char *fn = find_fops_name(func_init->func_body);
-
 	if (fn == NULL) {
 		printf("\nerr: can't find fops struct name!");
 		return 1;
