@@ -1,5 +1,6 @@
 parse_err.log
 afs/
+sem/
 /dsv
 /afs2reqs
 out/

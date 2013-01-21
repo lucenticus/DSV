@@ -76,12 +76,17 @@ function preprocess_file
 	cp $afs_file $DSV_DIR/afs
 	let PARSED_FILES=PARSED_FILES+1
 	
-	$DSV_DIR/afs2reqs $afs_file $sem_file --log >> $errors_file 2>&1
+	$DSV_DIR/afs2reqs $afs_file $sem_file >> $errors_file 2>&1
+	
 	if [ "$?" -ne "0" ]; then
+	
 	    echo "Can't analyze file: $afs_file" 
 	else
+	
 	    let ANALYZED_FILES=ANALYZED_FILES+1
 	fi
+	cp $sem_file $DSV_DIR/sem
+
     fi 
 }
 
@@ -110,6 +115,13 @@ fi
 
 mkdir $DSV_DIR/afs
 
+if [ -d $DSV_DIR/sem ]; then
+    rm -R $DSV_DIR/sem
+fi
+
+mkdir $DSV_DIR/sem
+
+
 if [ -d $OUT_DIR ]; then
     rm -R $OUT_DIR
 fi
@@ -117,6 +129,7 @@ fi
 if [ -f $PARSE_ERRORS_LOG ]; then
     rm $PARSE_ERRORS_LOG
 fi
+
 set +e
 ProcessDir $TARGET_DIR
-#
+
