@@ -1,6 +1,7 @@
 parse_err.log
 afs/
 /dsv
+/afs2reqs
 out/
 drivers/
 test_module.afs

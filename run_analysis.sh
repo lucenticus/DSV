@@ -9,6 +9,8 @@ DSV_DIR=$3
 TOTAL_FILES=0
 PROCESSED_FILES=0
 PARSED_FILES=0
+ANALYZED_FILES=0
+
 PARSE_ERRORS_LOG="parse_err.log"
 function ProcessDir
 {
@@ -29,7 +31,7 @@ function ProcessDir
 			echo "Processing: $relative_path"
 			preprocess_file $relative_path
 			echo "Total files:$TOTAL_FILES processed \
-files:$PROCESSED_FILES parsed:$PARSED_FILES"
+files:$PROCESSED_FILES parsed:$PARSED_FILES analyzed:$ANALYZED_FILES"
 		    fi
 		fi
 	    fi
@@ -48,7 +50,8 @@ function preprocess_file
     errors_file="$work_dir/errors.pp.log"
     out_file="$work_dir/out_$work_file"
     afs_file="$work_dir/$work_file.afs"
-    
+    sem_file="$work_dir/$work_file.sem"
+
     cc -E $orig_file -D__KERNEL__ -DMODULE -DCONFIG_SMP -I/usr/src/linux/include -I/usr/src/linux-headers/include/ -I/usr/src/linux-headers/arch/x86/include/ -I/usr/src/linux-headers-`uname -r`/include/ >$pp_file 2>$errors_file
     sed -i~ "s/proc_handler *proc_handler/proc_handler *proc_h/g" $pp_file
     
@@ -72,6 +75,13 @@ function preprocess_file
     else
 	cp $afs_file $DSV_DIR/afs
 	let PARSED_FILES=PARSED_FILES+1
+	
+	$DSV_DIR/afs2reqs $afs_file $sem_file >> $errors_file 2>&1
+	if [ "$?" -ne "0" ]; then
+	    echo "Can't analyze file: $afs_file" 
+	else
+	    let ANALYZED_FILES=ANALYZED_FILES+1
+	fi
     fi 
 }
 
@@ -83,6 +93,15 @@ if [ -f dsv ]; then
     rm dsv
 fi
 make
+
+if [ -f ../AFS2REQS/afs2reqs ]; then
+    cd ../AFS2REQS
+    rm afs2reqs
+    make
+    cp afs2reqs $CURR_PATH
+    cd $CURR_PATH
+fi
+
 cd $CURR_PATH 
 
 if [ -d $DSV_DIR/afs ]; then
