@@ -679,7 +679,9 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		return proc_postfix_expr(node, afs_node);
 	} else if (node->nodetype == RETURN) {
 		return afs_add_return(afs_node, node);
-	} else{
+	} else if (node->nodetype == BREAK) {
+		return afs_add_break(afs_node, node);
+	}  else {
 		struct ast *com = afs_add_com(afs_node, node);
 		com = func_body_to_afs_struct(node->l, &com); 
 		com = func_body_to_afs_struct(node->r, &com);
