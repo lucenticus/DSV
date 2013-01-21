@@ -592,7 +592,78 @@ int is_wait_complete_func(char *name)
 		return 1;
 	return 0;
 }
-
+struct ast *proc_postfix_expr(struct ast *node, struct ast **afs_node) 
+{
+	struct term_id * id = (struct term_id *) find_id(node->l);
+	if (id == NULL)
+		return NULL;
+	if (is_sema_func(id->name)) {
+		struct term_id * sem_id = 
+			(struct term_id *) find_id(node->r);
+		if (!sem_id) {
+			printf("\nerr: can't find semaphore name");
+			return NULL;
+		}
+		return afs_add_semaphore(afs_node, 
+					 id->name, 
+					 sem_id->name);
+	} else if (is_rw_sema_func(id->name)) {
+		struct term_id * sem_id = 
+			(struct term_id *) find_id(node->r);
+		if (!sem_id) {
+			printf("\nerr: can't find rw semaphore name");
+			return NULL;
+		}
+		return afs_add_rw_semaphore(afs_node, 
+					    id->name, 
+					    sem_id->name);
+	} else if (is_spinlock_func(id->name)) {
+		struct term_id * spin_id = 
+			(struct term_id *) find_id(node->r);
+		if (!spin_id) {
+			printf("\nerr: can't find spinlock name");
+			return NULL;
+		}
+		return afs_add_spinlock(afs_node, 
+					id->name, 
+					spin_id->name);
+	} else if (is_rw_spinlock_func(id->name)) {
+		struct term_id * spin_id = 
+			(struct term_id *) find_id(node->r);
+		if (!spin_id) {
+			printf("\nerr: can't find rw spinlock name");
+			return NULL;
+		}
+		return afs_add_rw_spinlock(afs_node, 
+					   id->name, 
+					   spin_id->name);
+	} else if (is_mutex_func(id->name)) {
+		struct term_id * mutex_id = 
+			(struct term_id *) find_id(node->r);
+		if (!mutex_id) {
+			printf("\nerr: can't find mutex name");
+			return NULL;
+		}
+		return afs_add_mutex(afs_node, 
+				     id->name, 
+				     mutex_id->name);
+	} else if (is_wait_complete_func(id->name)) {
+		struct term_id * completion_id = 
+			(struct term_id *) find_id(node->r);
+		if (!completion_id) {
+			printf("\nerr: can't find completion name!");
+			return NULL;
+		}
+		return afs_add_wait_complete(afs_node, 
+					     id->name, 
+					     completion_id->name);
+	} else {
+		struct ast *com = afs_add_com(afs_node, node);
+		com = func_body_to_afs_struct(node->l, &com); 
+		com = func_body_to_afs_struct(node->r, &com);
+		return com;
+	}
+}
 struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node) 
 {
 	if (node == NULL) {
@@ -605,75 +676,7 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		struct flow *fl = (struct flow *) node;
 		return afs_add_flow(afs_node, fl);
 	} else if (node->nodetype == NODE_POSTFIX_EXPRESSION) {
-		struct term_id * id = (struct term_id *) find_id(node->l);
-		if (id == NULL)
-			return NULL;
-		if (is_sema_func(id->name)) {
-			struct term_id * sem_id = 
-				(struct term_id *) find_id(node->r);
-			if (!sem_id) {
-				printf("\nerr: can't find semaphore name");
-				return NULL;
-			}
-			return afs_add_semaphore(afs_node, 
-						 id->name, 
-						 sem_id->name);
-		} else if (is_rw_sema_func(id->name)) {
-			struct term_id * sem_id = 
-				(struct term_id *) find_id(node->r);
-			if (!sem_id) {
-				printf("\nerr: can't find rw semaphore name");
-				return NULL;
-			}
-			return afs_add_rw_semaphore(afs_node, 
-						    id->name, 
-						    sem_id->name);
-		} else if (is_spinlock_func(id->name)) {
-			struct term_id * spin_id = 
-				(struct term_id *) find_id(node->r);
-			if (!spin_id) {
-				printf("\nerr: can't find spinlock name");
-				return NULL;
-			}
-			return afs_add_spinlock(afs_node, 
-						id->name, 
-						spin_id->name);
-		} else if (is_rw_spinlock_func(id->name)) {
-			struct term_id * spin_id = 
-				(struct term_id *) find_id(node->r);
-			if (!spin_id) {
-				printf("\nerr: can't find rw spinlock name");
-				return NULL;
-			}
-			return afs_add_rw_spinlock(afs_node, 
-						   id->name, 
-						   spin_id->name);
-		} else if (is_mutex_func(id->name)) {
-			struct term_id * mutex_id = 
-				(struct term_id *) find_id(node->r);
-			if (!mutex_id) {
-				printf("\nerr: can't find mutex name");
-				return NULL;
-			}
-			return afs_add_mutex(afs_node, 
-				      id->name, 
-				      mutex_id->name);
-		} else if (is_wait_complete_func(id->name)) {
-			struct term_id * completion_id = 
-				(struct term_id *) find_id(node->r);
-			if (!completion_id) {
-				printf("\nerr: can't find completion name!");
-				return NULL;
-			}
-			return afs_add_wait_complete(afs_node, 
-				      id->name, 
-				      completion_id->name);
-		} else {
-			struct ast *com = afs_add_com(afs_node, node);
-			com = func_body_to_afs_struct(node->l, &com); 
-			com = func_body_to_afs_struct(node->r, &com);
-			return com;
-		}
+		return proc_postfix_expr(node, afs_node);
 	} else {
 		struct ast *com = afs_add_com(afs_node, node);
 		com = func_body_to_afs_struct(node->l, &com); 
