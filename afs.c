@@ -11,6 +11,12 @@ struct ast *afs_add_com(struct ast **afs_node, struct ast *node)
 	com = add_new_node_to_afs_node(afs_node, com);
 	return com;
 }
+struct ast *afs_add_return(struct ast **afs_node, struct ast *node) 
+{
+	struct ast *ret = new_ast(AFS_EXIT, NULL, NULL);
+	ret = add_new_node_to_afs_node(afs_node, ret);
+	return ret;
+}
 struct ast *afs_create_b(struct ast *node) 
 {
 	char buf[10];

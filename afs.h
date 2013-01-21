@@ -47,6 +47,7 @@ struct ast_list *get_case_stmts_list(struct ast *node);
 struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 				      struct ast *new_node);
 struct ast * afs_create_b(struct ast *node);
+struct ast * afs_add_return(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_com(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_flow(struct ast **afs_node, struct flow *fl);
 struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl);
