@@ -639,7 +639,7 @@ int afs_struct_to_file()
 	while (tc) {
 		fprintf(afs_file, "\t");
 		afs_struct_node_to_file(tc->chan);
-		fprintf(afs_file, ";\n");
+		fprintf(afs_file, "\n");
 		tc = tc->next;
 	}
 	fprintf(afs_file, "BEGIN\n");
@@ -649,9 +649,9 @@ int afs_struct_to_file()
 			printf("\nerr: can't find afs function name!");
 			return 1;
 		}
-		fprintf(afs_file, "\tFUNC %s :: ", id->name);
+		fprintf(afs_file, "\tFUN %s :: ", id->name);
 		afs_struct_node_to_file(tf->a->r);
-		fprintf(afs_file, ";\n");
+		fprintf(afs_file, "\n");
 		tf = tf->next;
 	}
 	fprintf(afs_file, "END\n");
