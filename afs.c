@@ -125,8 +125,28 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 				t = t->next;
 			}
 			t->next = node;
+			
+			if (f->stmt2 && f->stmt2->nodetype != NODE_FLOW) {
+				st = func_body_to_afs_struct(f->stmt2, NULL);
+				gc = new_ast(AFS_GC, 
+					     afs_create_b(fl->expr),
+					     st);
+				struct ast_list *node = 
+					malloc(sizeof(struct ast_list));
+				node->next = NULL;
+				node->a = gc; 
+				struct ast_list *t = alt->alt_list;
+				while (t->next) {
+					t = t->next;
+				}
+				t->next = node;
+			}
 			tf = f->stmt2;
+			
 		}
+		
+
+		
 	} else if (fl->stmt2) {
 		st = func_body_to_afs_struct(fl->stmt2, NULL);
 		
