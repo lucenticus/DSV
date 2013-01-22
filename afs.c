@@ -65,6 +65,8 @@ struct ast *afs_add_flow(struct ast **afs_node, struct flow *fl)
 	} break;
 	default: {
 		printf("\nerr:unknown flow type %d in afs_add_flow!");
+		print_tree((struct ast*)fl);
+		printf("\n+++\n");
 		return NULL;
 	}
 	}	
@@ -247,6 +249,7 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 	while (stmts_list) {
 		printf("!!SW!!");
 		struct ast *st = func_body_to_afs_struct(stmts_list->a, NULL);
+		
 		struct ast *gc = new_ast(AFS_GC,
 					 afs_create_b(fl->expr),
 				 	 st);
@@ -274,9 +277,7 @@ void get_case_stmts_list(struct ast *node, struct ast_list **list)
 		return;
 	if (node->nodetype == NODE_LABELED_STATEMENT) {
 		if (list && (*list)->a->nodetype == _AFS_ROOT) {
-			(*list)->a->nodetype = node->r->nodetype;
-			(*list)->a->l = node->r->l;
-			(*list)->a->r = node->r->r;			
+			(*list)->a = node->r;
 		} else {
 			struct ast_list *n = 
 					malloc(sizeof(struct ast_list));
