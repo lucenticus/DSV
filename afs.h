@@ -42,8 +42,7 @@ struct ast_list *afl;
 struct afs_chan_list *acl;
 struct ast *curr_afs_root;
 
-
-struct ast_list *get_case_stmts_list(struct ast *node);
+void get_case_stmts_list(struct ast *node, struct ast_list **list);
 struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 				      struct ast *new_node);
 struct ast * afs_create_b(struct ast *node);
@@ -102,6 +101,7 @@ enum AFS_NODE_TYPE {
 	AFS_SEQ,
 	AFS_SKIP,
 	AFS_TT,
-	AFS_WRITE
+	AFS_WRITE,
+	_AFS_ROOT
 };
 #endif //AFS_H

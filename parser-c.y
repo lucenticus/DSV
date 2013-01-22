@@ -460,7 +460,7 @@ labeled_statement
 	| CASE constant_expression ':' statement
 		{ $$ = new_ast(NODE_LABELED_STATEMENT, $2, $4); }
 	| DEFAULT ':' statement
-		{ $$ = new_ast(NODE_LABELED_STATEMENT, $3, NULL); }
+		{ $$ = new_ast(NODE_LABELED_STATEMENT, NULL, $3); }
 	;
 
 logical_and_expression

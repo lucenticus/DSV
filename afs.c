@@ -220,11 +220,16 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 	alt->l = NULL;
 	alt->r = NULL;
 	alt->alt_list = NULL;
-	struct ast_list *stmts_list = get_case_stmts_list(fl->stmt1);
+	struct ast_list *stmts_list = malloc(sizeof(struct ast_list));
+	stmts_list->a = new_ast(_AFS_ROOT, NULL, NULL);
+	stmts_list->next = NULL;
+	get_case_stmts_list(fl->stmt1, &stmts_list);
 	while (stmts_list) {
+		printf("!!SW!!");
+		struct ast *st = func_body_to_afs_struct(stmts_list->a, NULL);
 		struct ast *gc = new_ast(AFS_GC,
 					 afs_create_b(fl->expr),
-				 	 stmts_list->a);
+				 	 st);
 		struct ast_list *node = malloc(sizeof(struct ast_list));
 		node->a = gc;
 		node->next = NULL;
@@ -243,33 +248,31 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 	return add_new_node_to_afs_node(afs_node, (struct ast*)alt);
 }
 
-struct ast_list *get_case_stmts_list(struct ast *node) 
+void get_case_stmts_list(struct ast *node, struct ast_list **list) 
 {
 	if (node == NULL)
-		return NULL;
-	struct ast_list *first = get_case_stmts_list(node->l);
-	struct ast_list *second = get_case_stmts_list(node->r);
+		return;
 	if (node->nodetype == NODE_LABELED_STATEMENT) {
-		if (first == NULL && second == NULL) {
-			struct ast_list *n = malloc(sizeof(struct ast_list));
-			n->next = NULL;
-			n->a = node->r;
-			return n;
+		if (list && (*list)->a->nodetype == _AFS_ROOT) {
+			(*list)->a->nodetype = node->r->nodetype;
+			(*list)->a->l = node->r->l;
+			(*list)->a->r = node->r->r;			
 		} else {
 			struct ast_list *n = 
 					malloc(sizeof(struct ast_list));
-				n->a = node->r;
-				
-			if (first != NULL) {
-				first->next = second;
-				n->next = first;
-			} else {
-				n->next = second;
-			}
-			return n;
+		       n->a = node->r;
+		       n->next = NULL;
+		       struct ast_list *t = (*list);
+		       while(t->next) {
+			       t = t->next;
+		       }
+		       t->next = n;
 		}
-	}
-	return NULL;
+	} 
+	get_case_stmts_list(node->l, list);
+	get_case_stmts_list(node->r, list);
+	
+       
 }
 
 int afs_add_chan_to_list(char *chan_name, 
