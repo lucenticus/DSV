@@ -79,7 +79,7 @@ function preprocess_file
 	$DSV_DIR/afs2reqs $afs_file $sem_file >> $errors_file 2>&1
 	
 	if [ "$?" -ne "0" ]; then
-	
+	    $DSV_DIR/afs2reqs $afs_file $sem_file --log>> $errors_file 2>&1
 	    echo "Can't analyze file: $afs_file" 
 	else
 	
