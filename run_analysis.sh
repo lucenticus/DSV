@@ -52,7 +52,7 @@ function preprocess_file
     afs_file="$work_dir/$work_file.afs"
     sem_file="$work_dir/$work_file.sem"
 
-    cc -E $orig_file -D__KERNEL__ -DMODULE -DCONFIG_SMP -I/usr/src/linux/include -I/usr/src/linux-headers/include/ -I/usr/src/linux-headers/arch/x86/include/ -I/usr/src/linux-headers-`uname -r`/include/ >$pp_file 2>$errors_file
+    cc -E $orig_file -D__KERNEL__ -DMODULE -DCONFIG_SMP -DCONFIG_LOCK_KERNEL -I/usr/src/linux/include -I/usr/src/linux-headers/include/ -I/usr/src/linux-headers/arch/x86/include/ -I/usr/src/linux-headers-`uname -r`/include/ >$pp_file 2>$errors_file
     sed -i~ "s/proc_handler *proc_handler/proc_handler *proc_h/g" $pp_file
     
     sed -i~ "s/pte_t ((pte_t) { (pteval_t val) } )/pte_t __dsv_fix_wrong_macros(pte_t val)/g" $pp_file
