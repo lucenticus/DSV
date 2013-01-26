@@ -74,7 +74,7 @@ struct ast *afs_add_flow(struct ast **afs_node, struct flow *fl)
 struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 				      struct ast *new_node) 
 {
-	if (afs_node == NULL) {
+	if (afs_node == NULL || (*afs_node) == NULL) {
 		afs_node = &new_node;		
 		return new_node;
 	} else if ((*afs_node)->nodetype == AFS_SEQ) {
@@ -275,7 +275,7 @@ void get_case_stmts_list(struct ast *node, struct ast_list **list)
 	if (node == NULL)
 		return;
 	if (node->nodetype == NODE_LABELED_STATEMENT) {
-		if (list && (*list)->a->nodetype == _AFS_ROOT) {
+		if (list && (*list)->a && (*list)->a->nodetype == _AFS_ROOT) {
 			(*list)->a = node->r;
 		} else {
 			struct ast_list *n = 
