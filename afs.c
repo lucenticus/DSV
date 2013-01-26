@@ -810,10 +810,17 @@ int afs_simplify_node(struct ast *node)
 		return 0;
 	if (node->nodetype == AFS_SEQ &&
 	    node->l && node->l->nodetype == AFS_COM &&
-	    node->r && node->r->nodetype == AFS_COM) {
+	    (node->r && node->r->nodetype == AFS_COM)) {
 		node->nodetype = node->l->nodetype;
 		node->l = node->l->l;
 		node->r = node->l->r;
+		afs_simplify_node(node);
+	} else if (node->nodetype == AFS_SEQ &&
+		   node->l && node->l->nodetype == AFS_COM &&
+		   (node->r && node->r->nodetype == AFS_EXIT)) {
+		node->nodetype = node->r->nodetype;
+		node->l = node->r->l;
+		node->r = node->r->r;
 		afs_simplify_node(node);
 	} else if (node->nodetype == AFS_SEQ &&
 	    node->l && node->l->nodetype == AFS_COM &&
