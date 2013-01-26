@@ -802,14 +802,18 @@ int parse_to_afs ()
 int pp_find_fops_name() 
 {
 	char buf[BUF_SIZE];
-	char *w = "struct file_operations ";
+	char *file = "struct file_operations ";
+	char *acpi = "struct acpi_driver ";
+	char *pci = "struct pci_driver ";
+	char *pcmcia = "struct pcmcia_low_level ";
+	struct string_list *fops = NULL;
+	
 	while (fgets(buf,BUF_SIZE, orig_file) != NULL) {
 		char * tmp = NULL;
-		if ((tmp = strstr(buf, w)) != NULL) {
-			if (fops_name == NULL)
-				fops_name = malloc(BUF_SIZE * sizeof(char));
-	
-			tmp = tmp + strlen(w);
+		if ((tmp = strstr(buf, file)) != NULL) {
+			char *t = malloc(BUF_SIZE * sizeof(char));
+				
+			tmp = tmp + strlen(file);
 			int i = 0;
 			while (tmp[i] != ' ' && 
 			       tmp[i] != '\t' &&
@@ -817,12 +821,99 @@ int pp_find_fops_name()
 			       tmp[i] != '\0' &&
 			       i < BUF_SIZE) 
 			{
-				fops_name[i] = tmp[i];
+				t[i] = tmp[i];
 				i++;
 			}
-			fops_name[++i] = '\0';
+			t[++i] = '\0';
+			struct string_list *n = 
+				malloc(sizeof(struct string_list));
+			n->str = t;
+			n->next = NULL;
+			if (fops) {
+				n->next = fops;
+				fops = n;
+			} else 
+				fops = n;
+		} 
+		if ((tmp = strstr(buf, acpi)) != NULL) {
+			char *t = malloc(BUF_SIZE * sizeof(char));
+				
+			tmp = tmp + strlen(acpi);
+			int i = 0;
+			while (tmp[i] != ' ' && 
+			       tmp[i] != '\t' &&
+			       tmp[i] != '\n' &&
+			       tmp[i] != '\0' &&
+			       i < BUF_SIZE) 
+			{
+				t[i] = tmp[i];
+				i++;
+			}
+			t[++i] = '\0';
+			struct string_list *n = 
+				malloc(sizeof(struct string_list));
+			n->str = t;
+			n->next = NULL;
+			if (fops) {
+				n->next = fops;
+				fops = n;
+			} else 
+				fops = n;
+		}
+		if ((tmp = strstr(buf, pci)) != NULL) {
+			char *t = malloc(BUF_SIZE * sizeof(char));
+				
+			tmp = tmp + strlen(pci);
+			int i = 0;
+			while (tmp[i] != ' ' && 
+			       tmp[i] != '\t' &&
+			       tmp[i] != '\n' &&
+			       tmp[i] != '\0' &&
+			       i < BUF_SIZE) 
+			{
+				t[i] = tmp[i];
+				i++;
+			}
+			t[++i] = '\0';
+			struct string_list *n = 
+				malloc(sizeof(struct string_list));
+			n->str = t;
+			n->next = NULL;
+			if (fops) {
+				n->next = fops;
+				fops = n;
+			} else 
+				fops = n;
+		}
+		if ((tmp = strstr(buf, pcmcia)) != NULL) {
+			char *t = malloc(BUF_SIZE * sizeof(char));
+				
+			tmp = tmp + strlen(pcmcia);
+			int i = 0;
+			while (tmp[i] != ' ' && 
+			       tmp[i] != '\t' &&
+			       tmp[i] != '\n' &&
+			       tmp[i] != '\0' &&
+			       i < BUF_SIZE) 
+			{
+				t[i] = tmp[i];
+				i++;
+			}
+			t[++i] = '\0';
+			struct string_list *n = 
+				malloc(sizeof(struct string_list));
+			n->str = t;
+			n->next = NULL;
+			if (fops) {
+				n->next = fops;
+				fops = n;
+			} else 
+				fops = n;
 		}
 	}
-	printf("\nfops name = %s", fops_name);
+	if (fops) {
+		fops_name = fops->str;
+		printf("\nfops name = %s", fops_name);
+	}
 	fclose(orig_file);
 }

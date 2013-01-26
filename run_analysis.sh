@@ -36,6 +36,7 @@ files:$PROCESSED_FILES parsed:$PARSED_FILES analyzed:$ANALYZED_FILES"
 		fi
 	    fi
 	fi 
+
     done
 }
 
@@ -76,7 +77,7 @@ function preprocess_file
 	cp $afs_file $DSV_DIR/afs
 	let PARSED_FILES=PARSED_FILES+1
 	
-	#$DSV_DIR/afs2reqs $afs_file $sem_file >> $errors_file 2>&1
+	$DSV_DIR/afs2reqs $afs_file $sem_file >> $errors_file 2>&1
 	
 	if [ "$?" -ne "0" ]; then
 	    #$DSV_DIR/afs2reqs $afs_file $sem_file --log>> $errors_file 2>&1
