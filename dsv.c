@@ -914,6 +914,8 @@ int pp_find_fops_name()
 	if (fops) {
 		fops_name = fops->str;
 		printf("\nfops name = %s", fops_name);
+	} else {
+		printf("\nerr: Unknown fops struct!");
 	}
 	fclose(orig_file);
 }
