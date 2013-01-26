@@ -545,7 +545,11 @@ int is_spinlock_func(char *name)
 	    strcmp(name, "_spin_unlock") == 0 ||
 	    strcmp(name, "_spin_unlock_irqrestore") == 0 ||
 	    strcmp(name, "_spin_unlock_irq") == 0 ||
-	    strcmp(name, "_spin_unlock_bh") == 0)
+	    strcmp(name, "_spin_unlock_bh") == 0 ||
+	    strcmp(name, "__spin_unlock") == 0 ||
+	    strcmp(name, "__spin_unlock_irqrestore") == 0 ||
+	    strcmp(name, "__spin_unlock_irq") == 0 ||
+	    strcmp(name, "__spin_unlock_bh") == 0)
 		return 1;
 	return 0;
 }

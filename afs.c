@@ -611,7 +611,11 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 	} else if (strcmp(func_name, "_spin_unlock") == 0 ||
 		   strcmp(func_name, "_spin_unlock_irqrestore") == 0 ||
 		   strcmp(func_name, "_spin_unlock_irq") == 0 ||
-		   strcmp(func_name, "_spin_unlock_bh") == 0) {
+		   strcmp(func_name, "_spin_unlock_bh") == 0 ||
+		   strcmp(func_name, "__spin_unlock") == 0 ||
+		   strcmp(func_name, "__spin_unlock_irqrestore") == 0 ||
+		   strcmp(func_name, "__spin_unlock_irq") == 0 ||
+		   strcmp(func_name, "__spin_unlock_bh") == 0) {
 		rw->nodetype = AFS_READ;
 		rw->r = new_id("1");
 	}
