@@ -498,9 +498,11 @@ int init_fops_list(struct ast *fops_struct)
 		node->func = find_func(root, node->name);
 		if (node->func == NULL) { 
 			fops_name_list = NULL;
-			printf("\nerr: can't find fops function:%s!", 
+			printf("\nwarn: can't find fops function:%s!", 
 			       tmp->str);
-			return 1;
+			free(node);
+			tmp = tmp->next;
+			continue;
 		}
 		node->next = NULL;
 		if (fops_list == NULL) {
@@ -722,8 +724,10 @@ void find_semaphores_init(struct ast *a)
 	if (id != NULL && 
 	    id->nodetype == NODE_ID && 
 	    strcmp(id->name, "sema_init") == 0) {
-		char *name = ((struct term_id *)a->r->l->l)->name;
-		int sema_count = atoi(((struct term_id *)a->r->r)->name);
+		struct term_id *name_id = (struct term_id*) find_id(a->r->l);
+		char *name = name_id->name;
+		struct term_id *count_id = (struct term_id*) find_id(a->r->r);
+		int sema_count = atoi(count_id->name);
 		int i = 1;
 		while (i <= sema_count) {
 			char sema_name[1000];
