@@ -247,7 +247,6 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 	stmts_list->next = NULL;
 	get_case_stmts_list(fl->stmt1, &stmts_list);
 	while (stmts_list) {
-		printf("!!SW!!");
 		struct ast *st = func_body_to_afs_struct(stmts_list->a, NULL);
 		
 		struct ast *gc = new_ast(AFS_GC,
@@ -696,7 +695,7 @@ int afs_struct_node_to_file(struct ast *node)
 		while (t) {
 			afs_struct_node_to_file(t->a);
 			if (t->next)
-				fprintf(afs_file, ";");
+				fprintf(afs_file, ";");			
 			t = t->next;
 		}
 		fprintf(afs_file, ")");
@@ -800,6 +799,7 @@ int afs_simplify_struct()
 	struct ast_list *t = afl;
 	while (t) {
 		afs_simplify_node(t->a->r);
+		afs_simplify_node(t->a->r); // TODO: change algorithm 		
 		t = t->next;
 	}
 	return 0;
@@ -809,8 +809,13 @@ int afs_simplify_node(struct ast *node)
 	if (node == NULL)
 		return 0;
 	if (node->nodetype == AFS_SEQ &&
-	    node->l && node->l->nodetype == AFS_COM &&
-	    (node->r && node->r->nodetype == AFS_COM)) {
+	    node->l && 
+	    (node->l->nodetype == AFS_COM ||
+	     node->l->nodetype == AFS_SKIP) &&
+	    node->r && 
+	    (node->r->nodetype == AFS_COM ||
+	     node->r->nodetype == AFS_SKIP ||
+	     node->r->nodetype == AFS_EXIT)) {
 		node->nodetype = node->l->nodetype;
 		node->l = node->l->l;
 		node->r = node->l->r;
@@ -823,18 +828,47 @@ int afs_simplify_node(struct ast *node)
 		node->r = node->r->r;
 		afs_simplify_node(node);
 	} else if (node->nodetype == AFS_SEQ &&
-	    node->l && node->l->nodetype == AFS_COM &&
-	    node->r && node->r->nodetype == AFS_SEQ) {
+	    node->l && 
+		   (node->l->nodetype == AFS_COM ||
+		    node->l->nodetype == AFS_SKIP)
+		   && node->r && node->r->nodetype == AFS_SEQ) {
 		node->l = node->r->l;
 		node->r = node->r->r;
 		afs_simplify_node(node);
 	} else if (node->nodetype == AFS_ALT) {
 		struct afs_alt *alt = (struct afs_alt*) node;
 		struct ast_list *p = alt->alt_list;
-		while (p) {
-			afs_simplify_node(p->a);
-			p = p->next;
+		struct ast_list *prev = NULL;
+		while (p) {			
+			if (p->a->l && p->a->l->nodetype == AFS_B &&
+			    p->a->r && 
+			    (p->a->r->nodetype == AFS_COM || 
+			     p->a->r->nodetype == AFS_EXIT)) {
+				if (prev) {
+					prev->next = p->next;
+				} else {
+					alt->alt_list = p->next;
+				}
+				p = p->next; 
+	
+			}  else {
+				prev = p;
+				p = p->next;
+			}
+			
 		}
+		if (!alt->alt_list) {
+			node->nodetype = AFS_SKIP;
+			node->l = NULL;
+			node->r = NULL;
+		} else {
+			p = alt->alt_list;
+			while (p) {			
+				afs_simplify_node(p->a);
+				p = p->next;
+			}			
+
+		}		
 	}
 	afs_simplify_node(node->l);
 	afs_simplify_node(node->r);
