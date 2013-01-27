@@ -1,6 +1,8 @@
 #ifndef DSV_H
 #define DSV_H
-
+#define NHASH (35317)
+#define BUF_SIZE (10240)
+#define FOPS_SIZE (256)
 struct ast {
 	int nodetype;
 	struct ast *l;
@@ -87,8 +89,6 @@ struct ref {
 FILE *afs_file;
 FILE *orig_file;
 struct ast *root;
-#define NHASH (35317)
-#define BUF_SIZE (10240)
 struct symbol symtab[NHASH];
 char *fops_name;
 struct fops_node *fops_list;
