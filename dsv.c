@@ -803,22 +803,33 @@ int pp_find_fops_name()
 {
 	char buf[BUF_SIZE];
 	char *ops [100] = { "struct acpi_driver ",
-			   "struct acpi_pci_driver ",
-			   "struct acpi_pci_slot_driver ",
-			   "struct agp_bridge_driver ",
-			   "struct ata_port_operations ",
-			   "struct ecard_driver ",
-			   "struct hv_ops ",
-			   "struct hwrng ",
-			   "struct file_operations ",
-			   "struct pccard_operations ",
-			   "struct of_platform_driver ",
-			   "struct pci_driver ",
-			   "struct pcmcia_low_level ",
-			   "struct platform_driver ",
-			   "struct tty_operations ",
-			   "struct tty_ldisc_ops ",
-			   "struct vio_driver ",
+			    "struct acpi_pci_driver ",
+			    "struct acpi_pci_slot_driver ",
+			    "struct agp_bridge_driver ",
+			    "struct ata_port_operations ",
+			    "struct block_device_operations ",
+			    "struct console ",
+			    "struct compressor ",
+			    "struct dongle_driver ",
+			    "struct ecard_driver ",
+			    "struct hv_ops ",
+			    "struct hwrng ",
+			    "struct file_operations ",
+			    "struct loop_func_table ",
+			    "struct net_device_ops ",
+			    "struct net_proto_family ",
+			    "struct notifier_block ",
+			    "struct macio_driver ",
+			    "struct pccard_operations ",
+			    "struct pi_protocol ",
+			    "struct of_platform_driver ",
+			    "struct pci_driver ",
+			    "struct pcmcia_low_level ",
+			    "struct platform_driver ",
+			    "struct tty_operations ",
+			    "struct tty_ldisc_ops ",
+			    "struct usb_driver ",
+			    "struct vio_driver ",
 			   
 	};
 	struct string_list *fops = NULL;
@@ -826,7 +837,7 @@ int pp_find_fops_name()
 	while (fgets(buf,BUF_SIZE, orig_file) != NULL) {
 		char * tmp = NULL;
 		int idx = 0;
-		while (idx < 20 && ops[idx]) {
+		while (idx < 100 && ops[idx]) {
 			if ((tmp = strstr(buf, ops[idx])) != NULL) {
 				char *t = malloc(BUF_SIZE * sizeof(char));
 				
