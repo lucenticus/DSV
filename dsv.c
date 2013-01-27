@@ -802,113 +802,48 @@ int parse_to_afs ()
 int pp_find_fops_name() 
 {
 	char buf[BUF_SIZE];
-	char *file = "struct file_operations ";
-	char *acpi = "struct acpi_driver ";
-	char *pci = "struct pci_driver ";
-	char *pcmcia = "struct pcmcia_low_level ";
+	char *ops [20] = { "struct file_operations ",
+			   "struct acpi_driver ",
+			   "struct pci_driver ",
+			   "struct pcmcia_low_level ",
+			   "struct pccard_operations ",
+			   "struct acpi_pci_slot_driver ",
+			   "struct acpi_pci_driver ",
+			   "struct of_platform_driver",
+			   "struct platform_driver",
+	};
 	struct string_list *fops = NULL;
 	
 	while (fgets(buf,BUF_SIZE, orig_file) != NULL) {
 		char * tmp = NULL;
-		if ((tmp = strstr(buf, file)) != NULL) {
-			char *t = malloc(BUF_SIZE * sizeof(char));
+		int idx = 0;
+		while (idx < 20 && ops[idx]) {
+			if ((tmp = strstr(buf, ops[idx])) != NULL) {
+				char *t = malloc(BUF_SIZE * sizeof(char));
 				
-			tmp = tmp + strlen(file);
-			int i = 0;
-			while (tmp[i] != ' ' && 
-			       tmp[i] != '\t' &&
-			       tmp[i] != '\n' &&
-			       tmp[i] != '\0' &&
-			       i < BUF_SIZE) 
-			{
-				t[i] = tmp[i];
-				i++;
+				tmp = tmp + strlen(ops[idx]);
+				int i = 0;
+				while (tmp[i] != ' ' && 
+				       tmp[i] != '\t' &&
+				       tmp[i] != '\n' &&
+				       tmp[i] != '\0' &&
+				       i < BUF_SIZE) 
+					{
+						t[i] = tmp[i];
+						i++;
+					}
+				t[++i] = '\0';
+				struct string_list *n = 
+					malloc(sizeof(struct string_list));
+				n->str = t;
+				n->next = NULL;
+				if (fops) {
+					n->next = fops;
+					fops = n;
+				} else 
+					fops = n;
 			}
-			t[++i] = '\0';
-			struct string_list *n = 
-				malloc(sizeof(struct string_list));
-			n->str = t;
-			n->next = NULL;
-			if (fops) {
-				n->next = fops;
-				fops = n;
-			} else 
-				fops = n;
-		} 
-		if ((tmp = strstr(buf, acpi)) != NULL) {
-			char *t = malloc(BUF_SIZE * sizeof(char));
-				
-			tmp = tmp + strlen(acpi);
-			int i = 0;
-			while (tmp[i] != ' ' && 
-			       tmp[i] != '\t' &&
-			       tmp[i] != '\n' &&
-			       tmp[i] != '\0' &&
-			       i < BUF_SIZE) 
-			{
-				t[i] = tmp[i];
-				i++;
-			}
-			t[++i] = '\0';
-			struct string_list *n = 
-				malloc(sizeof(struct string_list));
-			n->str = t;
-			n->next = NULL;
-			if (fops) {
-				n->next = fops;
-				fops = n;
-			} else 
-				fops = n;
-		}
-		if ((tmp = strstr(buf, pci)) != NULL) {
-			char *t = malloc(BUF_SIZE * sizeof(char));
-				
-			tmp = tmp + strlen(pci);
-			int i = 0;
-			while (tmp[i] != ' ' && 
-			       tmp[i] != '\t' &&
-			       tmp[i] != '\n' &&
-			       tmp[i] != '\0' &&
-			       i < BUF_SIZE) 
-			{
-				t[i] = tmp[i];
-				i++;
-			}
-			t[++i] = '\0';
-			struct string_list *n = 
-				malloc(sizeof(struct string_list));
-			n->str = t;
-			n->next = NULL;
-			if (fops) {
-				n->next = fops;
-				fops = n;
-			} else 
-				fops = n;
-		}
-		if ((tmp = strstr(buf, pcmcia)) != NULL) {
-			char *t = malloc(BUF_SIZE * sizeof(char));
-				
-			tmp = tmp + strlen(pcmcia);
-			int i = 0;
-			while (tmp[i] != ' ' && 
-			       tmp[i] != '\t' &&
-			       tmp[i] != '\n' &&
-			       tmp[i] != '\0' &&
-			       i < BUF_SIZE) 
-			{
-				t[i] = tmp[i];
-				i++;
-			}
-			t[++i] = '\0';
-			struct string_list *n = 
-				malloc(sizeof(struct string_list));
-			n->str = t;
-			n->next = NULL;
-			if (fops) {
-				n->next = fops;
-				fops = n;
-			} else 
-				fops = n;
+			idx++;
 		}
 	}
 	if (fops) {
