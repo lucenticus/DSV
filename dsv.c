@@ -802,15 +802,24 @@ int parse_to_afs ()
 int pp_find_fops_name() 
 {
 	char buf[BUF_SIZE];
-	char *ops [20] = { "struct file_operations ",
-			   "struct acpi_driver ",
+	char *ops [100] = { "struct acpi_driver ",
+			   "struct acpi_pci_driver ",
+			   "struct acpi_pci_slot_driver ",
+			   "struct agp_bridge_driver ",
+			   "struct ata_port_operations ",
+			   "struct ecard_driver ",
+			   "struct hv_ops ",
+			   "struct hwrng ",
+			   "struct file_operations ",
+			   "struct pccard_operations ",
+			   "struct of_platform_driver ",
 			   "struct pci_driver ",
 			   "struct pcmcia_low_level ",
-			   "struct pccard_operations ",
-			   "struct acpi_pci_slot_driver ",
-			   "struct acpi_pci_driver ",
-			   "struct of_platform_driver",
-			   "struct platform_driver",
+			   "struct platform_driver ",
+			   "struct tty_operations ",
+			   "struct tty_ldisc_ops ",
+			   "struct vio_driver ",
+			   
 	};
 	struct string_list *fops = NULL;
 	
