@@ -26,9 +26,24 @@ struct ast * afs_add_break(struct ast **afs_node, struct ast *node)
 struct ast *afs_create_b(struct ast *node) 
 {
 	char buf[10];
-	sprintf(buf, "%d", curr_b_idx++);	
-	struct ast *b = new_ast(AFS_B, new_id(buf), NULL);
-		
+	struct ast *b;
+	if (node && node->nodetype == NODE_ID) {
+		struct term_id *id = (struct term_id*) node;
+		if (strcmp(id->name, "0") == 0) {
+			b = new_ast(AFS_FF, NULL, NULL);
+		} else if (strcmp(id->name, "1") == 0) {
+			b = new_ast(AFS_TT, NULL, NULL);
+		} else {
+			sprintf(buf, "%d", curr_b_idx++);	
+			b = new_ast(AFS_B, new_id(buf), NULL);
+		}	
+	} else { 
+		sprintf(buf, "%d", curr_b_idx++);	
+		b = new_ast(AFS_B, new_id(buf), NULL);
+	}
+	printf("\n0000\n");
+	print_tree(node);	
+	printf("\n0000\n");
 	if (node) {
 		struct term_id * id = (struct term_id *) find_id(node);
 		if (id &&
