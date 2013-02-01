@@ -343,7 +343,7 @@ exclusive_or_expression
 
 expression
 	: assignment_expression 
-		{ $$ = $1; }
+	{ $$ =  $1; }
 	| expression ',' assignment_expression
 		{ $$ = new_ast(NODE_EXPRESSION, $1, $3); }
 	| compound_statement

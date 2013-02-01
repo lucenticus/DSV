@@ -142,6 +142,9 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 	alt->l = NULL;
 	alt->r = NULL;
 	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
+	if (!st) {
+		st = afs_add_com(afs_node, NULL);
+	}
 	struct ast *gc = new_ast(AFS_GC, 
 				 afs_create_b(fl->expr),
 				 st);
@@ -158,6 +161,9 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 		       ((struct flow*)tf)->flowtype == IF) {
 			struct flow *f = (struct flow*) tf;
 			st = func_body_to_afs_struct(f->stmt1, NULL);
+			if (!st) {
+				st = afs_add_com(afs_node, NULL);
+			}
 			struct ast *gc = new_ast(AFS_GC, 
 						 afs_create_b(fl->expr),
 						 st);
@@ -172,6 +178,9 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 			t->next = node;
 			
 			if (f->stmt2 && f->stmt2->nodetype != NODE_FLOW) {
+				if (!st) {
+					st = afs_add_com(afs_node, NULL);
+				}
 				st = func_body_to_afs_struct(f->stmt2, NULL);
 				gc = new_ast(AFS_GC, 
 					     afs_create_b(fl->expr),
@@ -187,14 +196,12 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 				t->next = node;
 			}
 			tf = f->stmt2;
-			
 		}
-		
-
-		
 	} else if (fl->stmt2) {
 		st = func_body_to_afs_struct(fl->stmt2, NULL);
-		
+		if (!st) {
+			st = afs_add_com(afs_node, NULL);
+		}
 		gc = new_ast(AFS_GC,
 			     afs_create_b(fl->expr),
 			     st);
@@ -216,7 +223,9 @@ struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 	loop->l = NULL;
 	loop->r = NULL;
 	struct ast *st = func_body_to_afs_struct(fl->l, NULL);
-		
+	if (!st) {
+		st = afs_add_com(afs_node, NULL);
+	}
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
@@ -239,7 +248,9 @@ struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 	loop->l = NULL;
 	loop->r = NULL;
 	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
-		
+	if (!st) {
+		st = afs_add_com(afs_node, NULL);
+	}	
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
@@ -258,7 +269,9 @@ struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 {
 	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 	struct ast *b = afs_create_b(fl->expr);
- 
+	if (!st) {
+		st = afs_add_com(afs_node, NULL);
+	}
 	if (b && b->nodetype == AFS_FF) {
 		return add_new_node_to_afs_node(afs_node, st);		
 	}
@@ -296,7 +309,9 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 	get_case_stmts_list(fl->stmt1, &stmts_list);
 	while (stmts_list) {
 		struct ast *st = func_body_to_afs_struct(stmts_list->a, NULL);
-		
+		if (!st) {
+			st = afs_add_com(afs_node, NULL);
+		}
 		struct ast *gc = new_ast(AFS_GC,
 					 afs_create_b(fl->expr),
 				 	 st);
@@ -339,8 +354,7 @@ void get_case_stmts_list(struct ast *node, struct ast_list **list)
 	} 
 	get_case_stmts_list(node->l, list);
 	get_case_stmts_list(node->r, list);
-	
-       
+
 }
 
 int afs_add_chan_to_list(char *chan_name, 
@@ -850,8 +864,8 @@ int afs_simplify_struct()
 {
 	struct ast_list *t = afl;
 	while (t) {
-		//afs_simplify_node(t->a->r);
-		//afs_simplify_node(t->a->r); // TODO: change algorithm
+		afs_simplify_node(t->a->r);
+		afs_simplify_node(t->a->r); // TODO: change algorithm
 		t = t->next;
 	}
 	return 0;
@@ -877,13 +891,31 @@ int afs_simplify_node(struct ast *node)
 		   node->l && 
 		   (node->l->nodetype == AFS_COM || 
 		    node->l->nodetype == AFS_SKIP) &&
-		   (node->r && node->r->nodetype == AFS_EXIT)) {
+		   node->r &&
+		   (node->r->nodetype == AFS_EXIT ||
+		    node->r->nodetype == AFS_LOOP ||
+		    node->r->nodetype == AFS_WRITE ||
+		    node->r->nodetype == AFS_READ
+		    )) {
 		node->nodetype = node->r->nodetype;
 		node->l = node->r->l;
 		node->r = node->r->r;
 		afs_simplify_node(node);
 	} else if (node->nodetype == AFS_SEQ &&
-	    node->l && 
+		   node->r && 
+		   (node->r->nodetype == AFS_COM || 
+		    node->r->nodetype == AFS_SKIP) &&
+		   node->l &&
+		   (node->l->nodetype == AFS_LOOP ||
+		    node->l->nodetype == AFS_WRITE ||
+		    node->l->nodetype == AFS_READ
+		    )) {
+		node->nodetype = node->l->nodetype;
+		node->r = node->l->r;
+		node->l = node->l->l;
+		afs_simplify_node(node);
+	} else if (node->nodetype == AFS_SEQ &&
+		   node->l && 
 		   (node->l->nodetype == AFS_COM ||
 		    node->l->nodetype == AFS_SKIP ||
 		    node->l->nodetype == AFS_EXIT)
@@ -896,11 +928,15 @@ int afs_simplify_node(struct ast *node)
 		struct ast_list *p = alt->alt_list;
 		struct ast_list *prev = NULL;
 		while (p) {			
-			if (p->a->l && p->a->l->nodetype == AFS_B &&
+			if (p->a->l && 
+			    (p->a->l->nodetype == AFS_B ||
+			     p->a->l->nodetype == AFS_TT ||
+			     p->a->l->nodetype == AFS_FF) &&
 			    p->a->r && 
 			    (p->a->r->nodetype == AFS_COM || 
 			     p->a->r->nodetype == AFS_EXIT ||
-			     p->a->r->nodetype == AFS_SKIP)) {
+			     p->a->r->nodetype == AFS_SKIP)
+			    ) {
 				if (prev) {
 					prev->next = p->next;
 				} else {
