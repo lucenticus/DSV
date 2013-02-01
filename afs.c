@@ -41,9 +41,7 @@ struct ast *afs_create_b(struct ast *node)
 		sprintf(buf, "%d", curr_b_idx++);	
 		b = new_ast(AFS_B, new_id(buf), NULL);
 	}
-	printf("\n0000\n");
-	print_tree(node);	
-	printf("\n0000\n");
+
 	if (node) {
 		struct term_id * id = (struct term_id *) find_id(node);
 		if (id &&
@@ -228,26 +226,31 @@ struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 }
 struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 {
+	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
+	struct ast *b = afs_create_b(fl->expr);
+ 
+	if (b && b->nodetype == AFS_FF) {
+		return add_new_node_to_afs_node(afs_node, st);		
+	}
+	
 	struct ast *loop = malloc(sizeof(struct ast));
 	loop->nodetype = AFS_LOOP;
 	loop->l = NULL;
 	loop->r = NULL;
-	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
-		
+	
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
-	struct ast *gc = new_ast(AFS_GC, 
-				 afs_create_b(fl->expr),
-				 st);
+			
+	struct ast *gc = new_ast(AFS_GC, b, st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
 	loop->l = (struct ast*) alt;
 	struct ast *loop_seq = new_ast(AFS_SEQ, st, loop);
-	return add_new_node_to_afs_node(afs_node, loop_seq);
+	return add_new_node_to_afs_node(afs_node, loop_seq);	
 }
 
 struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
