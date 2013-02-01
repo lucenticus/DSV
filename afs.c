@@ -47,6 +47,12 @@ struct ast * afs_add_break(struct ast **afs_node, struct ast *node)
 	brk = add_new_node_to_afs_node(afs_node, brk);
 	return brk;
 }
+struct ast * afs_add_goto(struct ast **afs_node, struct ast *node) 
+{
+	struct ast *gt = new_ast(AFS_SKIP, NULL, NULL); // TODO
+	gt = add_new_node_to_afs_node(afs_node, gt);
+	return gt;
+}
 struct ast *afs_create_b(struct ast *node) 
 {
 	char buf[10];
@@ -844,8 +850,8 @@ int afs_simplify_struct()
 {
 	struct ast_list *t = afl;
 	while (t) {
-		afs_simplify_node(t->a->r);
-		afs_simplify_node(t->a->r); // TODO: change algorithm 		
+		//afs_simplify_node(t->a->r);
+		//afs_simplify_node(t->a->r); // TODO: change algorithm
 		t = t->next;
 	}
 	return 0;

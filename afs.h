@@ -70,6 +70,7 @@ void get_case_stmts_list(struct ast *node, struct ast_list **list);
 struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 				      struct ast *new_node);
 struct ast * afs_create_b(struct ast *node);
+struct ast * afs_add_goto(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_return(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_break(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_com(struct ast **afs_node, struct ast *node);

@@ -710,6 +710,8 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		return afs_add_return(afs_node, node);
 	} else if (node->nodetype == BREAK) {
 		return afs_add_break(afs_node, node);
+	} else if (node->nodetype == GOTO) {
+		return afs_add_goto(afs_node, node);
 	} else if (node->nodetype == NODE_ASSIGNMENT_EXPRESSION) {
 		struct ast *com = afs_add_com(afs_node, node);
 		com = func_body_to_afs_struct(node->l, &com); 
