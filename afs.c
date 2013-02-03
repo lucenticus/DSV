@@ -738,7 +738,9 @@ int afs_struct_to_file()
 			printf("\nerr: can't find afs function name!");
 			return 1;
 		}
-		if (tf->a->r) {
+		if (tf->a->r && 
+		    tf->a->r->nodetype != AFS_SKIP && 
+		    tf->a->r->nodetype != AFS_COM) {
 			fprintf(afs_file, "\tFUN %s :: ", id->name);
 			afs_struct_node_to_file(tf->a->r);
 			fprintf(afs_file, "\n");
