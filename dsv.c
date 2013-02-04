@@ -727,12 +727,12 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 
 int fops_to_afs() 
 {
-       
 	struct fops_node *p = fops_list;
 	while (p) {
+		printf("\n func name: %s", p->name);
 		struct ast *afs_func = new_ast(AFS_FUNC, new_id(p->name), NULL);
-		curr_afs_root = NULL;
-		func_body_to_afs_struct(p->func->func_body, NULL);
+		curr_afs_root = func_body_to_afs_struct(p->func->func_body, 
+							NULL);
 		afs_func->r = curr_afs_root;
 		struct ast_list *n = malloc(sizeof(struct ast_list));
 		n->a = afs_func;

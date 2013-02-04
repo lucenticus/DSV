@@ -118,19 +118,20 @@ struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 				      struct ast *new_node) 
 {
 	if (afs_node == NULL || (*afs_node) == NULL) {
-		afs_node = &new_node;		
+		afs_node = &new_node;
 		return new_node;
 	} else if ((*afs_node)->nodetype == AFS_SEQ) {
-		struct ast *seq = new_ast(AFS_SEQ, (*afs_node)->r, new_node);
-		(*afs_node)->r = seq;
-		afs_node = &seq;
-		return seq;
+		struct ast *tmp = (*afs_node);
+		while (tmp->r && tmp->r->nodetype == AFS_SEQ) {
+			tmp = tmp->r;
+		}
+		struct ast *seq = new_ast(AFS_SEQ, tmp->r, new_node);
+		tmp->r = seq;
+		return *afs_node;
 	} else {
 		struct ast *seq = new_ast(AFS_SEQ, (*afs_node), new_node);
-
 		afs_node = &seq;
-		if (curr_afs_root == NULL) 
-			curr_afs_root = *afs_node;
+
 		return seq;
 	}
 }
@@ -273,7 +274,7 @@ struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 		st = afs_add_com(afs_node, NULL);
 	}
 	if (b && b->nodetype == AFS_FF) {
-		return add_new_node_to_afs_node(afs_node, st);		
+		return st;		
 	}
 	
 	struct ast *loop = malloc(sizeof(struct ast));
@@ -716,7 +717,10 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 	} else if (strcmp(func_name, "mutex_unlock") == 0) {
 		rw->nodetype = AFS_READ;
 		rw->r = new_id("1");
+	} else {
+		printf("\nErr: Unknown func_name: %s", func_name);
 	}
+	printf("\n%s", var_name);
 	return add_new_node_to_afs_node(afs_node, rw);	
 }
 
