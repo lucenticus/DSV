@@ -144,7 +144,7 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 	alt->r = NULL;
 	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 	if (!st) {
-		st = afs_add_com(afs_node, NULL);
+		st = new_ast(AFS_SKIP, NULL, NULL);
 	}
 	struct ast *gc = new_ast(AFS_GC, 
 				 afs_create_b(fl->expr),
@@ -163,7 +163,7 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 			struct flow *f = (struct flow*) tf;
 			st = func_body_to_afs_struct(f->stmt1, NULL);
 			if (!st) {
-				st = afs_add_com(afs_node, NULL);
+				st = new_ast(AFS_SKIP, NULL, NULL);
 			}
 			struct ast *gc = new_ast(AFS_GC, 
 						 afs_create_b(fl->expr),
@@ -179,10 +179,11 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 			t->next = node;
 			
 			if (f->stmt2 && f->stmt2->nodetype != NODE_FLOW) {
-				if (!st) {
-					st = afs_add_com(afs_node, NULL);
-				}
+
 				st = func_body_to_afs_struct(f->stmt2, NULL);
+				if (!st) {
+					st = new_ast(AFS_SKIP, NULL, NULL);
+				}
 				gc = new_ast(AFS_GC, 
 					     afs_create_b(fl->expr),
 					     st);
@@ -201,7 +202,7 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 	} else if (fl->stmt2) {
 		st = func_body_to_afs_struct(fl->stmt2, NULL);
 		if (!st) {
-			st = afs_add_com(afs_node, NULL);
+			st = new_ast(AFS_SKIP, NULL, NULL);
 		}
 		gc = new_ast(AFS_GC,
 			     afs_create_b(fl->expr),
@@ -225,7 +226,7 @@ struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 	loop->r = NULL;
 	struct ast *st = func_body_to_afs_struct(fl->l, NULL);
 	if (!st) {
-		st = afs_add_com(afs_node, NULL);
+		st = new_ast(AFS_SKIP, NULL, NULL);
 	}
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
@@ -250,8 +251,8 @@ struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 	loop->r = NULL;
 	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 	if (!st) {
-		st = afs_add_com(afs_node, NULL);
-	}	
+		st = new_ast(AFS_SKIP, NULL, NULL);
+	}
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
@@ -271,7 +272,7 @@ struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 	struct ast *st = func_body_to_afs_struct(fl->stmt1, NULL);
 	struct ast *b = afs_create_b(fl->expr);
 	if (!st) {
-		st = afs_add_com(afs_node, NULL);
+		st = new_ast(AFS_SKIP, NULL, NULL);
 	}
 	if (b && b->nodetype == AFS_FF) {
 		return st;		
@@ -311,7 +312,7 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 	while (stmts_list) {
 		struct ast *st = func_body_to_afs_struct(stmts_list->a, NULL);
 		if (!st) {
-			st = afs_add_com(afs_node, NULL);
+		 	st = new_ast(AFS_SKIP, NULL, NULL);
 		}
 		struct ast *gc = new_ast(AFS_GC,
 					 afs_create_b(fl->expr),
@@ -742,9 +743,9 @@ int afs_struct_to_file()
 			printf("\nerr: can't find afs function name!");
 			return 1;
 		}
-		if (tf->a->r && 
-		    tf->a->r->nodetype != AFS_SKIP && 
-		    tf->a->r->nodetype != AFS_COM) {
+		if (tf->a->r /* &&  */
+		    /* tf->a->r->nodetype != AFS_SKIP &&  */
+		    /* tf->a->r->nodetype != AFS_COM */) {
 			fprintf(afs_file, "\tFUN %s :: ", id->name);
 			afs_struct_node_to_file(tf->a->r);
 			fprintf(afs_file, "\n");
