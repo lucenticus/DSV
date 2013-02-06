@@ -870,9 +870,13 @@ int afs_struct_node_to_file(struct ast *node)
 int afs_simplify_struct() 
 {
 	struct ast_list *t = afl;
+		int retval = 0;
 	while (t) {
-		afs_simplify_node(t->a->r);
-		afs_simplify_node(t->a->r); // TODO: change algorithm
+
+		do {
+			retval = afs_simplify_node(t->a->r);
+		} while (retval);
+
 		t = t->next;
 	}
 	return 0;
@@ -885,7 +889,8 @@ int afs_simplify_node(struct ast *node)
 	    node->l && 
 	    (node->l->nodetype == AFS_COM ||
 	     node->l->nodetype == AFS_SKIP ||
-	     node->l->nodetype == AFS_EXIT) &&
+	     node->l->nodetype == AFS_EXIT || 
+	     node->l->nodetype == AFS_LOOP) &&
 	    node->r && 
 	    (node->r->nodetype == AFS_COM ||
 	     node->r->nodetype == AFS_SKIP ||
@@ -893,7 +898,7 @@ int afs_simplify_node(struct ast *node)
 		node->nodetype = node->l->nodetype;
 		node->r = node->l->r;
 		node->l = node->l->l;
-		afs_simplify_node(node);
+		return 1;
 	} else if (node->nodetype == AFS_SEQ &&
 		   node->l && 
 		   (node->l->nodetype == AFS_COM || 
@@ -902,12 +907,13 @@ int afs_simplify_node(struct ast *node)
 		   (node->r->nodetype == AFS_EXIT ||
 		    node->r->nodetype == AFS_LOOP ||
 		    node->r->nodetype == AFS_WRITE ||
-		    node->r->nodetype == AFS_READ
+		    node->r->nodetype == AFS_READ ||
+		    node->r->nodetype == AFS_BREAK
 		    )) {
 		node->nodetype = node->r->nodetype;
 		node->l = node->r->l;
 		node->r = node->r->r;
-		afs_simplify_node(node);
+		return 1;
 	} else if (node->nodetype == AFS_SEQ &&
 		   node->r && 
 		   (node->r->nodetype == AFS_COM || 
@@ -920,7 +926,7 @@ int afs_simplify_node(struct ast *node)
 		node->nodetype = node->l->nodetype;
 		node->r = node->l->r;
 		node->l = node->l->l;
-		afs_simplify_node(node);
+		return 1;
 	} else if (node->nodetype == AFS_SEQ &&
 		   node->l && 
 		   (node->l->nodetype == AFS_COM ||
@@ -929,7 +935,7 @@ int afs_simplify_node(struct ast *node)
 		   && node->r && node->r->nodetype == AFS_SEQ) {		
 		node->l = node->r->l;
 		node->r = node->r->r;
-		afs_simplify_node(node);
+		return 1;
 	} else if (node->nodetype == AFS_ALT) {
 		struct afs_alt *alt = (struct afs_alt*) node;
 		struct ast_list *p = alt->alt_list;
@@ -950,32 +956,40 @@ int afs_simplify_node(struct ast *node)
 					alt->alt_list = p->next;
 				}
 				p = p->next; 
-	
-			}  else {
+				return 1;
+			} else {
 				prev = p;
 				p = p->next;
-			}
-			
+			}			
 		}
 		if (!alt->alt_list) {
 			node->nodetype = AFS_SKIP;
 			node->l = NULL;
 			node->r = NULL;
-		} else {
+			return 1;
+		}  else {
 			p = alt->alt_list;
-			while (p) {			
-				afs_simplify_node(p->a);
-				p = p->next;
-			}			
+			int retval = 0;
+			while (p) {                     			
 
+				if (afs_simplify_node(p->a))
+					return 1;
+				
+				p = p->next;
+			}      			
 		}		
-	} else if (node->nodetype == AFS_LOOP) {
-		if (node->l && node->l->nodetype != AFS_ALT) {
-			node->nodetype = AFS_SKIP;
-			node->l = NULL;
-			node->r = NULL;
-		}
+	} else if (node->nodetype == AFS_LOOP &&
+		   node->l && node->l->nodetype != AFS_ALT) {
+		node->nodetype = AFS_SKIP;
+		node->l = NULL;
+		node->r = NULL;
+		return 1;		
 	}
-	afs_simplify_node(node->l);
-	afs_simplify_node(node->r);
+
+	if (afs_simplify_node(node->l))
+		return 1;
+	
+	if (afs_simplify_node(node->r))
+		return 1;
+	return 0;
 }
