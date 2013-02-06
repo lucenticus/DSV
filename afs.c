@@ -671,6 +671,7 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 	    strcmp(func_name, "_spin_lock_irq") == 0 ||
 	    strcmp(func_name, "_spin_lock_bh") == 0) {
 		rw->nodetype = AFS_WRITE;
+		printf("\n!!LOCK!\n");
 		rw->r = new_id("1");
 	} else if (strcmp(func_name, "_spin_unlock") == 0 ||
 		   strcmp(func_name, "_spin_unlock_irqrestore") == 0 ||
@@ -874,9 +875,9 @@ int afs_simplify_struct()
 		int retval = 0;
 	while (t) {
 
-		do {
-			retval = afs_simplify_node(t->a->r);
-		} while (retval);
+		/* do { */
+		/* 	retval = afs_simplify_node(t->a->r); */
+		/* } while (retval); */
 
 		t = t->next;
 	}
