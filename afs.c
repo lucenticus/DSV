@@ -696,7 +696,8 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 		node->a = gc;
 		alt->alt_list = node;
 		struct ast *loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
-		rw = loop;
+		
+		return add_new_node_to_afs_node(afs_node, loop);
 	}
 	
 	return add_new_node_to_afs_node(afs_node, rw);
@@ -948,7 +949,8 @@ int afs_simplify_node(struct ast *node)
 			    p->a->r && 
 			    (p->a->r->nodetype == AFS_COM || 
 			     p->a->r->nodetype == AFS_EXIT ||
-			     p->a->r->nodetype == AFS_SKIP)
+			     p->a->r->nodetype == AFS_SKIP ||
+			     p->a->r->nodetype == AFS_BREAK)
 			    ) {
 				if (prev) {
 					prev->next = p->next;
