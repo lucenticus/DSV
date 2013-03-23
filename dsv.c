@@ -105,7 +105,7 @@ void addref(char *word, int type)
 	r = malloc(sizeof(struct ref));
 	if (!r) {
 		fputs("out of space\n",stderr);
-		abort();
+		exit(0);
 	}
 	r->next = sp->reflist;
 	r->type = type;
@@ -489,6 +489,11 @@ void  init_fops_name_list(struct ast *node)
 		struct term_id *id = (struct term_id*) find_id(a->r);
 		if (id != NULL) {
 			struct string_list *node = malloc(sizeof(struct string_list));
+			if (!node) {
+				fputs("out of space\n",stderr);
+				exit(0);
+			}
+
 			node->str = id->name;
 			node->next = NULL;
 			if (fops_name_list == NULL) {
@@ -517,6 +522,11 @@ int init_fops_list(struct ast *fops_struct)
 	}
 	while (tmp) {
 		struct fops_node *node = malloc(sizeof(struct fops_node));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->name = tmp->str;
 		node->func = find_func(root, node->name);
 		if (node->func == NULL) { 
@@ -735,6 +745,11 @@ int fops_to_afs()
 							NULL);
 		afs_func->r = curr_afs_root;
 		struct ast_list *n = malloc(sizeof(struct ast_list));
+		if (!n) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		n->a = afs_func;
 		if (afl) {
 			n->next = afl;
@@ -770,6 +785,11 @@ void find_semaphores_init(struct ast *a)
 			i++;
 		}
 		struct sema_list *elem = malloc(sizeof(struct sema_list));
+		if (!elem) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		elem->name = name;
 		elem->count = sema_count;
 		if (sema_list == NULL) {
@@ -890,7 +910,11 @@ int pp_find_fops_name()
 		while (idx < FOPS_SIZE && ops[idx]) {
 			if ((tmp = strstr(buf, ops[idx])) != NULL) {
 				char *t = malloc(BUF_SIZE * sizeof(char));
-				
+				if (!t) {
+					fputs("out of space\n",stderr);
+					exit(0);
+				}
+
 				tmp = tmp + strlen(ops[idx]);
 				int i = 0;
 				while (tmp[i] != ' ' && 
@@ -905,6 +929,11 @@ int pp_find_fops_name()
 				t[++i] = '\0';
 				struct string_list *n = 
 					malloc(sizeof(struct string_list));
+				if (!n) {
+					fputs("out of space\n",stderr);
+					exit(0);
+				}
+
 				n->str = t;
 				n->next = NULL;
 				if (fops) {

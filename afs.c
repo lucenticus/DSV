@@ -139,6 +139,11 @@ struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl) 
 {
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+	if (!alt) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
@@ -150,6 +155,11 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 				 afs_create_b(fl->expr),
 				 st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
+	if (!node) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
@@ -170,6 +180,11 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 						 st);
 			struct ast_list *node = 
 				malloc(sizeof(struct ast_list));
+			if (!node) {
+				fputs("out of space\n",stderr);
+				exit(0);
+			}
+
 			node->next = NULL;
 			node->a = gc; 
 			struct ast_list *t = alt->alt_list;
@@ -189,6 +204,11 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 					     st);
 				struct ast_list *node = 
 					malloc(sizeof(struct ast_list));
+				if (!node) {
+					fputs("out of space\n",stderr);
+					exit(0);
+				}
+
 				node->next = NULL;
 				node->a = gc; 
 				struct ast_list *t = alt->alt_list;
@@ -208,6 +228,11 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 			     afs_create_b(fl->expr),
 			     st);
 		node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->next = NULL;
 		node->a = gc;
 		struct ast_list *t = alt->alt_list;
@@ -221,6 +246,11 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
+	if (!loop) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	loop->nodetype = AFS_LOOP;
 	loop->l = NULL;
 	loop->r = NULL;
@@ -229,6 +259,11 @@ struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 		st = new_ast(AFS_SKIP, NULL, NULL);
 	}
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+	if (!alt) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
@@ -236,6 +271,11 @@ struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 				 afs_create_b(fl->expr),
 				 st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
+	if (!node) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
@@ -246,6 +286,11 @@ struct ast * afs_add_flow_for(struct ast **afs_node, struct flow *fl)
 struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 {
 	struct ast *loop = malloc(sizeof(struct ast));
+	if (!loop) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	loop->nodetype = AFS_LOOP;
 	loop->l = NULL;
 	loop->r = NULL;
@@ -254,6 +299,11 @@ struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 		st = new_ast(AFS_SKIP, NULL, NULL);
 	}
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+	if (!alt) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
@@ -261,6 +311,11 @@ struct ast *afs_add_flow_while_do(struct ast **afs_node, struct flow *fl)
 				 afs_create_b(fl->expr),
 				 st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
+	if (!node) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
@@ -279,17 +334,32 @@ struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 	}
 	
 	struct ast *loop = malloc(sizeof(struct ast));
+	if (!loop) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	loop->nodetype = AFS_LOOP;
 	loop->l = NULL;
 	loop->r = NULL;
 	
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+	if (!alt) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
 			
 	struct ast *gc = new_ast(AFS_GC, b, st);
 	struct ast_list *node = malloc(sizeof(struct ast_list));
+	if (!node) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	node->next = NULL;
 	node->a = gc; 
 	alt->alt_list = node;
@@ -301,11 +371,21 @@ struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 {
 	struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+	if (!alt) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	alt->nodetype = AFS_ALT;
 	alt->l = NULL;
 	alt->r = NULL;
 	alt->alt_list = NULL;
 	struct ast_list *stmts_list = malloc(sizeof(struct ast_list));
+	if (!stmts_list) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	stmts_list->a = new_ast(_AFS_ROOT, NULL, NULL);
 	stmts_list->next = NULL;
 	get_case_stmts_list(fl->stmt1, &stmts_list);
@@ -318,6 +398,11 @@ struct ast * afs_add_flow_switch(struct ast **afs_node, struct flow *fl)
 					 afs_create_b(fl->expr),
 				 	 st);
 		struct ast_list *node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->a = gc;
 		node->next = NULL;
 		if (alt->alt_list == NULL) {
@@ -345,6 +430,11 @@ void get_case_stmts_list(struct ast *node, struct ast_list **list)
 		} else {
 			struct ast_list *n = 
 					malloc(sizeof(struct ast_list));
+			if (!n) {
+				fputs("out of space\n",stderr);
+				exit(0);
+			}
+
 		       n->a = node->r;
 		       n->next = NULL;
 		       struct ast_list *t = (*list);
@@ -370,6 +460,11 @@ int afs_add_chan_to_list(char *chan_name,
 		t = t->next;
 	}
 	struct afs_chan *new_chan = malloc(sizeof(struct afs_chan));
+	if (!new_chan) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	new_chan->nodetype = AFS_CHAN;
 	new_chan->l = NULL;
 	new_chan->r = NULL;
@@ -379,6 +474,11 @@ int afs_add_chan_to_list(char *chan_name,
 	new_chan->out_type = out_type;
 	new_chan->out_num = out_num;
 	struct afs_chan_list *nc = malloc(sizeof(struct afs_chan_list));
+	if (!nc) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+	
 	nc->chan = new_chan;
 	nc->next = NULL;
 	if (acl) {
@@ -394,7 +494,11 @@ struct ast * afs_add_wait_complete(struct ast **afs_node,
 				   char *var_name) 
 {
 	struct ast *rw = malloc(sizeof(struct ast));
-	
+	if (!rw) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	rw->l = new_id(var_name);
 	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 
@@ -420,6 +524,11 @@ struct ast * afs_add_wait_complete(struct ast **afs_node,
 struct ast *create_rw_operation(int op_type, char *name, char *num) 
 {
 	struct ast *rw = malloc(sizeof(struct ast));
+	if (!rw) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	rw->nodetype = op_type;
 	rw->l = new_id(name);
 	rw->r = new_id(num);
@@ -500,11 +609,21 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 	int i = 1;
 	if (op_type == AFS_WRITE) {
 		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		if (!alt) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		alt->nodetype = AFS_ALT;
 		alt->l = NULL;
 		alt->r = NULL;
 		while (i <= sema_count) {
 			struct ast *rw = malloc(sizeof(struct ast));
+			if (!rw) {
+				fputs("out of space\n",stderr);
+				exit(0);
+			}
+
 			char chan_name[1000];
 			sprintf(chan_name, "%s_%d", var_name, i);
 			rw->l = new_id(chan_name);
@@ -515,6 +634,11 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 						 rw, 
 						 new_ast(AFS_SKIP, NULL, NULL));
 			struct ast_list *node = malloc(sizeof(struct ast_list));
+			if (!node) {
+				fputs("out of space\n",stderr);
+				exit(0);
+			}
+
 			node->a = gc;
 			node->next = NULL;
 			
@@ -534,6 +658,11 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 		struct ast *rw;
 		while (i <= sema_count) {
 			rw = malloc(sizeof(struct ast));
+			if (!rw) {
+				fputs("out of space\n",stderr);
+				exit(0);
+			}
+
 			char chan_name[1000];
 			sprintf(chan_name, "%s_%d", var_name, i);
 			rw->l = new_id(chan_name);
@@ -570,6 +699,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 	    strcmp(func_name, "_read_lock_bh") == 0) {
 		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
 		alt = malloc(sizeof(struct afs_alt));
+		if (!alt) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		alt->nodetype = AFS_ALT;
 		alt->l = NULL;
 		alt->r = NULL;
@@ -577,6 +711,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 			     rw, 
 			     new_ast(AFS_BREAK, NULL, NULL));
 		node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->next = NULL;
 		node->a = gc;
 		alt->alt_list = node;
@@ -585,6 +724,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 
 		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
 		alt = malloc(sizeof(struct afs_alt));
+		if (!alt) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		alt->nodetype = AFS_ALT;
 		alt->l = NULL;
 		alt->r = NULL;
@@ -592,6 +736,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 			     rw, 
 			     new_ast(AFS_BREAK, NULL, NULL));
 		node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->next = NULL;
 		node->a = gc;
 		alt->alt_list = node;
@@ -616,6 +765,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 		
 		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
 		alt = malloc(sizeof(struct afs_alt));
+		if (!alt) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		alt->nodetype = AFS_ALT;
 		alt->l = NULL;
 		alt->r = NULL;
@@ -623,6 +777,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 			     rw, 
 			     new_ast(AFS_BREAK, NULL, NULL));
 		node = malloc(sizeof(struct ast_list));
+		if (!alt) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->next = NULL;
 		node->a = gc;
 		alt->alt_list = node;
@@ -631,6 +790,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 
 		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
 		alt = malloc(sizeof(struct afs_alt));
+		if (!alt) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+		
 		alt->nodetype = AFS_ALT;
 		alt->l = NULL;
 		alt->r = NULL;
@@ -638,6 +802,11 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 			     rw, 
 			     new_ast(AFS_BREAK, NULL, NULL));
 		node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->next = NULL;
 		node->a = gc;
 		alt->alt_list = node;
@@ -664,6 +833,11 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 			      char *var_name)
 {
 	struct ast *rw = malloc(sizeof(struct ast));
+	if (!rw) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	rw->l = new_id(var_name);
 	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 	if (strcmp(func_name, "_spin_lock") == 0 ||
@@ -686,6 +860,11 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 	}
 	if (rw->nodetype == AFS_WRITE) {
 		struct afs_alt *alt = malloc(sizeof(struct afs_alt));
+		if (!alt) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		alt->nodetype = AFS_ALT;
 		alt->l = NULL;
 		alt->r = NULL;
@@ -693,6 +872,11 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 					 rw, 
 					 new_ast(AFS_BREAK, NULL, NULL));
 		struct ast_list *node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
 		node->next = NULL;
 		node->a = gc;
 		alt->alt_list = node;
@@ -709,7 +893,11 @@ struct ast * afs_add_mutex(struct ast **afs_node,
 			   char *var_name) 
 {
 	struct ast *rw = malloc(sizeof(struct ast));
-	
+	if (!rw) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+
 	rw->l = new_id(var_name);
 	afs_add_chan_to_list(var_name, ALL, 1, ALL, 1);
 	if (strcmp(func_name, "mutex_lock") == 0 ||
