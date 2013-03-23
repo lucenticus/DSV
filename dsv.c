@@ -395,10 +395,15 @@ void find_shared_vars(struct ast *a)
 	if (a->nodetype == NODE_FUNC) 
 		return;
 	if (a->nodetype == NODE_DECLARATION) {
-		printf("TEST:\n");
-		print_tree(a->l);
-		printf("TEST2:\n");
-		print_tree(a->r);
+		//print_tree(a->l);
+		//printf("TEST2:\n");
+		struct ast *tok = find_token(a->r, NODE_FUNC_DECLARATOR);
+		if (!tok) {
+			printf("TEST: ");
+			struct term_id *id = (struct term_id *) find_id(a->r);
+			printf("%s\n", id->name);
+			//print_tree(a->r);
+		}
 	}
 	find_shared_vars(a->l);
 	find_shared_vars(a->r);
@@ -824,8 +829,8 @@ void find_semaphores_init(struct ast *a)
 }
 int parse_to_afs () 
 {
-	//find_shared_vars(root);
-	print_tree(root);
+	find_shared_vars(root);
+	//print_tree(root);
 	char * init_func_name = find_init_name();
 	if (init_func_name == NULL) {
 		printf("\nerr: can't find name of init function!");
