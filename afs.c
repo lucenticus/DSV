@@ -132,7 +132,6 @@ struct ast * add_new_node_to_afs_node(struct ast **afs_node,
 	} else {
 		struct ast *seq = new_ast(AFS_SEQ, (*afs_node), new_node);
 		afs_node = &seq;
-
 		return seq;
 	}
 }
@@ -331,7 +330,7 @@ struct ast *afs_add_flow_do_while(struct ast **afs_node, struct flow *fl)
 		st = new_ast(AFS_SKIP, NULL, NULL);
 	}
 	if (b && b->nodetype == AFS_FF) {
-		return st;		
+		return add_new_node_to_afs_node(afs_node, st);		
 	}
 	
 	struct ast *loop = malloc(sizeof(struct ast));
@@ -846,7 +845,6 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 	    strcmp(func_name, "_spin_lock_irq") == 0 ||
 	    strcmp(func_name, "_spin_lock_bh") == 0) {
 		rw->nodetype = AFS_WRITE;
-		printf("\n!!LOCK!\n");
 		rw->r = new_id("1");
 	} else if (strcmp(func_name, "_spin_unlock") == 0 ||
 		   strcmp(func_name, "_spin_unlock_irqrestore") == 0 ||
@@ -882,10 +880,9 @@ struct ast * afs_add_spinlock(struct ast **afs_node,
 		node->a = gc;
 		alt->alt_list = node;
 		struct ast *loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
-		
+		print_tree(loop);
 		return add_new_node_to_afs_node(afs_node, loop);
 	}
-	
 	return add_new_node_to_afs_node(afs_node, rw);
 }
 
@@ -1064,10 +1061,10 @@ int afs_simplify_struct()
 		int retval = 0;
 	while (t) {
 
-		/* do { */
-		/* 	retval = afs_simplify_node(t->a->r); */
-		/* } while (retval); */
-
+		do {
+			retval = afs_simplify_node(t->a->r);
+		} while (retval);
+		
 		t = t->next;
 	}
 	return 0;
