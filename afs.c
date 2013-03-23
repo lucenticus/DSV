@@ -57,6 +57,8 @@ struct ast *afs_create_b(struct ast *node)
 {
 	char buf[10];
 	struct ast *b;
+	struct term_id * id = (struct term_id *) find_id(node);
+		
 	if (node && node->nodetype == NODE_ID) {
 		struct term_id *id = (struct term_id*) node;
 		if (strcmp(id->name, "0") == 0) {
@@ -67,27 +69,41 @@ struct ast *afs_create_b(struct ast *node)
 			sprintf(buf, "%d", curr_b_idx++);	
 			b = new_ast(AFS_B, new_id(buf), NULL);
 		}	
+	} else if (node &&id &&
+		   (strcmp(id->name, "down_trylock") == 0 ||
+		    strcmp(id->name, "spin_trylock") == 0 ||
+		    strcmp(id->name, "mutex_trylock") == 0 ||
+		    strcmp(id->name, "spin_trylock_bh") == 0 ||
+		    strcmp(id->name, "down_read_trylock") == 0 ||
+		    strcmp(id->name, "down_write_trylock") == 0)) {
+		struct ast *trylock = find_token(node, NODE_POSTFIX_EXPRESSION);
+		struct term_id * var = (struct term_id *) find_id(trylock->r);
+		if (var == NULL)
+			return NULL;
+		b = afs_create_trylock(id, var);
 	} else { 
 		snprintf(buf,10, "%d", curr_b_idx++);	
 		b = new_ast(AFS_B, new_id(buf), NULL);
-	}
-
-	if (node) {
-		struct term_id * id = (struct term_id *) find_id(node);
-		if (id &&
-		    (strcmp(id->name, "down_trylock") == 0 ||
-		     strcmp(id->name, "spin_trylock") == 0 ||
-		     strcmp(id->name, "mutex_trylock") == 0 ||
-		     strcmp(id->name, "spin_trylock_bh") == 0 ||
-		     strcmp(id->name, "down_read_trylock") == 0 ||
-		     strcmp(id->name, "down_write_trylock") == 0)) {
-			printf("TEEST");
-		}
-	}
-	
+	}	
 	return b;
  
 } 
+
+struct ast *afs_create_trylock(struct term_id * func_id, 
+			       struct term_id * var_id) 
+{
+	struct ast *rw = malloc(sizeof(struct ast));
+	if (!rw) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+	rw->l = (struct ast*) var_id;
+	afs_add_chan_to_list(var_id->name, ALL, 1, ALL, 1);
+	rw->nodetype = AFS_WRITE;
+	rw->r = new_id("1");
+	return rw;	
+}
+
 struct ast *afs_add_flow(struct ast **afs_node, struct flow *fl) 
 {
 	switch (fl->flowtype) {
@@ -931,9 +947,10 @@ int afs_struct_to_file()
 			printf("\nerr: can't find afs function name!");
 			return 1;
 		}
-		if (tf->a->r /* &&  */
-		    /* tf->a->r->nodetype != AFS_SKIP &&  */
-		    /* tf->a->r->nodetype != AFS_COM */) {
+		if (tf->a->r &&
+		    tf->a->r->nodetype != AFS_SKIP &&
+		    tf->a->r->nodetype != AFS_COM &&
+		    tf->a->r->nodetype != AFS_EXIT) {
 			fprintf(afs_file, "\tFUN %s :: ", id->name);
 			afs_struct_node_to_file(tf->a->r);
 			fprintf(afs_file, "\n");

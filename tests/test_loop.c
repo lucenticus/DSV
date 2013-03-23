@@ -45,10 +45,10 @@ static ssize_t test_read(struct file *filp,
 			 loff_t *offp)
 {
 	unsigned long flags;
-	while (mutex_lock(&fill)) {
+	while (mutex_trylock(&fill)) {
 		break;	
+		mutex_unlock(&fill);	
 	}
-	mutex_unlock(&fill);
 	return count;
 } 
 
@@ -58,9 +58,7 @@ static ssize_t test_write(struct file *filp,
 			  loff_t *offp)
 {
 	unsigned long flags;
-	while (mutex_lock(&fill)) {
-		break;	
-	}
+	mutex_lock(&fill)
 	mutex_unlock(&fill);
 	return count;
 }
