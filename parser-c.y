@@ -22,7 +22,7 @@
     char *id;
     int	  tok;
 }
-%type <a> declaration declaration_specifiers init_declarator_list init_declarator declarator initializer
+%type <a> declaration declaration_specifiers init_declarator_list init_declarator declarator initializer identifier_list
 %type <a> storage_class_specifier type_specifier type_qualifier struct_or_union_specifier struct_or_union 
 %type <a> function_specifier
 %type <a> enum_specifier enumerator_list enumerator direct_declarator pointer struct_declaration_list type_qualifier_list
@@ -293,11 +293,11 @@ direct_declarator
 	| direct_declarator '[' ']'
 		{ $$ = $1; }
 	| direct_declarator '(' parameter_type_list ')'
-		{ $$ = $1; }
+		{ $$ = new_ast(NODE_FUNC_DECLARATOR, $1, $3); }
 	| direct_declarator '(' identifier_list ')'
-		{ $$ = $1; } 
+		{ $$ = new_ast(NODE_FUNC_DECLARATOR, $1, $3); } 
 	| direct_declarator '(' ')'
-		{ $$ = $1; }
+		{ $$ = new_ast(NODE_FUNC_DECLARATOR, $1, NULL); }
 	;
 
 enum_specifier

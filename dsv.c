@@ -387,6 +387,23 @@ struct func * find_func(struct ast *node,
 		a = find_func(node->r, name);
 	return a;
 }
+
+void find_shared_vars(struct ast *a) 
+{
+	if (a == NULL)
+		return;
+	if (a->nodetype == NODE_FUNC) 
+		return;
+	if (a->nodetype == NODE_DECLARATION) {
+		printf("TEST:\n");
+		print_tree(a->l);
+		printf("TEST2:\n");
+		print_tree(a->r);
+	}
+	find_shared_vars(a->l);
+	find_shared_vars(a->r);
+}
+
 char * find_init_name()
 {
 	struct term_id *init_id;
@@ -807,7 +824,8 @@ void find_semaphores_init(struct ast *a)
 }
 int parse_to_afs () 
 {
-	/*print_tree(root);*/
+	//find_shared_vars(root);
+	print_tree(root);
 	char * init_func_name = find_init_name();
 	if (init_func_name == NULL) {
 		printf("\nerr: can't find name of init function!");

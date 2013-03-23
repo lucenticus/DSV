@@ -12,6 +12,4 @@ parser-c.output
 lex.yy.c
 parser-c.tab.c
 parser-c.tab.h
-cdrom.c.preprocess
-cdrom_out.c
-cdrom.afs
+*~

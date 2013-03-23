@@ -140,6 +140,7 @@ int parse_to_afs();
 int pp_find_fops_name();
 void parse_declaration(struct ast*); 
 void print_tree(struct ast *a);
+void find_shared_vars(struct ast *a);
 struct ast *find_id(struct ast *node);
 struct ast *find_token(struct ast *a, int nodetype);
 struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node);
@@ -195,6 +196,7 @@ enum NODE_TYPE {
 	NODE_ENUMERATOR_LIST,
 	NODE_ATTRIB,
 	NODE_IDENTIFIERS, /*50*/
+	NODE_FUNC_DECLARATOR,
 	_NODE_LAST
 };
 
