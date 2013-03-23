@@ -952,4 +952,5 @@ int pp_find_fops_name()
 		printf("\nerr: Unknown fops struct!");
 	}
 	fclose(orig_file);
+	return 0;
 }

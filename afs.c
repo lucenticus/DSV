@@ -30,7 +30,7 @@
 struct ast *afs_add_com(struct ast **afs_node, struct ast *node)
 {
 	char buf[10];
-	sprintf(buf, "%d", curr_com_idx++);
+	snprintf(buf, 10, "%d", curr_com_idx++);
 	struct ast *com = new_ast(AFS_COM, new_id(buf), NULL);
 	com = add_new_node_to_afs_node(afs_node, com);
 	return com;
@@ -68,7 +68,7 @@ struct ast *afs_create_b(struct ast *node)
 			b = new_ast(AFS_B, new_id(buf), NULL);
 		}	
 	} else { 
-		sprintf(buf, "%d", curr_b_idx++);	
+		snprintf(buf,10, "%d", curr_b_idx++);	
 		b = new_ast(AFS_B, new_id(buf), NULL);
 	}
 
@@ -107,7 +107,8 @@ struct ast *afs_add_flow(struct ast **afs_node, struct flow *fl)
 		return afs_add_flow_switch(afs_node, fl);
 	} break;
 	default: {
-		printf("\nerr:unknown flow type %d in afs_add_flow!");
+		printf("\nerr:unknown flow type %d in afs_add_flow!", 
+		       fl->flowtype);
 		print_tree((struct ast*)fl);
 		printf("\n+++\n");
 		return NULL;
@@ -541,8 +542,8 @@ struct ast * afs_add_rw_semaphore(struct ast **afs_node,
 	int  op_type;
 	char chan_name_write[1000];
 	char chan_name_read[1000];
-	sprintf(chan_name_write, "%s_w", var_name);
-	sprintf(chan_name_read, "%s_r", var_name);
+	snprintf(chan_name_write, 1000, "%s_w", var_name);
+	snprintf(chan_name_read, 1000, "%s_r", var_name);
 		
 	afs_add_chan_to_list(chan_name_write, ALL, 1, ALL, 1);
 	afs_add_chan_to_list(chan_name_read, ALL, 1, ALL, 1);
