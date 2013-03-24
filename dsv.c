@@ -97,7 +97,6 @@ struct symbol* lookup(char *sym)
 
 void addref(char *word, int type)
 {
-	/*printf("%s:%d\n", word, type);*/
 	struct ref *r;
 	struct symbol *sp = lookup(word);
 	if (sp->reflist) 
@@ -387,7 +386,17 @@ struct func * find_func(struct ast *node,
 		a = find_func(node->r, name);
 	return a;
 }
-
+int is_shared_var(char *name) 
+{
+	struct string_list *tmp = shared_var_list;
+	while(tmp) {
+		if (strcmp(tmp->str, name) == 0) {
+			return 1;
+		}
+		tmp = tmp->next;
+	}
+	return 0;
+}
 void find_shared_vars(struct ast *a) 
 {
 	if (a == NULL)
@@ -395,14 +404,22 @@ void find_shared_vars(struct ast *a)
 	if (a->nodetype == NODE_FUNC) 
 		return;
 	if (a->nodetype == NODE_DECLARATION) {
-		//print_tree(a->l);
-		//printf("TEST2:\n");
 		struct ast *tok = find_token(a->r, NODE_FUNC_DECLARATOR);
 		if (!tok) {
-			printf("TEST: ");
 			struct term_id *id = (struct term_id *) find_id(a->r);
-			printf("%s\n", id->name);
-			//print_tree(a->r);
+			struct string_list *node = 
+					malloc(sizeof(struct string_list));
+			if (!node) {
+				fputs("out of space\n",stderr);
+				exit(0);
+			}
+			node->str = id->name;
+			if (shared_var_list) {
+				node->next = shared_var_list;
+			} else {
+				node->next = NULL;
+			}
+			shared_var_list = node;
 		}
 	}
 	find_shared_vars(a->l);
@@ -727,12 +744,19 @@ struct ast *proc_postfix_expr(struct ast *node, struct ast **afs_node)
 }
 struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node) 
 {
+	printf("afs_node = %u\n", afs_node);
+	printf("TEST_BEGIN\n");
+	if (afs_node)
+		print_tree(*afs_node);
+	printf("TEST_END\n");
+	
 	if (node == NULL) {
 		if (afs_node)
 			return *afs_node;	       
 		else 
 			return NULL;
 	}
+	printf("NODE:%d\n", node->nodetype);
 	if (node->nodetype == NODE_FLOW) {
 		struct flow *fl = (struct flow *) node;
 		return afs_add_flow(afs_node, fl);
@@ -744,6 +768,14 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		return afs_add_break(afs_node, node);
 	} else if (node->nodetype == GOTO) {
 		return afs_add_goto(afs_node, node);
+	} else if (node->nodetype == NODE_ID) {
+		struct term_id *id = (struct term_id *) node;
+		if (is_shared_var(id->name)) {
+			return afs_add_shared_var(afs_node,
+						  curr_func_name,
+						  id->name);
+		} else 
+			return (*afs_node);
 	} else if (node->nodetype == NODE_ASSIGNMENT_EXPRESSION) {
 		struct ast *com = afs_add_com(afs_node, node);
 		com = func_body_to_afs_struct(node->l, &com);
@@ -763,6 +795,7 @@ int fops_to_afs()
 	while (p) {
 		printf("\n func name: %s", p->name);
 		struct ast *afs_func = new_ast(AFS_FUNC, new_id(p->name), NULL);
+		curr_func_name = p->name;
 		curr_afs_root = func_body_to_afs_struct(p->func->func_body, 
 							NULL);
 		afs_func->r = curr_afs_root;

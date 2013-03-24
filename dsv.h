@@ -114,10 +114,13 @@ FILE *orig_file;
 struct ast *root;
 struct symbol symtab[NHASH];
 char *fops_name;
+char *curr_func_name;
 struct fops_node *fops_list;
 struct string_list *fops_name_list;
+struct string_list *shared_var_list;
 struct sema_list *sema_list;
 struct spinlock_list *sl_list;
+
 struct symbol *lookup(char*);
 void addref(char*, int);
 
@@ -127,7 +130,6 @@ struct ast *new_id(char *id);
 struct ast *new_word(int word);
 struct ast *new_struct(struct ast *struct_type, char *id, struct ast *spec_list);
 struct ast *new_enum(char *id, struct ast * enum_list);
-
 struct ast *new_string(char *str);
 struct ast *new_flow(int nodetype, struct ast*, struct ast*, struct ast*);
 struct ast *new_for(struct ast*, struct ast*, struct ast*, struct ast*);
@@ -140,7 +142,11 @@ int parse_to_afs();
 int pp_find_fops_name();
 void parse_declaration(struct ast*); 
 void print_tree(struct ast *a);
+
+int is_shared_var(char *name);
+
 void find_shared_vars(struct ast *a);
+
 struct ast *find_id(struct ast *node);
 struct ast *find_token(struct ast *a, int nodetype);
 struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node);

@@ -23,6 +23,7 @@
 */
 
 #include "afs.h"
+#include "dsv.h"
 #include "parser-c.tab.h"
 #include <string.h>
 #include <stdlib.h>
@@ -465,6 +466,19 @@ void get_case_stmts_list(struct ast *node, struct ast_list **list)
 
 }
 
+int afs_add_shared_var_to_list(char *shared_var_name) 
+{
+	struct string_list *node = malloc(sizeof(struct string_list));
+	if (!node) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+	node->str = shared_var_name;
+	node->next = svl;
+	svl = node;
+	return 0;
+} 
+
 int afs_add_chan_to_list(char *chan_name, 
 		     int in_type, int in_num,
 		     int out_type, int out_num) 
@@ -504,6 +518,22 @@ int afs_add_chan_to_list(char *chan_name,
 		acl = nc;
 	}
 	return 0;
+}
+
+struct ast * afs_add_shared_var(struct ast **afs_node, 
+				char *func_name,
+				char *var_name) 
+{
+	struct ast *gs = malloc(sizeof(struct ast));
+	if (!gs) {
+		fputs("out of space\n",stderr);
+		exit(0);
+	}
+	gs->nodetype = AFS_SET;
+	gs->l = new_id(var_name);
+	afs_add_shared_var_to_list(var_name);
+	gs->r = new_id(func_name);	
+	return add_new_node_to_afs_node(afs_node, gs);	
 }
 struct ast * afs_add_wait_complete(struct ast **afs_node, 
 				   char *func_name, 
@@ -933,12 +963,24 @@ int afs_struct_to_file()
 {
 	struct afs_chan_list *tc = acl;
 	struct ast_list *tf = afl;
+	struct string_list *tsv = svl;
+	
 	fprintf(afs_file, "NET\n");
 	while (tc) {
 		fprintf(afs_file, "\t");
 		afs_struct_node_to_file(tc->chan);
 		fprintf(afs_file, "\n");
 		tc = tc->next;
+	}
+	if (tsv)
+		fprintf(afs_file, "SHARED_VAR ");
+	while (tsv) {
+		fprintf(afs_file, "%s", tsv->str);
+		if (tsv->next)
+			fprintf(afs_file, ", ");
+		else
+			fprintf(afs_file, "\n");
+		tsv = tsv->next;
 	}
 	fprintf(afs_file, "BEGIN\n");
 	while (tf) {
@@ -1022,6 +1064,13 @@ int afs_struct_node_to_file(struct ast *node)
 		fprintf(afs_file, " -> ");
 		afs_struct_node_to_file(node->r);
 	} break;
+	case AFS_GET: {
+		fprintf(afs_file, "get(");
+		afs_struct_node_to_file(node->l);
+		fprintf(afs_file, ", ");
+		afs_struct_node_to_file(node->r);
+		fprintf(afs_file, ")");
+	} break;
 	case NODE_ID: {
 		fprintf(afs_file, 
 			"%s", 
@@ -1053,6 +1102,13 @@ int afs_struct_node_to_file(struct ast *node)
 		afs_struct_node_to_file(node->r);
 		fprintf(afs_file, ")");
 	} break;
+	case AFS_SET: {
+		fprintf(afs_file, "set(");
+		afs_struct_node_to_file(node->l);
+		fprintf(afs_file, ", ");
+		afs_struct_node_to_file(node->r);
+		fprintf(afs_file, ")");
+	} break;
 	case AFS_SKIP: {
 		fprintf(afs_file, "skip");		
 	} break;
@@ -1078,9 +1134,9 @@ int afs_simplify_struct()
 		int retval = 0;
 	while (t) {
 
-		do {
+		/*do {
 			retval = afs_simplify_node(t->a->r);
-		} while (retval);
+			} while (retval);*/
 		
 		t = t->next;
 	}
