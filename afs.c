@@ -473,9 +473,15 @@ int afs_add_shared_var_to_list(char *shared_var_name)
 		fputs("out of space\n",stderr);
 		exit(0);
 	}
-	node->str = shared_var_name;
-	node->next = svl;
-	svl = node;
+	struct string_list *tmp = svl;
+	while (tmp && strcmp(tmp->str, shared_var_name) != 0) {
+		tmp = tmp->next;
+	}
+	if (!tmp) {
+		node->str = shared_var_name;
+		node->next = svl;
+		svl = node;
+	}
 	return 0;
 } 
 
@@ -973,7 +979,7 @@ int afs_struct_to_file()
 		tc = tc->next;
 	}
 	if (tsv)
-		fprintf(afs_file, "SHARED_VAR ");
+		fprintf(afs_file, "\tSHARED_VAR ");
 	while (tsv) {
 		fprintf(afs_file, "%s", tsv->str);
 		if (tsv->next)
