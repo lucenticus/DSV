@@ -35,7 +35,7 @@ static int test_open(struct inode *ino, struct file *filp)
 }
 static int test_close(struct inode *ino, struct file *filp)
 {
-	printk("\n%s: close func", MODULE_NAME);
+	int local = shared;
 	return 0;
 }
 
@@ -44,8 +44,8 @@ static ssize_t test_read(struct file *filp,
 			 size_t count, 
 			 loff_t *offp)
 {
-	int local = 0;
-	shared = 2;
+	int local;
+	local = shared;
 	return count;
 } 
 

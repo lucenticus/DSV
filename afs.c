@@ -535,7 +535,11 @@ struct ast * afs_add_shared_var(struct ast **afs_node,
 		fputs("out of space\n",stderr);
 		exit(0);
 	}
-	gs->nodetype = AFS_SET;
+	if (is_rvalue) {
+		gs->nodetype = AFS_GET;
+	} else {
+		gs->nodetype = AFS_SET;
+	}
 	gs->l = new_id(var_name);
 	afs_add_shared_var_to_list(var_name);
 	gs->r = new_id(func_name);	

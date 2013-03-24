@@ -115,6 +115,7 @@ struct ast *root;
 struct symbol symtab[NHASH];
 char *fops_name;
 char *curr_func_name;
+int is_rvalue;
 struct fops_node *fops_list;
 struct string_list *fops_name_list;
 struct string_list *shared_var_list;

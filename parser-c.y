@@ -419,7 +419,7 @@ init_declarator
 	: declarator maybe_attribute
 		{ $$ = new_ast(NODE_INIT_DECLARATOR, $1, NULL); }
 	| declarator maybe_attribute '=' initializer
-		{ $$ = new_ast(NODE_INIT_DECLARATOR, $1, $4); }
+		{ $$ = new_ast(NODE_ASSIGNMENT_EXPRESSION, $1, $4); }
 	;
 
 iteration_statement

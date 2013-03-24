@@ -778,8 +778,11 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 			return (*afs_node);
 	} else if (node->nodetype == NODE_ASSIGNMENT_EXPRESSION) {
 		struct ast *com = afs_add_com(afs_node, node);
+		is_rvalue = 0;
 		com = func_body_to_afs_struct(node->l, &com);
+		is_rvalue = 1;
 		com = func_body_to_afs_struct(node->r, &com);
+		is_rvalue = 0;
 		return com;
 	} else {
 		struct ast *tmp;

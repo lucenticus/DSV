@@ -59,7 +59,6 @@ struct afs_chan_list {
 	struct afs_chan *chan;
 	struct afs_chan_list *next;
 };
-
 int curr_com_idx;
 int curr_b_idx;
 struct ast_list *afl;
