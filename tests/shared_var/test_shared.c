@@ -30,12 +30,10 @@ struct file_operations test_fops = {
 
 static int test_open(struct inode *ino, struct file *filp) 
 {
-	printk("\n test open func");
 	return 0;
 }
 static int test_close(struct inode *ino, struct file *filp)
 {
-	int local = shared;
 	return 0;
 }
 

@@ -1144,9 +1144,9 @@ int afs_simplify_struct()
 		int retval = 0;
 	while (t) {
 
-		/*do {
+		do {
 			retval = afs_simplify_node(t->a->r);
-			} while (retval);*/
+		} while (retval);
 		
 		t = t->next;
 	}
