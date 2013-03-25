@@ -13,7 +13,8 @@ static int Major;
 static int Minor;
 static struct cdev cdev;
 
-struct mutex mtx;
+struct mutex mtx1;
+struct mutex mtx2;
 
 static int test_open(struct inode *, struct file *);
 static int test_close(struct inode *, struct file *);
@@ -44,9 +45,11 @@ static ssize_t test_read(struct file *filp,
 			 size_t count, 
 			 loff_t *offp)
 {
-	mutex_lock(&mtx);
+	mutex_lock(&mtx2);	
+	mutex_lock(&mtx1);
 	printf("read");
-	mutex_unlock(&mtx);
+	mutex_unlock(&mtx1);
+	mutex_unlock(&mtx2);
 	return count;
 } 
 
@@ -55,9 +58,11 @@ static ssize_t test_write(struct file *filp,
 			  size_t count, 
 			  loff_t *offp)
 {
-	mutex_lock(&mtx);
+	mutex_lock(&mtx1);
+	mutex_lock(&mtx2);
 	printf("write");
-	mutex_unlock(&mtx);
+	mutex_unlock(&mtx2);
+	mutex_unlock(&mtx1);	
 	return count;
 }
 
@@ -87,7 +92,8 @@ static int test_init(void)
 		printk("\n%s: error %d in adding", MODULE_NAME, err);
 		return err;
 	}
-	mutex_init(&mtx);
+	mutex_init(&mtx1);
+	mutex_init(&mtx2);
 	return 0;
 }
 
