@@ -774,8 +774,9 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 			return afs_add_shared_var(afs_node,
 						  curr_func_name,
 						  id->name);
-		} else 
+		} else if (afs_node)
 			return (*afs_node);
+		else return NULL;
 	} else if (node->nodetype == NODE_ASSIGNMENT_EXPRESSION) {
 		struct ast *com = afs_add_com(afs_node, node);
 		is_rvalue = 0;
