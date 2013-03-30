@@ -770,7 +770,9 @@ struct ast *func_body_to_afs_struct(struct ast *node, struct ast **afs_node)
 		return afs_add_break(afs_node, node);
 	} else if (node->nodetype == GOTO) {
 		return afs_add_goto(afs_node, node);
-	} else if (node->nodetype == NODE_ID) {
+	} else if (node->nodetype == CONTINUE) {
+		return afs_add_continue(afs_node, node);
+	}else if (node->nodetype == NODE_ID) {
 		struct term_id *id = (struct term_id *) node;
 		if (is_shared_var(id->name)) {
 			return afs_add_shared_var(afs_node,
@@ -820,7 +822,7 @@ int fops_to_afs()
 		afl = n;
 		p = p->next;
 	}
-	afs_simplify_struct();
+	//afs_simplify_struct();
 	afs_struct_to_file();
 	return 0;
 }

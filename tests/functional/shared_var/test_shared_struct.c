@@ -13,6 +13,13 @@ static int Major;
 static int Minor;
 static struct cdev cdev;
 
+struct test_struct {
+	char *name;
+	int count;
+};
+
+struct shared_struct shared;
+
 static int test_open(struct inode *, struct file *);
 static int test_close(struct inode *, struct file *);
 static ssize_t test_read(struct file *, char __user *, size_t, loff_t *); 
@@ -28,21 +35,10 @@ struct file_operations test_fops = {
 
 static int test_open(struct inode *ino, struct file *filp) 
 {
-	int i = 0;
-	for (i = 0; i < 10; i++) {
-		printf("%d", i);
-	}
 	return 0;
 }
 static int test_close(struct inode *ino, struct file *filp)
 {
-	int i = 0;
-	while (1) {
-		if (i < 10)
-			i++;
-		else
-			break;			
-	}
 	return 0;
 }
 
@@ -51,10 +47,8 @@ static ssize_t test_read(struct file *filp,
 			 size_t count, 
 			 loff_t *offp)
 {
-	int i = 0;
-	while (i < 10) {
-		i++;
-	}
+
+	struct test_struct local = shared;
 	return count;
 } 
 
@@ -63,11 +57,8 @@ static ssize_t test_write(struct file *filp,
 			  size_t count, 
 			  loff_t *offp)
 {
-	int i = 0;
-	do {
-		i++;
-	} while (i < 10);
-	unsigned long flags;
+	struct test_struct local = {"test", 10}; 
+	shared = local;
 	return count;
 }
 
@@ -97,6 +88,8 @@ static int test_init(void)
 		printk("\n%s: error %d in adding", MODULE_NAME, err);
 		return err;
 	}
+	mutex_init(&empty);
+	mutex_init(&fill);
 	return 0;
 }
 

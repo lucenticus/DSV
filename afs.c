@@ -48,11 +48,20 @@ struct ast * afs_add_break(struct ast **afs_node, struct ast *node)
 	brk = add_new_node_to_afs_node(afs_node, brk);
 	return brk;
 }
+
+// TODO: to implement goto translation
 struct ast * afs_add_goto(struct ast **afs_node, struct ast *node) 
 {
 	struct ast *gt = new_ast(AFS_SKIP, NULL, NULL); // TODO
 	gt = add_new_node_to_afs_node(afs_node, gt);
 	return gt;
+}
+// TODO: to implement continue translation
+struct ast * afs_add_continue(struct ast **afs_node, struct ast *node) 
+{
+	struct ast *cont = new_ast(AFS_SKIP, NULL, NULL); // TODO
+	cont = add_new_node_to_afs_node(afs_node, cont);
+	return cont;
 }
 struct ast *afs_create_b(struct ast *node) 
 {
@@ -607,34 +616,36 @@ struct ast * afs_add_rw_semaphore(struct ast **afs_node,
 
 	if (strcmp(func_name, "down_read") == 0) {
 		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
-		add_new_node_to_afs_node(afs_node, rw);
+		struct ast *tmp = NULL; 
+		tmp = add_new_node_to_afs_node(&tmp, rw);
 
 		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
-		add_new_node_to_afs_node(afs_node, rw);
+		tmp = add_new_node_to_afs_node(&tmp, rw);
 
 		rw = create_rw_operation(AFS_READ, chan_name_write, "1");
-		add_new_node_to_afs_node(afs_node, rw);
-
+		tmp = add_new_node_to_afs_node(&tmp, rw);
+		return add_new_node_to_afs_node(afs_node, tmp);
 	} else if (strcmp(func_name, "down_write") == 0 ) {
 		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
-		add_new_node_to_afs_node(afs_node, rw);
+		struct ast *tmp = NULL; 
+		tmp = add_new_node_to_afs_node(&tmp, rw);
 
 		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
-		add_new_node_to_afs_node(afs_node, rw);
+		tmp = add_new_node_to_afs_node(&tmp, rw);
 
 		rw = create_rw_operation(AFS_READ, chan_name_read, "1");
-		add_new_node_to_afs_node(afs_node, rw);
-
+		tmp = add_new_node_to_afs_node(&tmp, rw);
+		
+		return add_new_node_to_afs_node(afs_node, tmp);		
 	} else if (strcmp(func_name, "up_read") == 0) {
 		rw = create_rw_operation(AFS_READ, chan_name_read, "1");
-		add_new_node_to_afs_node(afs_node, rw);
+		return add_new_node_to_afs_node(afs_node, rw);
 		
 	} else if (strcmp(func_name, "up_write") == 0) {
 		rw = create_rw_operation(AFS_READ, chan_name_write, "1");
-		add_new_node_to_afs_node(afs_node, rw);
-	}
-	
-	return (*afs_node);
+		return add_new_node_to_afs_node(afs_node, rw);
+	} else if (afs_node)
+		return (*afs_node);
 }
 
 struct ast * afs_add_semaphore(struct ast **afs_node, 
@@ -652,8 +663,7 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 		printf("\nerr: can't find semaphore count!");
 		return NULL;
 	}
-	
-	
+		
 	int  op_type;
 	if (strcmp(func_name, "down") == 0 ||
 	    strcmp(func_name, "down_interruptible") == 0 ||

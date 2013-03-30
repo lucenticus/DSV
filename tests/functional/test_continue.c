@@ -30,6 +30,8 @@ static int test_open(struct inode *ino, struct file *filp)
 {
 	int i = 0;
 	for (i = 0; i < 10; i++) {
+		if (i < 5)
+			continue;
 		printf("%d", i);
 	}
 	return 0;
@@ -38,10 +40,8 @@ static int test_close(struct inode *ino, struct file *filp)
 {
 	int i = 0;
 	while (1) {
-		if (i < 10)
-			i++;
-		else
-			break;			
+		i++;
+		continue;					
 	}
 	return 0;
 }
@@ -53,6 +53,12 @@ static ssize_t test_read(struct file *filp,
 {
 	int i = 0;
 	while (i < 10) {
+		if (i < 10) {
+			i = i / 2;
+			i++;
+			continue;
+		}
+			
 		i++;
 	}
 	return count;
@@ -63,11 +69,6 @@ static ssize_t test_write(struct file *filp,
 			  size_t count, 
 			  loff_t *offp)
 {
-	int i = 0;
-	do {
-		i++;
-	} while (i < 10);
-	unsigned long flags;
 	return count;
 }
 

@@ -13,6 +13,7 @@ static int Major;
 static int Minor;
 static struct cdev cdev;
 
+
 static int test_open(struct inode *, struct file *);
 static int test_close(struct inode *, struct file *);
 static ssize_t test_read(struct file *, char __user *, size_t, loff_t *); 
@@ -28,21 +29,10 @@ struct file_operations test_fops = {
 
 static int test_open(struct inode *ino, struct file *filp) 
 {
-	int i = 0;
-	for (i = 0; i < 10; i++) {
-		printf("%d", i);
-	}
 	return 0;
 }
 static int test_close(struct inode *ino, struct file *filp)
 {
-	int i = 0;
-	while (1) {
-		if (i < 10)
-			i++;
-		else
-			break;			
-	}
 	return 0;
 }
 
@@ -51,9 +41,17 @@ static ssize_t test_read(struct file *filp,
 			 size_t count, 
 			 loff_t *offp)
 {
-	int i = 0;
-	while (i < 10) {
-		i++;
+	unsigned long flags;
+	
+	switch(count) {
+	case 1:
+		flags = 10;
+		break;
+	case 2:
+		flags = 20;
+		break;
+	default:
+		flag = 0;
 	}
 	return count;
 } 
@@ -63,11 +61,6 @@ static ssize_t test_write(struct file *filp,
 			  size_t count, 
 			  loff_t *offp)
 {
-	int i = 0;
-	do {
-		i++;
-	} while (i < 10);
-	unsigned long flags;
 	return count;
 }
 

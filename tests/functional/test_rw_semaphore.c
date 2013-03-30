@@ -4,7 +4,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/types.h>
-#include <linux/spinlock.h>
+#include <linux/rwsem.h>
 
 MODULE_LICENSE("GPL");
 #define MODULE_NAME "test"
@@ -12,6 +12,8 @@ MODULE_LICENSE("GPL");
 static int Major;
 static int Minor;
 static struct cdev cdev;
+
+struct rw_semaphore sem;
 
 static int test_open(struct inode *, struct file *);
 static int test_close(struct inode *, struct file *);
@@ -28,21 +30,12 @@ struct file_operations test_fops = {
 
 static int test_open(struct inode *ino, struct file *filp) 
 {
-	int i = 0;
-	for (i = 0; i < 10; i++) {
-		printf("%d", i);
-	}
+	printk("\n test open func");
 	return 0;
 }
 static int test_close(struct inode *ino, struct file *filp)
 {
-	int i = 0;
-	while (1) {
-		if (i < 10)
-			i++;
-		else
-			break;			
-	}
+	printk("\n%s: close func", MODULE_NAME);
 	return 0;
 }
 
@@ -51,10 +44,10 @@ static ssize_t test_read(struct file *filp,
 			 size_t count, 
 			 loff_t *offp)
 {
-	int i = 0;
-	while (i < 10) {
-		i++;
-	}
+	down_read(&sem);	
+	printf("read");
+	up_read(&sem);
+	
 	return count;
 } 
 
@@ -63,11 +56,10 @@ static ssize_t test_write(struct file *filp,
 			  size_t count, 
 			  loff_t *offp)
 {
-	int i = 0;
-	do {
-		i++;
-	} while (i < 10);
-	unsigned long flags;
+	down_write(&sem);	
+	printf("write");
+	up_write(&sem);
+	
 	return count;
 }
 
@@ -97,6 +89,9 @@ static int test_init(void)
 		printk("\n%s: error %d in adding", MODULE_NAME, err);
 		return err;
 	}
+
+	init_rwsem(sem);
+	
 	return 0;
 }
 

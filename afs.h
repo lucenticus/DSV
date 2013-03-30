@@ -73,6 +73,7 @@ struct ast * afs_create_b(struct ast *node);
 struct ast *afs_create_trylock(struct term_id *func_id, 
 			       struct term_id *var_id);
 struct ast * afs_add_goto(struct ast **afs_node, struct ast *node);
+struct ast * afs_add_continue(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_return(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_break(struct ast **afs_node, struct ast *node);
 struct ast * afs_add_com(struct ast **afs_node, struct ast *node);
