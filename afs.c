@@ -763,6 +763,7 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 	    strcmp(func_name, "_read_lock_irqsave") == 0 ||
 	    strcmp(func_name, "_read_lock_irq") == 0 ||
 	    strcmp(func_name, "_read_lock_bh") == 0) {
+		struct ast *tmp = NULL;
 		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
 		alt = malloc(sizeof(struct afs_alt));
 		if (!alt) {
@@ -786,7 +787,7 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 		node->a = gc;
 		alt->alt_list = node;
 		loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
-		add_new_node_to_afs_node(afs_node, loop);
+		tmp = add_new_node_to_afs_node(&tmp, loop);
 
 		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
 		alt = malloc(sizeof(struct afs_alt));
@@ -811,24 +812,24 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 		node->a = gc;
 		alt->alt_list = node;
 		loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
-		add_new_node_to_afs_node(afs_node, loop);
+		tmp = add_new_node_to_afs_node(&tmp, loop);
 		
 		rw = create_rw_operation(AFS_READ, chan_name_write, "1");
-		add_new_node_to_afs_node(afs_node, rw);
-		
+		tmp = add_new_node_to_afs_node(&tmp, rw);
+		return add_new_node_to_afs_node(afs_node, tmp);
 	} else if (strcmp(func_name, "__read_unlock") == 0 ||
 		   strcmp(func_name, "__read_unlock_irqrestore") == 0 ||
 		   strcmp(func_name, "__read_unlock_irq") == 0 ||
 		   strcmp(func_name, "__read_unlock_bh") == 0) {
 		
 		rw = create_rw_operation(AFS_READ, chan_name_read, "1");
-		add_new_node_to_afs_node(afs_node, rw);
-
+		return add_new_node_to_afs_node(afs_node, rw);
+		
 	} else if (strcmp(func_name, "_write_lock") == 0 ||
 	    strcmp(func_name, "_write_lock_irqsave") == 0 ||
 	    strcmp(func_name, "_write_lock_irq") == 0 ||
 	    strcmp(func_name, "_write_lock_bh") == 0) {
-		
+		struct ast *tmp = NULL;
 		rw = create_rw_operation(AFS_WRITE, chan_name_read, "1");
 		alt = malloc(sizeof(struct afs_alt));
 		if (!alt) {
@@ -852,7 +853,7 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 		node->a = gc;
 		alt->alt_list = node;
 		loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
-		add_new_node_to_afs_node(afs_node, loop);
+		tmp = add_new_node_to_afs_node(&tmp, loop);
 
 		rw = create_rw_operation(AFS_WRITE, chan_name_write, "1");
 		alt = malloc(sizeof(struct afs_alt));
@@ -877,21 +878,20 @@ struct ast * afs_add_rw_spinlock(struct ast **afs_node,
 		node->a = gc;
 		alt->alt_list = node;
 		loop = new_ast(AFS_LOOP, (struct ast*)alt, NULL);
-		add_new_node_to_afs_node(afs_node, loop);
+		tmp = add_new_node_to_afs_node(&tmp, loop);
 		
 		rw = create_rw_operation(AFS_READ, chan_name_read, "1");
-		add_new_node_to_afs_node(afs_node, rw);
-		
+		tmp = add_new_node_to_afs_node(&tmp, rw);
+		return add_new_node_to_afs_node(afs_node, tmp);
 	} else if (strcmp(func_name, "__write_unlock") == 0 ||
 		   strcmp(func_name, "__write_unlock_irqrestore") == 0 ||
 		   strcmp(func_name, "__write_unlock_irq") == 0 ||
 		   strcmp(func_name, "__write_unlock_bh") == 0) {
 
 		rw = create_rw_operation(AFS_READ, chan_name_write, "1");
-		add_new_node_to_afs_node(afs_node, rw);
-	}
-
-	return (*afs_node);
+		return add_new_node_to_afs_node(afs_node, rw);
+	} else if (afs_node)
+		return (*afs_node);
 }
 
 struct ast * afs_add_spinlock(struct ast **afs_node, 
