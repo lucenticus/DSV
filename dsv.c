@@ -822,7 +822,7 @@ int fops_to_afs()
 		afl = n;
 		p = p->next;
 	}
-	//afs_simplify_struct();
+	afs_simplify_struct();
 	afs_struct_to_file();
 	return 0;
 }
