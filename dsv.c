@@ -404,11 +404,13 @@ void find_shared_vars(struct ast *a)
 	if (a->nodetype == NODE_FUNC) 
 		return;
 	if (a->nodetype == NODE_DECLARATION) {
-		struct ast *tok = find_token(a->r, NODE_FUNC_DECLARATOR);
-		if (!tok) {
+		struct ast *tok1 = find_token(a->r, NODE_FUNC_DECLARATOR);
+		struct ast *tok2 = find_token(a->l, TYPEDEF);
+			
+		if (!tok1 && !tok2) {
 			struct term_id *id = (struct term_id *) find_id(a->r);
 			struct string_list *node = 
-					malloc(sizeof(struct string_list));
+				malloc(sizeof(struct string_list));
 			if (!node) {
 				fputs("out of space\n",stderr);
 				exit(0);

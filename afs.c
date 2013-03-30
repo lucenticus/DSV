@@ -1179,6 +1179,8 @@ int afs_simplify_node(struct ast *node)
 		    node->r->nodetype == AFS_LOOP ||
 		    node->r->nodetype == AFS_WRITE ||
 		    node->r->nodetype == AFS_READ ||
+		    node->r->nodetype == AFS_GET ||
+		    node->r->nodetype == AFS_SET ||
 		    node->r->nodetype == AFS_BREAK
 		    )) {
 		node->nodetype = node->r->nodetype;
@@ -1192,7 +1194,10 @@ int afs_simplify_node(struct ast *node)
 		   node->l &&
 		   (node->l->nodetype == AFS_LOOP ||
 		    node->l->nodetype == AFS_WRITE ||
-		    node->l->nodetype == AFS_READ
+		    node->l->nodetype == AFS_READ ||
+		    node->l->nodetype == AFS_SET ||
+		    node->l->nodetype == AFS_GET
+		    
 		    )) {
 		node->nodetype = node->l->nodetype;
 		node->r = node->l->r;
