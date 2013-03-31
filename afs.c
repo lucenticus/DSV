@@ -79,11 +79,11 @@ struct ast *afs_create_b(struct ast *node)
 			sprintf(buf, "%d", curr_b_idx++);	
 			b = new_ast(AFS_B, new_id(buf), NULL);
 		}	
-	} else if (node &&id &&
+	} else if (node && id &&
 		   (strcmp(id->name, "down_trylock") == 0 ||
-		    strcmp(id->name, "spin_trylock") == 0 ||
+		    strcmp(id->name, "_spin_trylock") == 0 ||
 		    strcmp(id->name, "mutex_trylock") == 0 ||
-		    strcmp(id->name, "spin_trylock_bh") == 0 ||
+		    strcmp(id->name, "_spin_trylock_bh") == 0 ||
 		    strcmp(id->name, "down_read_trylock") == 0 ||
 		    strcmp(id->name, "down_write_trylock") == 0)) {
 		struct ast *trylock = find_token(node, NODE_POSTFIX_EXPRESSION);
