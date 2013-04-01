@@ -721,6 +721,7 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 		}
 		return add_new_node_to_afs_node(afs_node, (struct ast*) alt);
 	} else {
+		struct ast *tmp = NULL;
 		struct ast *rw;
 		while (i <= sema_count) {
 			rw = malloc(sizeof(struct ast));
@@ -734,10 +735,10 @@ struct ast * afs_add_semaphore(struct ast **afs_node,
 			rw->l = new_id(chan_name);
 			rw->nodetype = AFS_READ;
 			rw->r = new_id("1");
-			add_new_node_to_afs_node(afs_node, rw);
+			tmp = add_new_node_to_afs_node(&tmp, rw);
 			i++;
 		}
-		return (*afs_node);
+		return add_new_node_to_afs_node(afs_node, tmp);
 	}
 }
 

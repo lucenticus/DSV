@@ -45,10 +45,10 @@ static ssize_t test_read(struct file *filp,
 			 size_t count, 
 			 loff_t *offp)
 {
-	down(&sem1);	
-	printf("read");
-	up(&sem1);
-	
+	if (down_trylock(&sem1)) {	
+		printf("read");
+		up(&sem1);
+	}
 	return count;
 } 
 
@@ -57,10 +57,10 @@ static ssize_t test_write(struct file *filp,
 			  size_t count, 
 			  loff_t *offp)
 {
-	down(&sem2);	
-	printf("read");
-	up(&sem2);
-	
+	if (down_trylock(&sem2)) {	
+		printf("read");
+		up(&sem2);
+	}	
 	return count;
 }
 
@@ -91,7 +91,7 @@ static int test_init(void)
 		return err;
 	}
 
-	sema_init(&sem1, 5);
+	sema_init(&sem1, 3);
 	sema_init(&sem2, 1);
 	
 	return 0;

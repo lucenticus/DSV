@@ -4,7 +4,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/types.h>
-#include <linux/semaphore.h>
+#include <linux/mutex.h>
 
 MODULE_LICENSE("GPL");
 #define MODULE_NAME "test"
@@ -13,8 +13,7 @@ static int Major;
 static int Minor;
 static struct cdev cdev;
 
-struct semaphore sem1;
-struct semaphore sem2;
+struct mutex mtx;
 
 static int test_open(struct inode *, struct file *);
 static int test_close(struct inode *, struct file *);
@@ -45,10 +44,10 @@ static ssize_t test_read(struct file *filp,
 			 size_t count, 
 			 loff_t *offp)
 {
-	down(&sem1);	
-	printf("read");
-	up(&sem1);
-	
+	if (mutex_trylock(&mtx)) {
+	      	printf("read");
+	       	mutex_unlock(&mtx);
+	}
 	return count;
 } 
 
@@ -57,10 +56,10 @@ static ssize_t test_write(struct file *filp,
 			  size_t count, 
 			  loff_t *offp)
 {
-	down(&sem2);	
-	printf("read");
-	up(&sem2);
-	
+	if (mutex_trylock(&mtx)) {
+	    printf("write");
+	    mutex_unlock(&mtx);
+	}
 	return count;
 }
 
@@ -90,10 +89,7 @@ static int test_init(void)
 		printk("\n%s: error %d in adding", MODULE_NAME, err);
 		return err;
 	}
-
-	sema_init(&sem1, 5);
-	sema_init(&sem2, 1);
-	
+	mutex_init(&mtx);
 	return 0;
 }
 
