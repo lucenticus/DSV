@@ -81,6 +81,7 @@ struct ast *afs_create_b(struct ast *node)
 		}	
 	} else if (node && id &&
 		   (strcmp(id->name, "down_trylock") == 0 ||
+		    strcmp(id->name, "write_trylock") == 0 ||		    
 		    strcmp(id->name, "_spin_trylock") == 0 ||
 		    strcmp(id->name, "mutex_trylock") == 0 ||
 		    strcmp(id->name, "_spin_trylock_bh") == 0 ||
@@ -98,7 +99,7 @@ struct ast *afs_create_b(struct ast *node)
 	return b;
  
 } 
-
+// TO DO: Change down_trylock processing
 struct ast *afs_create_trylock(struct term_id * func_id, 
 			       struct term_id * var_id) 
 {
@@ -107,8 +108,17 @@ struct ast *afs_create_trylock(struct term_id * func_id,
 		fputs("out of space\n",stderr);
 		exit(0);
 	}
-	rw->l = (struct ast*) var_id;
-	afs_add_chan_to_list(var_id->name, ALL, 1, ALL, 1);
+	char name[256];
+	if (strcmp(func_id->name, "write_trylock") == 0 ||
+	    strcmp(func_id->name, "down_write_trylock") == 0)		    
+		snprintf(name, 256, "%s_w", var_id->name);
+	else if (strcmp(func_id->name, "down_read_trylock") == 0)		    
+		snprintf(name, 256, "%s_r", var_id->name);
+	else 
+		snprintf(name, 256, "%s", var_id->name);
+	
+	rw->l = new_id(name);;
+	afs_add_chan_to_list(name, ALL, 1, ALL, 1);
 	rw->nodetype = AFS_WRITE;
 	rw->r = new_id("1");
 	return rw;	
