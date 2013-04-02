@@ -92,6 +92,22 @@ struct ast *afs_create_b(struct ast *node)
 		if (var == NULL)
 			return NULL;
 		b = afs_create_trylock(id, var);
+	} else if ( node && id && 
+		    (strcmp(id->name, "mutex_lock_interruptible") == 0 ||
+		     strcmp(id->name, "down_interruptible") == 0)) {
+		b = malloc(sizeof(struct ast));
+		if (!b) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+		struct ast *func = find_token(node, NODE_POSTFIX_EXPRESSION);
+		struct term_id * var = (struct term_id *) find_id(func->r);
+		if (var == NULL)
+			return NULL;
+		b->l = new_id(var->name);
+		afs_add_chan_to_list(var->name, ALL, 1, ALL, 1);
+		b->nodetype = AFS_WRITE;
+		b->r = new_id("1");
 	} else { 
 		snprintf(buf,10, "%d", curr_b_idx++);	
 		b = new_ast(AFS_B, new_id(buf), NULL);
@@ -187,18 +203,55 @@ struct ast * afs_add_flow_if(struct ast **afs_node, struct flow *fl)
 	if (!st) {
 		st = new_ast(AFS_SKIP, NULL, NULL);
 	}
-	struct ast *gc = new_ast(AFS_GC, 
-				 afs_create_b(fl->expr),
-				 st);
-	struct ast_list *node = malloc(sizeof(struct ast_list));
-	if (!node) {
-		fputs("out of space\n",stderr);
-		exit(0);
-	}
 
-	node->next = NULL;
-	node->a = gc; 
-	alt->alt_list = node;
+	struct ast *gc;
+	struct ast_list *node;
+	struct term_id *id = (struct term_id *) find_id(fl->expr);
+	if (id && 
+	    (strcmp(id->name, "mutex_lock_interruptible") == 0 ||
+	     strcmp(id->name, "down_interruptible") == 0)) {
+		gc = new_ast(AFS_GC, 
+			     afs_create_b(fl->expr),
+			     new_ast(AFS_SKIP, NULL, NULL));
+		
+		node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
+		node->next = NULL;
+		node->a = gc; 
+		alt->alt_list = node;
+		
+		gc = new_ast(AFS_GC, 
+			     new_ast(AFS_TT, NULL, NULL),
+			     st);
+		
+		node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+		node->next = NULL;
+		node->a = gc; 
+		alt->alt_list->next = node;
+		
+	} else {
+		gc = new_ast(AFS_GC, 
+			     afs_create_b(fl->expr),
+			     st);
+		
+		struct ast_list *node = malloc(sizeof(struct ast_list));
+		if (!node) {
+			fputs("out of space\n",stderr);
+			exit(0);
+		}
+
+		node->next = NULL;
+		node->a = gc; 
+		alt->alt_list = node;
+	}
 	if (fl->stmt2 && 
 	    fl->stmt2->nodetype == NODE_FLOW &&
 	    ((struct flow*)fl->stmt2)->flowtype == IF) {
