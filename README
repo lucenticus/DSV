@@ -2,7 +2,7 @@ Drivers Synchronization Verifier
 ---------------------------------
 DSV - static analysis tool for checking drivers synchronization primitives.
 It translates driver source code to Asynchronous Functional Schemes language (AFS).
-This language was developed Moscow Power Engineering Intitute and was inpired by
+This language was developed in Moscow Power Engineering Intitute and was inpired by
 CSP language [1].
 
 PREPARATION
@@ -11,24 +11,28 @@ PREPARATION
 
 $ sudo apt-get install git flex bison linux-sources linux-headers
 
-2. Clone DSV and AFS2REQS repositories in the same directory:
+2. Extract linux-sources:
+
+$ cd /usr/src/
+$ sudo tar xjvf linux-source-'version' 
+
+3. Create symlinks for linux sources and headers:
+
+$ ln -s /usr/src/linux-source-`uname -r` /usr/src/linux
+$ ln -s /usr/src/linux-headers-`uname -r` /usr/src/linux-headers
+
+4. Clone DSV and AFS2REQS repositories in the same directory:
 
 $ mkdir <WORK_DIR>
 $ cd <WORK_DIR>
 $ git clone https://github.com/lucenticus/DSV.git
 $ git clone https://github.com/lucenticus/AFS2REQS.git
 
-
 --- <WORK_DIR>
 	|
 	------ DSV
 	|
 	------ AFS2REQS
-
-3. Create symlinks for linux sources and headers:
-
-$ ln -s /usr/src/linux-source-`uname -r` /usr/src/linux
-$ ln -s /usr/src/linux-headers-`uname -r` /usr/src/linux-headers
 
 
 USAGE
