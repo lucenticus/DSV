@@ -1,0 +1,68 @@
+Drivers Synchronization Verifier
+---------------------------------
+DSV - static analysis tool for checking drivers synchronization primitives.
+It translates driver source code to Asynchronous Functional Schemes language (AFS).
+This language was developed Moscow Power Engineering Intitute and was inpired by
+CSP language [1].
+
+PREPARATION
+------------
+1. Download and install git, flex, bison, kernel sources and headers:
+
+$ sudo apt-get install git flex bison linux-sources linux-headers
+
+2. Clone DSV and AFS2REQS repositories in the same directory:
+
+$ mkdir <WORK_DIR>
+$ cd <WORK_DIR>
+$ git clone https://github.com/lucenticus/DSV.git
+$ git clone https://github.com/lucenticus/AFS2REQS.git
+
+
+--- <WORK_DIR>
+	|
+	------ DSV
+	|
+	------ AFS2REQS
+
+3. Create symlinks for linux sources and headers:
+
+$ ln -s /usr/src/linux-source-`uname -r` /usr/src/linux
+$ ln -s /usr/src/linux-headers-`uname -r` /usr/src/linux-headers
+
+
+USAGE
+-----
+The main script for running analysis is 'run_analysis.sh'
+
+$ <dsv_dir>/run_analysis.sh <input_dir> <output_dir> <dsv_dir>
+
+TODO: Remove <dsv_dir> from parameter list 
+
+The results of analysis located in <output_dir>. 
+If analysis finished successfully, then for each analyzed file must exists files
+with following extensions:
+ '.afs' - driver's model on AFS language 
+ '.sem' - the system of recursive equations and results of analyzer 
+
+1. Running tests:
+
+$ cd <DSV_DIR>
+$ ./run_analysis.sh tests test_out ./
+
+The results of the tests will be located in test_out directory
+
+2. Running drivers analysis:
+
+$ cd <DSV_DIR>
+$ ./run_analysis.sh <path_to_drivers> <out_dir> ./
+
+
+AUTHOR
+------
+Evgeny Pavlov <lucenticus@gmail.com>
+
+LINKS
+-----
+
+[1] http://www.usingcsp.com/cspbook.pdf
