@@ -12,6 +12,10 @@ PARSED_FILES=0
 ANALYZED_FILES=0
 
 PARSE_ERRORS_LOG="parse_err.log"
+
+#PREPROCESS_PARAMS="-D__KERNEL__ -DMODULE -DCONFIG_SMP -DCONFIG_LOCK_KERNEL -DCONFIG_SCSI_OSD_DEBUG -DCONFIG_DEBUG_SPINLOCK_SLEEP -DCONFIG_PREEMPT_VOLUNTARY -I~/linux/include -I/usr/src/linux-headers/include/ -I/usr/src/linux-headers/arch/x86/include/ -I/usr/src/linux-headers-`uname -r`/include/"
+
+PREPROCESS_PARAMS="-D__KERNEL__ -DMODULE -DCONFIG_SMP -DCONFIG_LOCK_KERNEL -DCONFIG_SCSI_OSD_DEBUG -DCONFIG_DEBUG_SPINLOCK_SLEEP -DCONFIG_PREEMPT_VOLUNTARY -I/usr/src/linux/include -I/usr/src/linux-headers/include/ -I/usr/src/linux-headers/arch/x86/include/ -I/usr/src/linux-headers-`uname -r`/include/"
 function ProcessDir
 {
 # Process each argument
@@ -52,7 +56,7 @@ function preprocess_file
     afs_file="$work_dir/$work_file.afs"
     sem_file="$work_dir/$work_file.sem"
 
-    cc -E $orig_file -D__KERNEL__ -DMODULE -DCONFIG_SMP -DCONFIG_LOCK_KERNEL -DCONFIG_SCSI_OSD_DEBUG -DCONFIG_DEBUG_SPINLOCK_SLEEP -DCONFIG_PREEMPT_VOLUNTARY -I/usr/src/linux/include -I/usr/src/linux-headers/include/ -I/usr/src/linux-headers/arch/x86/include/ -I/usr/src/linux-headers-`uname -r`/include/ >$pp_file 2>$errors_file
+    cc -E $orig_file $PREPROCESS_PARAMS > $pp_file 2>$errors_file
     sed -i~ "s/proc_handler *proc_handler/proc_handler *proc_h/g" $pp_file
     
     sed -i~ "s/pte_t ((pte_t) { (pteval_t val) } )/pte_t __dsv_fix_wrong_macros(pte_t val)/g" $pp_file
@@ -76,17 +80,15 @@ function preprocess_file
 	cp $afs_file $DSV_DIR/afs
 	let PARSED_FILES=PARSED_FILES+1
 	
-	#$DSV_DIR/afs2reqs $afs_file $sem_file >> $errors_file 2>&1
+	$DSV_DIR/afs2reqs $afs_file $sem_file --log >> $errors_file 2>&1
 	
 	if [ "$?" -ne "0" ]; then
-	    #$DSV_DIR/afs2reqs $afs_file $sem_file --log>> $errors_file 2>&1
+	    #$DSV_DIR/afs2reqs $afs_file $sem_file --log >> $errors_file 2>&1
 	    echo "Can't analyze file: $afs_file" 
-	else
-	
+	else	
 	    let ANALYZED_FILES=ANALYZED_FILES+1
 	fi
 	cp $sem_file $DSV_DIR/sem
-
     fi 
 }
 
