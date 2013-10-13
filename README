@@ -18,8 +18,14 @@ $ sudo tar xjvf linux-source-'version'
 
 3. Create symlinks for linux sources and headers:
 
-$ ln -s /usr/src/linux-source-`uname -r` /usr/src/linux
-$ ln -s /usr/src/linux-headers-`uname -r` /usr/src/linux-headers
+$ sudo ln -s /usr/src/linux-source-`uname -r` /usr/src/linux
+$ sudo ln -s /usr/src/linux-headers-'linux-ver'-common /usr/src/linux-headers
+
+Also, you need to create symlinks for asm dirs:
+ 
+$ sudo ln -s /usr/src/linux/include/asm-x86 /usr/src/linux/include/asm
+
+$ sudo ln -s /usr/src/linux-headers/include/asm-generic /usr/src/linux-headers/include/asm
 
 4. Clone DSV and AFS2REQS repositories in the same directory:
 
